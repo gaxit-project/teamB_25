@@ -35,6 +35,8 @@ public class Dinosaur_Base : MonoBehaviour
     // 巡回ポイント（巡回用の目的地となる座標）
     [SerializeField] private Transform[] patrolPoints;
 
+    [SerializeField] private Transform modelTransform;
+
     // 現在の巡回ポイントのインデックス
     private int currentPatrolIndex = 0;
 
@@ -72,6 +74,13 @@ public class Dinosaur_Base : MonoBehaviour
     {
         // プレイヤーとの距離を測定
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (agent.velocity.sqrMagnitude > 0.01f)
+        {
+            // 進行方向に向かせた上で、Y軸を180°回転させる
+            Quaternion lookRotation = Quaternion.LookRotation(agent.velocity.normalized);
+            modelTransform.rotation = lookRotation * Quaternion.Euler(0f, 180f, 0f);
+        }
 
         // ステートの切り替え判定
         switch (currentState)
