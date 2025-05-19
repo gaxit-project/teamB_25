@@ -1,1 +1,34 @@
-{}
+{
+    "name": "ManagerIS",
+    "maps": [
+        {
+            "name": "Manager",
+            "id": "3cec9324-0bf6-4afc-adfb-2d8a33acb13b",
+            "actions": [
+                {
+                    "name": "Pouse",
+                    "type": "Button",
+                    "id": "df77260f-d839-4134-9ccc-3390c51b3cd2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "70d718bf-cb86-4bb2-9336-7c40a3cf0faf",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

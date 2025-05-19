@@ -5,7 +5,12 @@ using UnityEngine;
 public class PauseManager : MonoBehaviour
 {
     public Canvas PouseCanvas;
-    public void Pouse()
+
+    public void Update()
+    {
+        
+    }
+    public void Pause()
     {
         Time.timeScale = (Time.timeScale == 0f) ? 1f : 0f;
         if (Time.timeScale == 0f)
@@ -21,5 +26,6 @@ public class PauseManager : MonoBehaviour
     private void PouseNow()
     {
         PouseCanvas.enabled = true;
+
     }
 }
