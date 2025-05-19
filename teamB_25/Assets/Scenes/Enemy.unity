@@ -815,6 +815,18 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.938427
       objectReference: {fileID: 0}
@@ -887,7 +899,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
-  m_Acceleration: 10
+  m_Acceleration: 20
   avoidancePriority: 50
   m_AngularSpeed: 2000
   m_StoppingDistance: 0.5
