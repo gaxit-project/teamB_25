@@ -15,7 +15,7 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = (Time.timeScale == 0f) ? 1f : 0f;
         if (Time.timeScale == 0f)
         {
-            PouseNow();
+            PauseNow();
         }
         else
         {
@@ -23,7 +23,7 @@ public class PauseManager : MonoBehaviour
         }
     }
 
-    private void PouseNow()
+    private void PauseNow()
     {
         PouseCanvas.enabled = true;
 
