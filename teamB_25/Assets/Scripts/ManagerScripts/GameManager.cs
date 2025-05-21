@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     }
 
     //恐竜と接触したらゲームオーバー
-    void OnTriggerEnter(Collider other)
+    void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
