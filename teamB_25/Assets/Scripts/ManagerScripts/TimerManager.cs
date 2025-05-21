@@ -25,19 +25,19 @@ public class TimerManager : MonoBehaviour
         TimerText();
     }
     /// <summary>
-    /// §ŒÀŠÔ‚ÌŒvZ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ÌŒvï¿½Z
     /// </summary>
     private void Timer()
     {
         nowTimer -= Time.deltaTime;
-        //§ŒÀŠÔŒo‰ß
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÔŒoï¿½ï¿½
         if (nowTimer<=0f)
         {
-            //SceneManager.LoadScene("END");
+            SceneManager.LoadScene("GameClear");
         }
     }
     /// <summary>
-    /// c‚èŠÔ•\‹L 
+    /// ï¿½cï¿½èï¿½Ô•\ï¿½L 
     /// </summary>
     private void TimerText()
     {
