@@ -9,11 +9,18 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float runSpeed;
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
-    
+    [SerializeField] private AudioClip walkSound;
+    [SerializeField] private AudioClip runSound;
+    [SerializeField] private PlayerBase player; // PlayerBase スクリプト参照
+
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
     private Vector2 moveInputValue;
     private Vector3 velocity = Vector3.zero;
+    private AudioSource audioSource;
+    private float stepTimer;
+
+
     private bool isFounding = false;
     private bool isRunning = false;
 
@@ -51,11 +58,34 @@ public class PlayerBase : MonoBehaviour
     public void Start()
     {
         Attack();
+        audioSource = GetComponent<AudioSource>();
     }
-  
-    public void Update()
+
+    private void Update()
     {
-        
+        if (player.IsRunning())
+        {
+            if (audioSource.clip != runSound || !audioSource.isPlaying)
+            {
+                audioSource.clip = runSound;
+                audioSource.Play();
+            }
+        }
+        else if (player.IsMoving())
+        {
+            if (audioSource.clip != walkSound || !audioSource.isPlaying)
+            {
+                audioSource.clip = walkSound;
+                audioSource.Play();
+            }
+        }
+        else
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
     }
 
     public virtual void Attack()
@@ -68,8 +98,14 @@ public class PlayerBase : MonoBehaviour
         moveInputValue = context.ReadValue<Vector2>();
     }
 
+    public bool IsMoving()
+    {
+        return moveInputValue.sqrMagnitude > 0.01f;
+    }
+
     public bool IsRunning()
     {
+        Debug.Log($"isRunning={isRunning}, moveInputValue={moveInputValue}");
         return isRunning && moveInputValue.y > 0.5f;
     }    
 
