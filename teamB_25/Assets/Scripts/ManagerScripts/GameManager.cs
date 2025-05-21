@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] SceneChangeManager sceneChangeManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +25,7 @@ public class GameManager : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            SceneManager.LoadScene("GameOver");
+            sceneChangeManager.ChangeScene("GameOver");
         }
     }
 }

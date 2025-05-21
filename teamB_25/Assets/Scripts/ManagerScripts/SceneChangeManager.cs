@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneChangeManager : MonoBehaviour
 {
-    [SerializeField]private string _sceneName; //移動先のScene名
+    //[SerializeField]private string _sceneName; //移動先のScene名
     public static SceneChangeManager Instance;
 
     private void Awake()
@@ -13,7 +13,7 @@ public class SceneChangeManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
+            //DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
         }
         else
         {
@@ -21,7 +21,7 @@ public class SceneChangeManager : MonoBehaviour
         }
     }
 
-    public void ChangeScene() //Sceneを変える
+    public void ChangeScene(string _sceneName) //Sceneを変える
     {
         SceneManager.LoadScene(_sceneName);
     }
