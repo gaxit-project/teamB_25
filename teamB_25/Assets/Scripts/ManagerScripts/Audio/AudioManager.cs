@@ -21,7 +21,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("SE Clips")]
     public List<NamedAudioClip> seClips;
-
+    //é´èë
     private Dictionary<string, AudioClip> bgmDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seDict = new Dictionary<string, AudioClip>();
 
@@ -42,7 +42,9 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    /// <summary>
+    /// ñºëOÇ≈åüçıÇ≈Ç´ÇÈÇÊÇ§Ç…Ç∑ÇÈ
+    /// </summary>
     void LoadClips()
     {
         foreach (var named in bgmClips)
@@ -51,7 +53,9 @@ public class AudioManager : MonoBehaviour
         foreach (var named in seClips)
             seDict[named.name] = named.clip;
     }
-
+    /// <summary>
+    /// ï€ë∂ÇµÇΩâπó Çì«Ç›çûÇ›îΩâfÇ≥ÇπÇÈ
+    /// </summary>
     void LoadVolumeSettings()
     {
         float bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 0.5f);
@@ -60,29 +64,42 @@ public class AudioManager : MonoBehaviour
         SetBGMVolume(bgmVolume);
         SetSEVolume(seVolume);
     }
-
+    /// <summary>
+    /// BGMñ¬ÇÁÇ∑
+    /// </summary>
+    /// <param name="name"></param>
     public void PlayBGM(string name)
     {
         if (bgmDict.TryGetValue(name, out var clip))
         {
+            //êVÇµÇ¢Ç‡ÇÃÇÃèÍçá
             if (bgmSource.clip != clip)
             {
                 bgmSource.clip = clip;
                 bgmSource.loop = true;
+            }
+            //çƒê∂ÇµÇƒÇ¢Ç»Ç©Ç¡ÇΩÇÁ
+            if (!bgmSource.isPlaying)
+            {
                 bgmSource.Play();
             }
         }
         else
         {
-            Debug.LogWarning("BGM not found: " + name);
+            Debug.Log("BGMÇ™Ç»Ç¢");
         }
     }
-
+    /// <summary>
+    /// BGMÇé~ÇﬂÇÈ
+    /// </summary>
     public void StopBGM()
     {
         bgmSource.Stop();
     }
-
+    /// <summary>
+    /// SEÇÇ»ÇÁÇ∑
+    /// </summary>
+    /// <param name="name"></param>
     public void PlaySE(string name)
     {
         if (seDict.TryGetValue(name, out var clip))
@@ -95,10 +112,13 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("SE not found: " + name);
+            Debug.Log("SEÇ™Ç»Ç¢");
         }
     }
-
+    /// <summary>
+    /// âπó ï€ë∂
+    /// </summary>
+    /// <param name="volume"></param>
     public void SetBGMVolume(float volume)
     {
         bgmSource.volume = volume;

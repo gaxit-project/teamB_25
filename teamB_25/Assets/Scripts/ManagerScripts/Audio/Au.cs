@@ -6,17 +6,21 @@ public class Au : MonoBehaviour
 {
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKeyUp(KeyCode.B))
         {
             AudioManager.Instance.PlayBGM("BGM1");
         }
-        if (Input.GetKeyUp(KeyCode.S))
+        if (Input.GetKeyUp(KeyCode.N))
         {
-            AudioManager.Instance.PlaySE("SE1");
+            AudioManager.Instance.PlaySE("ken");
         }
-        if (Input.GetKeyUp(KeyCode.D))
+        if (Input.GetKeyUp(KeyCode.M))
         {
             AudioManager.Instance.PlaySE("SE2");
+        }
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            AudioManager.Instance.StopBGM();
         }
     }
 }
