@@ -40,12 +40,17 @@ public class Dinosaur_Base : MonoBehaviour
     // 現在の巡回ポイントのインデックス
     private int currentPatrolIndex = 0;
 
+    //吠えている時間
+    private float roarTimer = 0f;
+    private float roarDuration = 3f;
+
     // 行動ステートの定義
     public enum State
     {
         Patrol,     // 巡回中
         Chase,      // 追跡中
-        Vigilance   // 警戒中
+        Vigilance,  // 警戒中
+        Roar        // 吠え中
     }
 
     // 現在のステート（初期値は巡回）
@@ -75,6 +80,9 @@ public class Dinosaur_Base : MonoBehaviour
         // プレイヤーとの距離を測定
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
+        // 現在のステートをログに出力
+        Debug.Log("Current State: " + currentState);
+
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
             // 進行方向に向かせた上で、Y軸を180°回転させる
@@ -86,25 +94,29 @@ public class Dinosaur_Base : MonoBehaviour
         switch (currentState)
         {
             case State.Patrol:
-                // プレイヤーが近ければChaseへ、やや近ければVigilanceへ
                 if (distanceToPlayer < chaseDistance)
-                    SwitchState(State.Chase);
+                    SwitchState(State.Roar);
                 else if (distanceToPlayer < vigilanceDistance)
                     SwitchState(State.Vigilance);
+                PatrolState();
                 break;
 
             case State.Vigilance:
-                // より近づけばChaseへ、離れたらPatrolへ戻る
                 if (distanceToPlayer < chaseDistance)
-                    SwitchState(State.Chase);
+                    SwitchState(State.Roar);
                 else if (distanceToPlayer >= vigilanceDistance)
                     SwitchState(State.Patrol);
+                VigilanceState();
+                break;
+
+            case State.Roar:
+                RoarState(); // 吠え処理
                 break;
 
             case State.Chase:
-                // プレイヤーが遠ざかればPatrolに戻る
                 if (distanceToPlayer >= vigilanceDistance)
                     SwitchState(State.Patrol);
+                ChaseState();
                 break;
         }
 
@@ -133,13 +145,19 @@ public class Dinosaur_Base : MonoBehaviour
             agent.speed = patrolSpeed;
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
         }
-        else if (newState == State.Chase)
-        {
-            agent.speed = chaseSpeed;
-        }
         else if (newState == State.Vigilance)
         {
             agent.speed = vigilanceSpeed;
+            agent.SetDestination(playerTransform.position);
+        }
+        else if (newState == State.Roar)
+        {
+            agent.ResetPath(); // 停止
+            roarTimer = 0f;
+        }
+        else if (newState == State.Chase)
+        {
+            agent.speed = chaseSpeed;
         }
 
         // NavMeshAgentは常にONでよい
@@ -172,6 +190,29 @@ public class Dinosaur_Base : MonoBehaviour
     {
         agent.SetDestination(playerTransform.position);
     }
+
+    void RoarState()
+    {
+        roarTimer += Time.deltaTime;
+
+        // 完全に動きを止める
+        agent.velocity = Vector3.zero;
+        agent.isStopped = true;
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("Rouring");
+        }
+
+
+        Debug.Log("吠えている！（Roar State）");
+
+        if (roarTimer >= roarDuration)
+        {
+            agent.isStopped = false; // 再開
+            SwitchState(State.Chase);
+        }
+    }
+
 
     // transformによる恐竜っぽい移動処理（前進＋回転）
     void MoveTowards(Vector3 target, float speed)
