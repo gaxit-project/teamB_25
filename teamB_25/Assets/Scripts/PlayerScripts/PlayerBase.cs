@@ -11,7 +11,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private AudioClip walkSound;
     [SerializeField] private AudioClip runSound;
-    [SerializeField] private PlayerBase player; // PlayerBase ƒXƒNƒŠƒvƒgQÆ
+    [SerializeField] private PlayerBase player; // PlayerBase ï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½gï¿½Qï¿½ï¿½
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -24,7 +24,9 @@ public class PlayerBase : MonoBehaviour
     private bool isFounding = false;
     private bool isRunning = false;
 
-    public int Hp = 0;    
+    public int Hp = 0;
+
+    public static bool countdownActive = false; // StartTimerã‚’å¾…ã¤
 
     private void Awake()
     {
@@ -57,12 +59,15 @@ public class PlayerBase : MonoBehaviour
 
     public void Start()
     {
+        countdownActive = false;
         Attack();
         audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
+        if (countdownActive) return;
+
         if (player.IsRunning())
         {
             if (audioSource.clip != runSound || !audioSource.isPlaying)
@@ -111,12 +116,14 @@ public class PlayerBase : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!countdownActive) return;
+
         float currentSpeed = (isRunning && moveInputValue.y > 0) ? runSpeed : moveSpeed;
 
 
-        if (moveInputValue.sqrMagnitude > 0.01f) // ‚Ù‚Úƒ[ƒ‚Å‚È‚¯‚ê‚Î
+        if (moveInputValue.sqrMagnitude > 0.01f) // ï¿½Ù‚Úƒ[ï¿½ï¿½ï¿½Å‚È‚ï¿½ï¿½ï¿½ï¿½
         {
-            // ƒJƒƒ‰‚Ì•ûŒü‚É‡‚í‚¹‚½ˆÚ“®
+            // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ì•ï¿½ï¿½ï¿½ï¿½Éï¿½ï¿½í‚¹ï¿½ï¿½ï¿½Ú“ï¿½
             Vector3 camForward = mainCamera.transform.forward;
             Vector3 camRight = mainCamera.transform.right;
             camForward.y = 0;
@@ -129,7 +136,7 @@ public class PlayerBase : MonoBehaviour
         }
         else
         {
-            // ’â~‚ÍŠŠ‚ç‚©‚É~‚Ü‚é
+            // ï¿½ï¿½~ï¿½ï¿½ï¿½ÍŠï¿½ï¿½ç‚©ï¿½É~ï¿½Ü‚ï¿½
             Vector3 targetVelocity = new Vector3(0, rigidbody.velocity.y, 0);
             rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
         }

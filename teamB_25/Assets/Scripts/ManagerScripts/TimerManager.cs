@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class TimerManager : MonoBehaviour
 {
+    public static bool countdownActive = false; // StartTimerを待つ
+
     private float startTimer = 180f;
     private float nowTimer;
 
@@ -14,6 +16,7 @@ public class TimerManager : MonoBehaviour
     private void Start()
     {
         SetTimer();
+        timeText.gameObject.SetActive(false);
     }
     private void SetTimer()
     {
@@ -21,6 +24,9 @@ public class TimerManager : MonoBehaviour
     }
     void Update()
     {
+        if (!countdownActive) return;
+
+        timeText.gameObject.SetActive(true);
         Timer();
         TimerText();
     }
