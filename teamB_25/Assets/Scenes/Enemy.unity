@@ -1066,6 +1066,8 @@ MonoBehaviour:
   - {fileID: 1452496035}
   - {fileID: 2052987138}
   modelTransform: {fileID: 538690293}
+  detectionRange: 15
+  detectionAngle: 45
 --- !u!54 &538690289
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1134,11 +1136,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 842628084}
-  chaseDistance: 10
+  chaseDistance: 15
   vigilanceDistance: 25
-  chaseSpeed: 5
-  vigilanceSpeed: 3
-  patrolSpeed: 3
+  chaseSpeed: 6
+  vigilanceSpeed: 2
+  patrolSpeed: 2
   turnSpeed: 2
   patrolPoints:
   - {fileID: 441618134}
@@ -1146,6 +1148,8 @@ MonoBehaviour:
   - {fileID: 188926089}
   - {fileID: 1452496035}
   modelTransform: {fileID: 538690293}
+  detectionRange: 10
+  detectionAngle: 15
 --- !u!82 &538690304 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 3668599869893204308, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
@@ -1219,7 +1223,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8625066615961045270, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_Enabled
@@ -1463,7 +1467,6 @@ GameObject:
   m_Component:
   - component: {fileID: 760215162}
   - component: {fileID: 760215164}
-  - component: {fileID: 760215163}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -1486,28 +1489,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &760215163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 760215161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a7f1f76ebc926d4d85122c0afc55e65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bgmSource: {fileID: 333000118}
-  sePrefab: {fileID: 1883921952}
-  bgmClips: []
-  seClips:
-  - name: Rouring
-    clip: {fileID: 8300000, guid: 8762ff846b4de4448934a09d8bc07f82, type: 3}
-  - name: Sniff
-    clip: {fileID: 8300000, guid: 3e1bb008fb5b3f642bed0b2815660fa8, type: 3}
-  - name: Dash
-    clip: {fileID: 8300000, guid: 6dfa802539290a0439acd2f4db6a3319, type: 3}
 --- !u!114 &760215164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2642,6 +2623,8 @@ MonoBehaviour:
   - {fileID: 1452496035}
   - {fileID: 2052987138}
   modelTransform: {fileID: 1883921949}
+  detectionRange: 10
+  detectionAngle: 10
 --- !u!195 &1883921945
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2684,7 +2667,7 @@ MonoBehaviour:
   playerTransform: {fileID: 842628084}
   chaseDistance: 20
   vigilanceDistance: 25
-  chaseSpeed: 5
+  chaseSpeed: 6
   vigilanceSpeed: 2
   patrolSpeed: 2
   turnSpeed: 2
@@ -2694,11 +2677,8 @@ MonoBehaviour:
   - {fileID: 188926089}
   - {fileID: 1452496035}
   modelTransform: {fileID: 1883921949}
---- !u!82 &1883921952 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 3668599869893204308, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
-  m_PrefabInstance: {fileID: 636079757}
-  m_PrefabAsset: {fileID: 0}
+  detectionRange: 10
+  detectionAngle: 30
 --- !u!1 &2049436277
 GameObject:
   m_ObjectHideFlags: 0
