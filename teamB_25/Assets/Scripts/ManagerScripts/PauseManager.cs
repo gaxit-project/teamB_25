@@ -19,12 +19,14 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
+            AudioManager.Instance.ResumeAudio();
             PauseCanvas.enabled = false;
         }
     }
 
     private void PauseNow()
     {
+        AudioManager.Instance.PauseAudio();
         PauseCanvas.enabled = true;
 
     }

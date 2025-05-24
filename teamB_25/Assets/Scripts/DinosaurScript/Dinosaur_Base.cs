@@ -229,8 +229,9 @@ public class Dinosaur_Base : MonoBehaviour
     {
         // 巡回ポイントが設定されていない場合は処理しない
         if (patrolPoints.Length == 0) return;
+        AudioManager.Instance.DestroySE("Dash");
         AudioManager.Instance.PlaySELoop("Walk", transform);
-
+        
         // 現在の目的地に到達したら、次のポイントに移動
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
@@ -243,6 +244,7 @@ public class Dinosaur_Base : MonoBehaviour
     void ChaseState()
     {
         agent.SetDestination(playerTransform.position);
+        AudioManager.Instance.DestroySE("Walk");
         AudioManager.Instance.PlaySELoop("Dash", transform);
     }
 

@@ -23,6 +23,7 @@ public class SceneChangeManager : MonoBehaviour
 
     public void ChangeScene(string _sceneName) //Sceneを変える
     {
+        AudioManager.Instance.StopAllSELoops();
         SceneManager.LoadScene(_sceneName);
     }
 

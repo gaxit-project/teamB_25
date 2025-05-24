@@ -51,6 +51,20 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    private void Update()
+    {
+
+    }
+
+    public void PauseAudio()
+    {
+        AudioListener.pause = true;
+    }
+
+    public void ResumeAudio()
+    {
+        AudioListener.pause = false;
+    }
     /// <summary>
     /// ñºëOÇ≈åüçıÇ≈Ç´ÇÈÇÊÇ§Ç…Ç∑ÇÈ
     /// </summary>
@@ -83,6 +97,10 @@ public class AudioManager : MonoBehaviour
     /// <param name="name"></param>
     public void PlayBGM(string name)
     {
+        if (Time.deltaTime == 0)
+        {
+            return;
+        }
         if (bgmDict.TryGetValue(name, out var clip))
         {
             //êVÇµÇ¢Ç‡ÇÃÇÃèÍçá
@@ -115,14 +133,19 @@ public class AudioManager : MonoBehaviour
     /// <param name="name"></param>
     public void PlaySE(string name,Vector3 position)
     {
+        if (Time.deltaTime == 0)
+        {
+            return;
+        }
         if (seDict.TryGetValue(name, out var clip))
         {
             AudioSource se = Instantiate(sePrefab, position,Quaternion.identity,transform);
             se.clip = clip;
             se.volume = sePrefab.volume;
             se.minDistance = 1f;
-            se.maxDistance = 30f;
+            se.maxDistance = 60f;
             se.rolloffMode = AudioRolloffMode.Logarithmic;
+            se.spatialBlend = 1f;
             se.Play();
             Destroy(se.gameObject, clip.length);
         }
@@ -137,7 +160,11 @@ public class AudioManager : MonoBehaviour
     /// <param name="name"></param>
     public void PlaySELoop(string name, Transform target)
     {
-        if(seLoopDict.TryGetValue(name, out var clip))
+        if (Time.deltaTime == 0)
+        {
+            return;
+        }
+        if (seLoopDict.TryGetValue(name, out var clip))
         {
             // Ç∑Ç≈Ç…çƒê∂íÜÇ»ÇÁé~ÇﬂÇÈ
             if (activeLoops.ContainsKey(name))
@@ -149,8 +176,9 @@ public class AudioManager : MonoBehaviour
             seLoop.clip = clip;
             seLoop.volume = sePrefab.volume;
             seLoop.minDistance = 1f;
-            seLoop.maxDistance = 30f;
+            seLoop.maxDistance = 60f;
             seLoop.rolloffMode = AudioRolloffMode.Logarithmic;
+            seLoop.spatialBlend = 1f;
             seLoop.loop = true;
             seLoop.Play();
             activeLoops[name] = seLoop;
@@ -168,6 +196,20 @@ public class AudioManager : MonoBehaviour
             Destroy(source);
             activeLoops.Remove(name);
         }
+    }
+
+    public void StopAllSELoops()
+    {
+        foreach (var source in activeLoops.Values)
+        {
+            if (source != null)
+            {
+                source.Stop();
+                Destroy(source);
+                
+            }
+        }
+        activeLoops.Clear();
     }
     /// <summary>
     /// âπó ï€ë∂

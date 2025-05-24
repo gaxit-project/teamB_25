@@ -1508,6 +1508,8 @@ MonoBehaviour:
   seLoopClips:
   - name: Dash
     clip: {fileID: 8300000, guid: 43c4c6ffd99608042a3b477916073c2b, type: 3}
+  - name: Walk
+    clip: {fileID: 8300000, guid: 43c4c6ffd99608042a3b477916073c2b, type: 3}
 --- !u!1 &820941143
 GameObject:
   m_ObjectHideFlags: 0
