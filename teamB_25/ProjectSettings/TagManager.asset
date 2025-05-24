@@ -5,7 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
+<<<<<<< HEAD
   - HidePlace
+=======
+  - Exit
+>>>>>>> develop
   layers:
   - Default
   - TransparentFX
