@@ -120,7 +120,9 @@ public class AudioManager : MonoBehaviour
             AudioSource se = Instantiate(sePrefab, position,Quaternion.identity,transform);
             se.clip = clip;
             se.volume = sePrefab.volume;
-            se.spatialBlend = 1f;
+            se.minDistance = 1f;
+            se.maxDistance = 30f;
+            se.rolloffMode = AudioRolloffMode.Logarithmic;
             se.Play();
             Destroy(se.gameObject, clip.length);
         }
@@ -147,7 +149,9 @@ public class AudioManager : MonoBehaviour
             AudioSource seLoop = target.gameObject.AddComponent<AudioSource>();
             seLoop.clip = clip;
             seLoop.volume = sePrefab.volume;
-            seLoop.spatialBlend = 1f;
+            seLoop.minDistance = 1f;
+            seLoop.maxDistance = 30f;
+            seLoop.rolloffMode = AudioRolloffMode.Logarithmic;
             seLoop.loop = true;
             seLoop.Play();
             activeLoops[name] = seLoop;
