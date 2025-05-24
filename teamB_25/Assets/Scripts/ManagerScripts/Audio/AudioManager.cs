@@ -120,6 +120,7 @@ public class AudioManager : MonoBehaviour
             AudioSource se = Instantiate(sePrefab, position,Quaternion.identity,transform);
             se.clip = clip;
             se.volume = sePrefab.volume;
+            se.spatialBlend = 1f;
             se.Play();
             Destroy(se.gameObject, clip.length);
         }
