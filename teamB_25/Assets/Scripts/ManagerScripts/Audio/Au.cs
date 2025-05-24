@@ -22,5 +22,13 @@ public class Au : MonoBehaviour
         {
             AudioManager.Instance.StopBGM();
         }
+        if(Input.GetKeyUp(KeyCode.R))
+        {
+            AudioManager.Instance.PlaySELoop("SELoop");
+        }
+        if (Input.GetKeyUp(KeyCode.G))
+        {
+            AudioManager.Instance.DestroySE("SELoop");
+        }
     }
 }

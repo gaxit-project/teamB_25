@@ -16,17 +16,23 @@ public class AudioManager : MonoBehaviour
     public AudioSource bgmSource;
     public AudioSource sePrefab;
 
+
     [Header("BGM Clips")]
     public List<NamedAudioClip> bgmClips;
 
     [Header("SE Clips")]
     public List<NamedAudioClip> seClips;
+
+    [Header("SELoop Clips")]
+    public List<NamedAudioClip> seLoopClips;
     //é´èë
     private Dictionary<string, AudioClip> bgmDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seDict = new Dictionary<string, AudioClip>();
+    private Dictionary<string, AudioClip> seLoopDict = new Dictionary<string, AudioClip>();
 
     private const string BGM_VOLUME_KEY = "BGM_VOLUME";
     private const string SE_VOLUME_KEY = "SE_VOLUME";
+    private const string SELoop_VOLUME_KEY = "SELoop_VOLUME";
 
     void Awake()
     {
@@ -52,6 +58,9 @@ public class AudioManager : MonoBehaviour
 
         foreach (var named in seClips)
             seDict[named.name] = named.clip;
+
+        foreach (var named in seLoopClips)
+            seLoopDict[named.name] = named.clip;
     }
     /// <summary>
     /// ï€ë∂ÇµÇΩâπó Çì«Ç›çûÇ›îΩâfÇ≥ÇπÇÈ
@@ -60,6 +69,7 @@ public class AudioManager : MonoBehaviour
     {
         float bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 0.5f);
         float seVolume = PlayerPrefs.GetFloat(SE_VOLUME_KEY, 0.5f);
+
 
         SetBGMVolume(bgmVolume);
         SetSEVolume(seVolume);
@@ -114,6 +124,29 @@ public class AudioManager : MonoBehaviour
         {
             Debug.Log("SEÇ™Ç»Ç¢");
         }
+    }
+    /// <summary>
+    /// LoopêÍópSE
+    /// </summary>
+    /// <param name="name"></param>
+    public void PlaySELoop(string name)
+    {
+        if(seLoopDict.TryGetValue(name, out var clip))
+        {
+            AudioSource seLoop = Instantiate(sePrefab, transform);
+            seLoop.clip = clip;
+            seLoop.volume = sePrefab.volume;
+            seLoop.Play();
+            seLoop.loop = true;
+        }
+    }
+    /// <summary>
+    /// LoopÇµÇƒÇ¢ÇÈSEÇçÌèúÇ∑ÇÈ
+    /// </summary>
+    /// <param name="name"></param>
+    public void DestroySE(string name)
+    {
+        Destroy(seDict[name],0);
     }
     /// <summary>
     /// âπó ï€ë∂
