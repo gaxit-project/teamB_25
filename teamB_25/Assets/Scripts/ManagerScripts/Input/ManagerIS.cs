@@ -28,7 +28,7 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
             ""id"": ""3cec9324-0bf6-4afc-adfb-2d8a33acb13b"",
             ""actions"": [
                 {
-                    ""name"": ""Pouse"",
+                    ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""df77260f-d839-4134-9ccc-3390c51b3cd2"",
                     ""expectedControlType"": ""Button"",
@@ -45,7 +45,7 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Pouse"",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -56,7 +56,7 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
 }");
         // Manager
         m_Manager = asset.FindActionMap("Manager", throwIfNotFound: true);
-        m_Manager_Pouse = m_Manager.FindAction("Pouse", throwIfNotFound: true);
+        m_Manager_Pause = m_Manager.FindAction("Pause", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -118,12 +118,12 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
     // Manager
     private readonly InputActionMap m_Manager;
     private List<IManagerActions> m_ManagerActionsCallbackInterfaces = new List<IManagerActions>();
-    private readonly InputAction m_Manager_Pouse;
+    private readonly InputAction m_Manager_Pause;
     public struct ManagerActions
     {
         private @ManagerIS m_Wrapper;
         public ManagerActions(@ManagerIS wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Pouse => m_Wrapper.m_Manager_Pouse;
+        public InputAction @Pause => m_Wrapper.m_Manager_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Manager; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -133,16 +133,16 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_ManagerActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_ManagerActionsCallbackInterfaces.Add(instance);
-            @Pouse.started += instance.OnPouse;
-            @Pouse.performed += instance.OnPouse;
-            @Pouse.canceled += instance.OnPouse;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         private void UnregisterCallbacks(IManagerActions instance)
         {
-            @Pouse.started -= instance.OnPouse;
-            @Pouse.performed -= instance.OnPouse;
-            @Pouse.canceled -= instance.OnPouse;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         public void RemoveCallbacks(IManagerActions instance)
@@ -162,6 +162,6 @@ public partial class @ManagerIS: IInputActionCollection2, IDisposable
     public ManagerActions @Manager => new ManagerActions(this);
     public interface IManagerActions
     {
-        void OnPouse(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
 }

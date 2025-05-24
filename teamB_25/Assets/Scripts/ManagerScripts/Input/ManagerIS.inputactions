@@ -6,7 +6,7 @@
             "id": "3cec9324-0bf6-4afc-adfb-2d8a33acb13b",
             "actions": [
                 {
-                    "name": "Pouse",
+                    "name": "Pause",
                     "type": "Button",
                     "id": "df77260f-d839-4134-9ccc-3390c51b3cd2",
                     "expectedControlType": "Button",
@@ -23,7 +23,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Pouse",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

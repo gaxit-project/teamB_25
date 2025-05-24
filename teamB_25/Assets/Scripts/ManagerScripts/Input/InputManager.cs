@@ -21,6 +21,6 @@ public class InputManager : MonoBehaviour
     }
     private void Update()
     {
-        if (input.Manager.Pouse.triggered) pauseManager.Pause();
+        if (input.Manager.Pause.triggered) pauseManager.Pause();
     }
 }
