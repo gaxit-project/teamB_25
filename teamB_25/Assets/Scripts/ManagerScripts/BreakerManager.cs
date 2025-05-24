@@ -10,8 +10,10 @@ public class BreakerManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // ExitのTagのついているObjectを取得
         exitObjects = GameObject.FindGameObjectsWithTag("Exit");
         
+        // 非アクティブにする
         foreach (GameObject obj in exitObjects)
         {
             obj .SetActive(false);
@@ -31,6 +33,8 @@ public class BreakerManager : MonoBehaviour
         {
             gameObject.GetComponent<Renderer>().material.color = Color.blue;
             BreakerOn = true;
+
+            // アクティブ状態にする
             foreach (GameObject obj in exitObjects)
             {
                 obj.SetActive(true);
