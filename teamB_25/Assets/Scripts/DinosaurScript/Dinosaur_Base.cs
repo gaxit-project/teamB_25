@@ -172,7 +172,7 @@ public class Dinosaur_Base : MonoBehaviour
         Vector3 direction = toPlayer.normalized;
 
         // プレイヤーが視野角内か確認
-        float angleToPlayer = Vector3.Angle(transform.forward, direction);
+        float angleToPlayer = Vector3.Angle(transform.forward * -1, direction);
         if (angleToPlayer > detectionAngle) return false;
 
         // デバッグ表示
@@ -281,7 +281,7 @@ public class Dinosaur_Base : MonoBehaviour
 
         if (!hasRoared && AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySE("Rouring");
+            AudioManager.Instance.PlaySE("Rouring",transform.position);
             hasRoared = true;
         }
 
