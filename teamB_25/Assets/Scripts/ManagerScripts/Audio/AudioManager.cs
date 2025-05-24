@@ -142,8 +142,7 @@ public class AudioManager : MonoBehaviour
             // Ç∑Ç≈Ç…çƒê∂íÜÇ»ÇÁé~ÇﬂÇÈ
             if (activeLoops.ContainsKey(name))
             {
-                Destroy(activeLoops[name]);
-                activeLoops.Remove(name);
+                return;
             }
 
             AudioSource seLoop = target.gameObject.AddComponent<AudioSource>();
