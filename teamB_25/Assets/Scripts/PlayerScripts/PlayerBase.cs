@@ -7,22 +7,26 @@ public class PlayerBase : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
     [SerializeField] private float runSpeed;
+    [SerializeField] private float tiredSpeed;
+    [SerializeField] private float currentSpeed;
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
-    [SerializeField] private AudioClip walkSound;
-    [SerializeField] private AudioClip runSound;
     [SerializeField] private PlayerBase player; // PlayerBase �X�N���v�g�Q��
+    [SerializeField] private float stamina = 10f;
+    [SerializeField] private float maxStamina = 10f;
+    [SerializeField] private float staminaDuration;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
     private Vector2 moveInputValue;
     private Vector3 velocity = Vector3.zero;
-    private AudioSource audioSource;
     private float stepTimer;
 
 
     private bool isFounding = false;
     private bool isRunning = false;
+    private bool isPushRun = false;
+    private bool lostStamina = false;
 
     public int Hp = 0;
 
@@ -39,11 +43,11 @@ public class PlayerBase : MonoBehaviour
         gameInputs.Player.Move.canceled += OnMove;
 
         gameInputs.Player.Run.started += ctx => {
-            isRunning = true;
+            isPushRun = true;
             Debug.Log("Run started");
         };
         gameInputs.Player.Run.canceled += ctx => {
-            isRunning = false;
+            isPushRun = false;
             Debug.Log("Run canceled");
         };
 
@@ -61,35 +65,28 @@ public class PlayerBase : MonoBehaviour
     {
         countdownActive = false;
         Attack();
-        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
         if (countdownActive) return;
 
-        if (player.IsRunning())
+
+
+        if (IsRunning())
         {
-            if (audioSource.clip != runSound || !audioSource.isPlaying)
-            {
-                audioSource.clip = runSound;
-                audioSource.Play();
-            }
+            AudioManager.Instance.PlaySELoop("PlayerRun", transform);
+            AudioManager.Instance.DestroySE("PlayerWalk");
         }
-        else if (player.IsMoving())
+        else if (IsMoving())
         {
-            if (audioSource.clip != walkSound || !audioSource.isPlaying)
-            {
-                audioSource.clip = walkSound;
-                audioSource.Play();
-            }
+            AudioManager.Instance.PlaySELoop("PlayerWalk", transform);
+            AudioManager.Instance.DestroySE("PlayerRun");
         }
         else
         {
-            if (audioSource.isPlaying)
-            {
-                audioSource.Stop();
-            }
+            AudioManager.Instance.DestroySE("PlayerWalk");
+            AudioManager.Instance.DestroySE("PlayerRun");
         }
     }
 
@@ -110,16 +107,68 @@ public class PlayerBase : MonoBehaviour
 
     public bool IsRunning()
     {
-        Debug.Log($"isRunning={isRunning}, moveInputValue={moveInputValue}");
-        return isRunning && moveInputValue.y > 0.5f;
-    }    
+        //Debug.Log($"isRunning={isRunning}, moveInputValue={moveInputValue}");
+        return isRunning;
+    }
+    
+    private void ChangeSpeed()
+    {
+        if (!lostStamina && (stamina > 0) && isPushRun && (moveInputValue.y > 0))
+        {
+            currentSpeed = runSpeed;
+            isRunning = true;
+            stamina -= Time.deltaTime;
+            if (stamina < 0)
+            {
+                stamina = 0;
+                lostStamina = true;
+                Debug.Log("スタミナが空です。走れません");
+            }
+        }
+        else if (lostStamina && stamina < maxStamina)
+        {
+            staminaDuration = 6f;
+            currentSpeed = tiredSpeed;
+            isRunning = false;
+
+            if (stamina < maxStamina)
+            {
+                stamina += (maxStamina / staminaDuration) * Time.deltaTime;
+
+                // 上限で止める
+                if (stamina > maxStamina)
+                {
+                    stamina = maxStamina;
+                    lostStamina = false;
+                    Debug.Log("スタミナが満タンです。いつでも走れます");
+                }
+            }
+        }
+        else
+        {
+            staminaDuration = 4f;
+            currentSpeed = moveSpeed;
+            isRunning = false;
+
+            if (stamina < maxStamina)
+            {
+                stamina += (maxStamina / staminaDuration) * Time.deltaTime;
+
+                // 上限で止める
+                if (stamina > maxStamina)
+                {
+                    stamina = maxStamina;
+                    Debug.Log("スタミナが満タンになりました");
+                }
+            }
+        }
+    }
 
     private void FixedUpdate()
     {
         if (!countdownActive) return;
 
-        float currentSpeed = (isRunning && moveInputValue.y > 0) ? runSpeed : moveSpeed;
-
+        ChangeSpeed();
 
         if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
         {
