@@ -1507,7 +1507,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 3e1bb008fb5b3f642bed0b2815660fa8, type: 3}
   seLoopClips:
   - name: Dash
-    clip: {fileID: 8300000, guid: 44e2ef14eb1e3db45bbc91fd8eb0f0ac, type: 3}
+    clip: {fileID: 8300000, guid: 43c4c6ffd99608042a3b477916073c2b, type: 3}
 --- !u!1 &820941143
 GameObject:
   m_ObjectHideFlags: 0
