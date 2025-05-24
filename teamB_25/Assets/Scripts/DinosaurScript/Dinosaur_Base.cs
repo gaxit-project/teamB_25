@@ -242,6 +242,7 @@ public class Dinosaur_Base : MonoBehaviour
     void ChaseState()
     {
         agent.SetDestination(playerTransform.position);
+        AudioManager.Instance.PlaySELoop("Dash", transform);
     }
 
     void SetRandomVigilanceTarget()
@@ -281,7 +282,7 @@ public class Dinosaur_Base : MonoBehaviour
 
         if (!hasRoared && AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySE("Rouring",transform.position);
+            AudioManager.Instance.PlaySE("Rouring", transform.position);
             hasRoared = true;
         }
 

@@ -994,7 +994,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3668599869893204308, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -1504,9 +1505,9 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 8762ff846b4de4448934a09d8bc07f82, type: 3}
   - name: Sniff
     clip: {fileID: 8300000, guid: 3e1bb008fb5b3f642bed0b2815660fa8, type: 3}
+  seLoopClips:
   - name: Dash
-    clip: {fileID: 8300000, guid: 6dfa802539290a0439acd2f4db6a3319, type: 3}
-  seLoopClips: []
+    clip: {fileID: 8300000, guid: 44e2ef14eb1e3db45bbc91fd8eb0f0ac, type: 3}
 --- !u!1 &820941143
 GameObject:
   m_ObjectHideFlags: 0
