@@ -11,21 +11,28 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
-    //恐竜と接触したらゲームオーバー
+    
     void OnCollisionEnter(Collision other)
     {
+        //恐竜と接触したらゲームオーバー
         if (other.gameObject.CompareTag("Enemy"))
         {
             sceneChangeManager.ChangeScene("GameOver");
+        }
+
+        // 出口にたどりつけたらゲームクリア
+        if(other.gameObject.CompareTag("Exit"))
+        {
+            sceneChangeManager.ChangeScene("GameClear");
         }
     }
 }
