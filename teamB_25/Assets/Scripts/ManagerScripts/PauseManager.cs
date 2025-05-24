@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PauseManager : MonoBehaviour
 {
-    public Canvas PouseCanvas;
+    public Canvas PauseCanvas;
 
     public void Update()
     {
@@ -19,13 +19,13 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
-            PouseCanvas.enabled = false;
+            PauseCanvas.enabled = false;
         }
     }
 
     private void PauseNow()
     {
-        PouseCanvas.enabled = true;
+        PauseCanvas.enabled = true;
 
     }
 }

@@ -71,6 +71,15 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Hide"",
+                    ""type"": ""Button"",
+                    ""id"": ""a765c2c3-4311-4b29-adab-ad1645aef78f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -368,6 +377,39 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Run"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aa8f4823-7e03-4c68-ba39-723de2141fce"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hide"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""95163bf1-5514-404d-b156-db7d3be4e1b1"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hide"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8e0c580d-9d55-4317-814b-28246f2afce3"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hide"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -960,6 +1002,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         m_Player_Tool = m_Player.FindAction("Tool", throwIfNotFound: true);
         m_Player_ChangeTool = m_Player.FindAction("ChangeTool", throwIfNotFound: true);
         m_Player_Run = m_Player.FindAction("Run", throwIfNotFound: true);
+        m_Player_Hide = m_Player.FindAction("Hide", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1038,6 +1081,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Tool;
     private readonly InputAction m_Player_ChangeTool;
     private readonly InputAction m_Player_Run;
+    private readonly InputAction m_Player_Hide;
     public struct PlayerActions
     {
         private @GameInputs m_Wrapper;
@@ -1047,6 +1091,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         public InputAction @Tool => m_Wrapper.m_Player_Tool;
         public InputAction @ChangeTool => m_Wrapper.m_Player_ChangeTool;
         public InputAction @Run => m_Wrapper.m_Player_Run;
+        public InputAction @Hide => m_Wrapper.m_Player_Hide;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1071,6 +1116,9 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Run.started += instance.OnRun;
             @Run.performed += instance.OnRun;
             @Run.canceled += instance.OnRun;
+            @Hide.started += instance.OnHide;
+            @Hide.performed += instance.OnHide;
+            @Hide.canceled += instance.OnHide;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1090,6 +1138,9 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
             @Run.started -= instance.OnRun;
             @Run.performed -= instance.OnRun;
             @Run.canceled -= instance.OnRun;
+            @Hide.started -= instance.OnHide;
+            @Hide.performed -= instance.OnHide;
+            @Hide.canceled -= instance.OnHide;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1277,6 +1328,7 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
         void OnTool(InputAction.CallbackContext context);
         void OnChangeTool(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
+        void OnHide(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
