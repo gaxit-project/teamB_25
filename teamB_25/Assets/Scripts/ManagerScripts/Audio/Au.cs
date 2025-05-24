@@ -12,15 +12,23 @@ public class Au : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.N))
         {
-            AudioManager.Instance.PlaySE("ken");
+            AudioManager.Instance.PlaySE("ken",transform.position);
         }
         if (Input.GetKeyUp(KeyCode.M))
         {
-            AudioManager.Instance.PlaySE("SE2");
+            AudioManager.Instance.PlaySE("SE2", transform.position);
         }
         if (Input.GetKeyUp(KeyCode.L))
         {
             AudioManager.Instance.StopBGM();
+        }
+        if(Input.GetKeyUp(KeyCode.R))
+        {
+            AudioManager.Instance.PlaySELoop("SELoop", transform);
+        }
+        if (Input.GetKeyUp(KeyCode.G))
+        {
+            AudioManager.Instance.DestroySE("SELoop");
         }
     }
 }
