@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 [System.Serializable]
 public class NamedAudioClip
@@ -29,10 +30,12 @@ public class AudioManager : MonoBehaviour
     private Dictionary<string, AudioClip> bgmDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seLoopDict = new Dictionary<string, AudioClip>();
+    private Dictionary<string, AudioSource> activeLoops = new Dictionary<string, AudioSource>();
+
+
 
     private const string BGM_VOLUME_KEY = "BGM_VOLUME";
     private const string SE_VOLUME_KEY = "SE_VOLUME";
-    private const string SELoop_VOLUME_KEY = "SELoop_VOLUME";
 
     void Awake()
     {
@@ -110,11 +113,11 @@ public class AudioManager : MonoBehaviour
     /// SEÇÇ»ÇÁÇ∑
     /// </summary>
     /// <param name="name"></param>
-    public void PlaySE(string name)
+    public void PlaySE(string name,Vector3 position)
     {
         if (seDict.TryGetValue(name, out var clip))
         {
-            AudioSource se = Instantiate(sePrefab, transform);
+            AudioSource se = Instantiate(sePrefab, position,Quaternion.identity,transform);
             se.clip = clip;
             se.volume = sePrefab.volume;
             se.Play();
@@ -129,15 +132,24 @@ public class AudioManager : MonoBehaviour
     /// LoopêÍópSE
     /// </summary>
     /// <param name="name"></param>
-    public void PlaySELoop(string name)
+    public void PlaySELoop(string name, Transform target)
     {
         if(seLoopDict.TryGetValue(name, out var clip))
         {
-            AudioSource seLoop = Instantiate(sePrefab, transform);
+            // Ç∑Ç≈Ç…çƒê∂íÜÇ»ÇÁé~ÇﬂÇÈ
+            if (activeLoops.ContainsKey(name))
+            {
+                Destroy(activeLoops[name]);
+                activeLoops.Remove(name);
+            }
+
+            AudioSource seLoop = target.gameObject.AddComponent<AudioSource>();
             seLoop.clip = clip;
             seLoop.volume = sePrefab.volume;
-            seLoop.Play();
+            seLoop.spatialBlend = 1f;
             seLoop.loop = true;
+            seLoop.Play();
+            activeLoops[name] = seLoop;
         }
     }
     /// <summary>
@@ -146,7 +158,12 @@ public class AudioManager : MonoBehaviour
     /// <param name="name"></param>
     public void DestroySE(string name)
     {
-        Destroy(seDict[name],0);
+        if (activeLoops.TryGetValue(name, out var source))
+        {
+            source.Stop();
+            Destroy(source);
+            activeLoops.Remove(name);
+        }
     }
     /// <summary>
     /// âπó ï€ë∂
