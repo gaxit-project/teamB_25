@@ -72,6 +72,9 @@ public class Dinosaur_Base : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
 
+        // 恐竜らしい曲がり方を実現するためにNavMeshAgent に回転を任せず、このスクリプトで制御する
+        agent.updateRotation = false;
+
         // 巡回中の速度に設定
         agent.speed = patrolSpeed;
 
@@ -96,10 +99,17 @@ public class Dinosaur_Base : MonoBehaviour
 
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
-            // 進行方向に向かせた上で、Y軸を180°回転させる
-            Quaternion lookRotation = Quaternion.LookRotation(agent.velocity.normalized);
-            modelTransform.rotation = lookRotation * Quaternion.Euler(0f, 180f, 0f);
+            Vector3 direction = agent.velocity.normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // 滑らかに回転（LerpまたはSlerp使用）
+            modelTransform.rotation = Quaternion.Slerp(
+                modelTransform.rotation,
+                targetRotation * Quaternion.Euler(0f, 180f, 0f),
+                turnSpeed * Time.deltaTime
+            );
         }
+
 
         // Rayを使ってプレイヤー検知
         bool playerDetectedByRay = DetectPlayerByRay();
