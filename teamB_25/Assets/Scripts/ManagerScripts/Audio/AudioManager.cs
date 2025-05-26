@@ -89,7 +89,7 @@ public class AudioManager : MonoBehaviour
 
 
         SetBGMVolume(bgmVolume);
-        SetSEVolume(seVolume);
+        SetSEVolume(seVolume); 
     }
     /// <summary>
     /// BGM�炷
@@ -144,7 +144,6 @@ public class AudioManager : MonoBehaviour
             se.volume = sePrefab.volume;
             se.minDistance = 1f;
             se.maxDistance = 60f;
-            se.rolloffMode = AudioRolloffMode.Logarithmic;
             se.spatialBlend = 1f;
             se.Play();
             Destroy(se.gameObject, clip.length);
@@ -177,7 +176,6 @@ public class AudioManager : MonoBehaviour
             seLoop.volume = sePrefab.volume;
             seLoop.minDistance = 1f;
             seLoop.maxDistance = 60f;
-            seLoop.rolloffMode = AudioRolloffMode.Logarithmic;
             seLoop.spatialBlend = 1f;
             seLoop.loop = true;
             seLoop.Play();

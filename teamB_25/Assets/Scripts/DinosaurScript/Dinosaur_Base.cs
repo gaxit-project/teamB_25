@@ -278,6 +278,8 @@ public class Dinosaur_Base : MonoBehaviour
 
     void RoarState()
     {
+        AudioManager.Instance.DestroySE("Dash");
+        AudioManager.Instance.DestroySE("Walk");
         roarTimer += Time.deltaTime;
 
         agent.velocity = Vector3.zero;
