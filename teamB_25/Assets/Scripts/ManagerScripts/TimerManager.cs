@@ -39,7 +39,7 @@ public class TimerManager : MonoBehaviour
         //�������Ԍo��
         if (nowTimer<=0f)
         {
-            SceneManager.LoadScene("GameClear");
+            SceneManager.LoadScene("GameOver");
         }
     }
     /// <summary>

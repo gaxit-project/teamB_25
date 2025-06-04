@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class BreakerManager : MonoBehaviour
 {
-    public static bool BreakerOn { get; private set; } = false;
+    public static int _breakerTask = 4;
+    public static int _breakerOn = 0;
     private GameObject[] exitObjects;
 
     // Start is called before the first frame update
@@ -32,12 +33,16 @@ public class BreakerManager : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             gameObject.GetComponent<Renderer>().material.color = Color.blue;
-            BreakerOn = true;
+            _breakerOn++;
 
-            // アクティブ状態にする
-            foreach (GameObject obj in exitObjects)
+            if(_breakerOn == _breakerTask)
             {
-                obj.SetActive(true);
+                // アクティブ状態にする
+                foreach (GameObject obj in exitObjects)
+                {
+                    Debug.Log("脱出扉が開きました");
+                    obj.SetActive(true);
+                }
             }
         }
     }
