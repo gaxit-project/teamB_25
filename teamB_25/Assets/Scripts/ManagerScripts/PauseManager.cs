@@ -26,6 +26,7 @@ public class PauseManager : MonoBehaviour
 
     private void PauseNow()
     {
+        AudioManager.Instance.StopAllSELoops();
         AudioManager.Instance.PauseAudio();
         PauseCanvas.enabled = true;
 
