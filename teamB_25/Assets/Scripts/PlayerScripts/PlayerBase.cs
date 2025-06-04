@@ -21,11 +21,16 @@ public class PlayerBase : MonoBehaviour
     private Vector2 moveInputValue;
     private Vector3 velocity = Vector3.zero;
     private float stepTimer;
+    private Vector3 preHidePosition;
+    private Transform currentHidePlace = null;
+    private Collider currentHideCollider; // 隠れる場所のCollider
+
 
 
     private bool isFounding = false;
     private bool isRunning = false;
     private bool isPushRun = false;
+    private bool isPushHide = false;
     private bool lostStamina = false;
 
     public int Hp = 0;
@@ -38,9 +43,13 @@ public class PlayerBase : MonoBehaviour
 
         gameInputs = new GameInputs();
 
-        gameInputs.Player.Move.started += OnMove;
-        gameInputs.Player.Move.performed += OnMove;
-        gameInputs.Player.Move.canceled += OnMove;
+        if(isFounding == false)
+        {
+            gameInputs.Player.Move.started += OnMove;
+            gameInputs.Player.Move.performed += OnMove;
+            gameInputs.Player.Move.canceled += OnMove;
+        }
+        
 
         gameInputs.Player.Run.started += ctx => {
             isPushRun = true;
@@ -50,8 +59,34 @@ public class PlayerBase : MonoBehaviour
             isPushRun = false;
             Debug.Log("Run canceled");
         };
+        
+        gameInputs.Player.Hide.started += ctx => {
+            if (!isFounding && currentHidePlace != null)
+            {
+                isFounding = true;
+                preHidePosition = transform.position;
+                transform.position = currentHidePlace.position;
+                rigidbody.velocity = Vector3.zero;
+                Debug.Log("Hiding");
+                if (currentHideCollider != null)
+                {
+                    currentHideCollider.enabled = false; // 当たり判定を無効化
+                }
+            }
+            // 隠れてる状態で押されたら解除
+            else if (isFounding)
+            {
+                isFounding = false;
+                if (currentHideCollider != null)
+                {
+                    currentHideCollider.enabled = true; // 当たり判定を復活
+                }
 
-
+                transform.position = preHidePosition;
+                currentHidePlace = null;
+                Debug.Log("Unhide");
+            }
+        };
 
         gameInputs.Enable();
     }
@@ -69,7 +104,7 @@ public class PlayerBase : MonoBehaviour
 
     private void Update()
     {
-        if (countdownActive) return;
+        if (!countdownActive) return;
 
 
 
@@ -88,6 +123,13 @@ public class PlayerBase : MonoBehaviour
             AudioManager.Instance.DestroySE("PlayerWalk");
             AudioManager.Instance.DestroySE("PlayerRun");
         }
+
+        if (isFounding)
+        {
+            AudioManager.Instance.DestroySE("PlayerWalk");
+            AudioManager.Instance.DestroySE("PlayerRun");
+            return;
+        }
     }
 
     public virtual void Attack()
@@ -99,6 +141,30 @@ public class PlayerBase : MonoBehaviour
     {
         moveInputValue = context.ReadValue<Vector2>();
     }
+
+    public void OnCollisionStay(Collision other)
+    {
+        if(other.gameObject.CompareTag("HidePlace"))
+        {
+            currentHidePlace = other.transform;
+            Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
+            currentHideCollider = other.collider; // ← Colliderの参照を保持
+        }
+        //isHideCollision = false;
+    }
+
+    public void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.CompareTag("HidePlace"))
+        {
+            if (!isFounding)
+            {
+                currentHidePlace = null; 
+                Debug.Log("Exit HidePlace");
+            }
+        }
+    }
+
 
     public bool IsMoving()
     {
@@ -164,12 +230,20 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+
     private void FixedUpdate()
     {
-        if (!countdownActive) return;
-
+        if (!countdownActive) return;  // ← 隠れ中は処理を中断
+        
         ChangeSpeed();
 
+        if(isFounding)
+        { 
+            rigidbody.velocity = Vector3.zero;
+            velocity = Vector3.zero;
+            moveInputValue = Vector2.zero;
+            return;
+        }
         if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
         {
             // �J�����̕����ɍ��킹���ړ�
