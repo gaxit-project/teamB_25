@@ -42,7 +42,9 @@ public class Dinosaur_Base : MonoBehaviour
     [SerializeField] private float leapDuration = 1.5f;   // 飛びつき継続時間（秒）
     private Vector3 leapDirection;
 
-    private bool hasLeaped = false; // 飛びつき準備が完了したかを判定するフラグ
+    private float timeSinceLastSeen = Mathf.Infinity;
+    [SerializeField] private float loseSightDuration = 3f; // 追跡を諦めるまでの猶予秒数
+    private bool isPlayerVisible = false;
 
     private float chargeTimer = 0f;
     private float chargeDuration = 1.5f;  // 溜め時間1秒
@@ -89,9 +91,6 @@ public class Dinosaur_Base : MonoBehaviour
         // 恐竜らしい曲がり方を実現するためにNavMeshAgent に回転を任せず、このスクリプトで制御する
         agent.updateRotation = false;
 
-        // 巡回中の速度に設定
-        agent.speed = patrolSpeed;
-
         // 最初に適当な警戒ポイントを設定
         SetRandomVigilanceTarget();
 
@@ -105,18 +104,15 @@ public class Dinosaur_Base : MonoBehaviour
     // 毎フレーム実行される処理
     void Update()
     {
-        // プレイヤーとの距離を測定
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // 現在のステートをログに出力
-        Debug.Log("Current State: " + currentState);
+        //Debug.Log("Current State: " + currentState);
 
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
             Vector3 direction = agent.velocity.normalized;
             Quaternion targetRotation = Quaternion.LookRotation(direction);
 
-            // 滑らかに回転（LerpまたはSlerp使用）
             modelTransform.rotation = Quaternion.Slerp(
                 modelTransform.rotation,
                 targetRotation * Quaternion.Euler(0f, 180f, 0f),
@@ -124,17 +120,32 @@ public class Dinosaur_Base : MonoBehaviour
             );
         }
 
-
-        // Rayを使ってプレイヤー検知
         bool playerDetectedByRay = DetectPlayerByRay();
 
-        // ステートの切り替え判定
+        if (playerDetectedByRay)
+        {
+            isPlayerVisible = true;
+            timeSinceLastSeen = 0f;
+            Debug.Log($"Player detected by ray. timeSinceLastSeen reset to 0");
+        }
+        else
+        {
+            timeSinceLastSeen += Time.deltaTime;
+            Debug.Log($"Player NOT detected. timeSinceLastSeen = {timeSinceLastSeen:F2} seconds");
+
+            if (timeSinceLastSeen > loseSightDuration)
+            {
+                if (isPlayerVisible) Debug.Log("Lost sight of player. Setting isPlayerVisible to false.");
+                isPlayerVisible = false;
+            }
+        }
+
         switch (currentState)
         {
             case State.Patrol:
-                if (playerDetectedByRay) // ←距離チェックを除外
+                if (isPlayerVisible)
                 {
-                    SwitchState(State.Roar);
+                    SwitchState(State.Roar);  // Patrol→RoarのみOK
                 }
                 else if (distanceToPlayer < vigilanceDistance)
                 {
@@ -144,7 +155,7 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Vigilance:
-                if (playerDetectedByRay) // ←距離チェックを除外
+                if (isPlayerVisible)
                 {
                     SwitchState(State.Roar);
                 }
@@ -160,13 +171,11 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Chase:
-                // 飛びつき条件判定を追加
                 if (distanceToPlayer <= leapDistance)
                 {
                     SwitchState(State.Leap);
                 }
-                // 距離が遠すぎる場合は巡回に戻る
-                else if (distanceToPlayer >= vigilanceDistance)
+                else if (timeSinceLastSeen > loseSightDuration)
                 {
                     SwitchState(State.Patrol);
                 }
@@ -177,7 +186,6 @@ public class Dinosaur_Base : MonoBehaviour
                 LeapState();
                 break;
         }
-
     }
 
     // Rayでプレイヤーを検知する処理
@@ -218,14 +226,14 @@ public class Dinosaur_Base : MonoBehaviour
     {
         currentState = newState;
 
+        SetSpeedForState(newState); // ←★ここで状態に応じた速度を自動設定
+
         if (newState == State.Patrol)
         {
-            agent.speed = patrolSpeed;
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
         }
         else if (newState == State.Vigilance)
         {
-            agent.speed = vigilanceSpeed;
             agent.SetDestination(playerTransform.position);
         }
         else if (newState == State.Roar)
@@ -233,22 +241,31 @@ public class Dinosaur_Base : MonoBehaviour
             agent.ResetPath(); // 停止
             roarTimer = 0f;
         }
-        else if (newState == State.Chase)
-        {
-            agent.speed = chaseSpeed;
-        }
         else if (newState == State.Leap)
         {
             leapTimer = 0f;
-            // leapDirection の設定は LeapState 内に移動済み
         }
 
-
-        // NavMeshAgentは常にONでよい
         agent.enabled = true;
     }
 
-
+    // 状態に応じた速度設定を一元化
+    void SetSpeedForState(State state)
+    {
+        switch (state)
+        {
+            case State.Patrol:
+                agent.speed = patrolSpeed;
+                break;
+            case State.Vigilance:
+                agent.speed = vigilanceSpeed;
+                break;
+            case State.Chase:
+                agent.speed = chaseSpeed;
+                break;
+                // Roar や Leap は NavMeshAgent を使わないため速度設定しない
+        }
+    }
     // 巡回中の処理
     void PatrolState()
     {
@@ -269,9 +286,11 @@ public class Dinosaur_Base : MonoBehaviour
     void ChaseState()
     {
         agent.SetDestination(playerTransform.position);
+
         AudioManager.Instance.DestroySE("Walk");
         AudioManager.Instance.PlaySELoop("Dash", transform);
     }
+
 
     void SetRandomVigilanceTarget()
     {
@@ -292,8 +311,6 @@ public class Dinosaur_Base : MonoBehaviour
     // 警戒中の処理（ゆっくり近づく）
     void VigilanceState()
     {
-        agent.speed = vigilanceSpeed;
-
         // 目的地に近づいたら新しい警戒ポイントを設定
         if (!agent.pathPending && agent.remainingDistance <= 0.5f)
         {
