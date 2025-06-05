@@ -37,6 +37,19 @@ public class Dinosaur_Base : MonoBehaviour
 
     [SerializeField] private Transform modelTransform;
 
+    [SerializeField] private float leapDistance = 3f;     // 飛びつき発動距離
+    [SerializeField] private float leapSpeed = 10f;       // 飛びつき移動速度
+    [SerializeField] private float leapDuration = 1.5f;   // 飛びつき継続時間（秒）
+    private Vector3 leapDirection;
+
+    private bool hasLeaped = false; // 飛びつき準備が完了したかを判定するフラグ
+
+    private float chargeTimer = 0f;
+    private float chargeDuration = 1.5f;  // 溜め時間1秒
+    private float leapTimer = 0f;
+    float postLeapWaitTimer = 0f;
+    bool isWaitingAfterLeap = false;
+
     // 現在の巡回ポイントのインデックス
     private int currentPatrolIndex = 0;
 
@@ -54,7 +67,8 @@ public class Dinosaur_Base : MonoBehaviour
         Patrol,     // 巡回中
         Chase,      // 追跡中
         Vigilance,  // 警戒中
-        Roar        // 吠え中
+        Roar,        // 吠え中
+        Leap
     }
 
     // 現在のステート（初期値は巡回）
@@ -71,6 +85,9 @@ public class Dinosaur_Base : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         rb = GetComponent<Rigidbody>();
+
+        // 恐竜らしい曲がり方を実現するためにNavMeshAgent に回転を任せず、このスクリプトで制御する
+        agent.updateRotation = false;
 
         // 巡回中の速度に設定
         agent.speed = patrolSpeed;
@@ -96,10 +113,17 @@ public class Dinosaur_Base : MonoBehaviour
 
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
-            // 進行方向に向かせた上で、Y軸を180°回転させる
-            Quaternion lookRotation = Quaternion.LookRotation(agent.velocity.normalized);
-            modelTransform.rotation = lookRotation * Quaternion.Euler(0f, 180f, 0f);
+            Vector3 direction = agent.velocity.normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // 滑らかに回転（LerpまたはSlerp使用）
+            modelTransform.rotation = Quaternion.Slerp(
+                modelTransform.rotation,
+                targetRotation * Quaternion.Euler(0f, 180f, 0f),
+                turnSpeed * Time.deltaTime
+            );
         }
+
 
         // Rayを使ってプレイヤー検知
         bool playerDetectedByRay = DetectPlayerByRay();
@@ -136,29 +160,24 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Chase:
-                // 距離が遠すぎる場合のみ戻す（ここではRayチェックしない）
-                if (distanceToPlayer >= vigilanceDistance)
+                // 飛びつき条件判定を追加
+                if (distanceToPlayer <= leapDistance)
+                {
+                    SwitchState(State.Leap);
+                }
+                // 距離が遠すぎる場合は巡回に戻る
+                else if (distanceToPlayer >= vigilanceDistance)
                 {
                     SwitchState(State.Patrol);
                 }
                 ChaseState();
                 break;
+
+            case State.Leap:
+                LeapState();
+                break;
         }
 
-
-        // 現在のステートに応じた処理を実行
-        switch (currentState)
-        {
-            case State.Patrol:
-                PatrolState();     // 巡回処理
-                break;
-            case State.Chase:
-                ChaseState();      // 追跡処理
-                break;
-            case State.Vigilance:
-                VigilanceState();  // 警戒処理
-                break;
-        }
     }
 
     // Rayでプレイヤーを検知する処理
@@ -218,6 +237,12 @@ public class Dinosaur_Base : MonoBehaviour
         {
             agent.speed = chaseSpeed;
         }
+        else if (newState == State.Leap)
+        {
+            leapTimer = 0f;
+            // leapDirection の設定は LeapState 内に移動済み
+        }
+
 
         // NavMeshAgentは常にONでよい
         agent.enabled = true;
@@ -231,7 +256,7 @@ public class Dinosaur_Base : MonoBehaviour
         if (patrolPoints.Length == 0) return;
         AudioManager.Instance.DestroySE("Dash");
         AudioManager.Instance.PlaySELoop("Walk", transform);
-        
+
         // 現在の目的地に到達したら、次のポイントに移動
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
@@ -298,6 +323,54 @@ public class Dinosaur_Base : MonoBehaviour
             SwitchState(State.Chase);
         }
     }
+
+    void LeapState()
+    {
+        // 1. 溜め時間の進行
+        if (!isWaitingAfterLeap)
+        {
+            chargeTimer += Time.deltaTime;
+
+            if (chargeTimer < chargeDuration)
+            {
+                // 溜め期間中は動かさない
+                return;
+            }
+
+            // 2. 飛びつき方向の決定（1回だけ）
+            if (leapTimer == 0f)
+            {
+                leapDirection = (playerTransform.position - transform.position).normalized;
+                leapDirection.y = 0f;
+            }
+
+            // 3. 飛びつき移動
+            leapTimer += Time.deltaTime;
+            transform.position += leapDirection * leapSpeed * Time.deltaTime;
+
+            // 4. 飛び終わったら待機状態へ
+            if (leapTimer >= leapDuration)
+            {
+                isWaitingAfterLeap = true;
+                postLeapWaitTimer = 0f;
+            }
+        }
+        else
+        {
+            // 5. 飛び終わり後の1秒待機処理
+            postLeapWaitTimer += Time.deltaTime;
+
+            if (postLeapWaitTimer >= 1f)
+            {
+                // 6. タイマーリセットしてChaseへ
+                chargeTimer = 0f;
+                leapTimer = 0f;
+                isWaitingAfterLeap = false;
+                SwitchState(State.Chase);
+            }
+        }
+    }
+
 
     // transformによる恐竜っぽい移動処理（前進＋回転）
     void MoveTowards(Vector3 target, float speed)
