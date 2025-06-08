@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerBase : MonoBehaviour
 {
@@ -15,17 +17,22 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
+    [SerializeField] private TextMeshProUGUI text;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
     private Vector2 moveInputValue;
     private Vector3 velocity = Vector3.zero;
     private float stepTimer;
+    private Vector3 preHidePosition;
+    private Transform currentHidePlace = null;
+    private Collider currentHideCollider; // 隠れる場所のCollider
 
 
     private bool isFounding = false;
     private bool isRunning = false;
     private bool isPushRun = false;
+    private bool isPushHide = false;
     private bool lostStamina = false;
 
     public int Hp = 0;
@@ -38,9 +45,13 @@ public class PlayerBase : MonoBehaviour
 
         gameInputs = new GameInputs();
 
-        gameInputs.Player.Move.started += OnMove;
-        gameInputs.Player.Move.performed += OnMove;
-        gameInputs.Player.Move.canceled += OnMove;
+        if(isFounding == false)
+        {
+            gameInputs.Player.Move.started += OnMove;
+            gameInputs.Player.Move.performed += OnMove;
+            gameInputs.Player.Move.canceled += OnMove;
+        }
+        
 
         gameInputs.Player.Run.started += ctx => {
             isPushRun = true;
@@ -50,8 +61,43 @@ public class PlayerBase : MonoBehaviour
             isPushRun = false;
             Debug.Log("Run canceled");
         };
+        
+        gameInputs.Player.Hide.started += ctx => {
+            if (!isFounding && currentHidePlace != null)
+            {
+                isFounding = true;
+                preHidePosition = transform.position;
+                Vector3 targetPos = currentHidePlace.position;
+                transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
 
+                rigidbody.velocity = Vector3.zero;
+                if(text != null)
+                {
+                    text.text = "Exit[H]";
+                }
+                Debug.Log("Hiding");
+                
+                if (currentHideCollider != null)
+                {
+                    currentHideCollider.enabled = false; // 当たり判定を無効化
+                }
+            }
+            // 隠れてる状態で押されたら解除
+            else if (isFounding)
+            {
+                isFounding = false;
+                if (currentHideCollider != null)
+                {
+                    currentHideCollider.enabled = true; // 当たり判定を復活
+                }
 
+                transform.position = preHidePosition;
+                currentHidePlace = null;
+                currentHideCollider = null;
+
+                Debug.Log("Unhide"); 
+            }
+        };
 
         gameInputs.Enable();
     }
@@ -69,9 +115,9 @@ public class PlayerBase : MonoBehaviour
 
     private void Update()
     {
-        if (countdownActive) return;
+        if (!countdownActive) return;
 
-
+  
 
         if (IsRunning())
         {
@@ -88,6 +134,13 @@ public class PlayerBase : MonoBehaviour
             AudioManager.Instance.DestroySE("PlayerWalk");
             AudioManager.Instance.DestroySE("PlayerRun");
         }
+
+        if (isFounding)
+        {
+            AudioManager.Instance.DestroySE("PlayerWalk");
+            AudioManager.Instance.DestroySE("PlayerRun");
+            return;
+        }
     }
 
     public virtual void Attack()
@@ -99,6 +152,42 @@ public class PlayerBase : MonoBehaviour
     {
         moveInputValue = context.ReadValue<Vector2>();
     }
+
+    public void OnCollisionStay(Collision other)
+    {
+        if(other.gameObject.CompareTag("HidePlace"))
+        {
+            currentHidePlace = other.transform;
+            Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
+            currentHideCollider = other.collider;
+            if(text != null)
+            {
+                text.gameObject.SetActive(true);
+                text.text = "Hide[H]";
+            }
+            
+        }
+        //isHideCollision = false;
+    }
+
+    public void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.CompareTag("HidePlace"))
+        {
+            if (!isFounding)
+            {
+                currentHidePlace = null; 
+                Debug.Log("Exit HidePlace");
+
+                if(text != null)
+                {
+                    text.gameObject.SetActive(false);
+                }
+                
+            }
+        }
+    }
+
 
     public bool IsMoving()
     {
@@ -164,12 +253,20 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+
     private void FixedUpdate()
     {
-        if (!countdownActive) return;
-
+        if (!countdownActive) return;  // ← 隠れ中は処理を中断
+        
         ChangeSpeed();
 
+        if(isFounding)
+        { 
+            rigidbody.velocity = Vector3.zero;
+            velocity = Vector3.zero;
+            moveInputValue = Vector2.zero;
+            return;
+        }
         if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
         {
             // �J�����̕����ɍ��킹���ړ�
