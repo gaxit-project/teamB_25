@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerBase : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
+    [SerializeField] private TextMeshProUGUI text;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -24,7 +27,6 @@ public class PlayerBase : MonoBehaviour
     private Vector3 preHidePosition;
     private Transform currentHidePlace = null;
     private Collider currentHideCollider; // 隠れる場所のCollider
-
 
 
     private bool isFounding = false;
@@ -65,9 +67,16 @@ public class PlayerBase : MonoBehaviour
             {
                 isFounding = true;
                 preHidePosition = transform.position;
-                transform.position = currentHidePlace.position;
+                Vector3 targetPos = currentHidePlace.position;
+                transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
+
                 rigidbody.velocity = Vector3.zero;
+                if(text != null)
+                {
+                    text.text = "Exit[H]";
+                }
                 Debug.Log("Hiding");
+                
                 if (currentHideCollider != null)
                 {
                     currentHideCollider.enabled = false; // 当たり判定を無効化
@@ -84,7 +93,9 @@ public class PlayerBase : MonoBehaviour
 
                 transform.position = preHidePosition;
                 currentHidePlace = null;
-                Debug.Log("Unhide");
+                currentHideCollider = null;
+
+                Debug.Log("Unhide"); 
             }
         };
 
@@ -106,7 +117,7 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-
+  
 
         if (IsRunning())
         {
@@ -148,7 +159,13 @@ public class PlayerBase : MonoBehaviour
         {
             currentHidePlace = other.transform;
             Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
-            currentHideCollider = other.collider; // ← Colliderの参照を保持
+            currentHideCollider = other.collider;
+            if(text != null)
+            {
+                text.gameObject.SetActive(true);
+                text.text = "Hide[H]";
+            }
+            
         }
         //isHideCollision = false;
     }
@@ -161,6 +178,12 @@ public class PlayerBase : MonoBehaviour
             {
                 currentHidePlace = null; 
                 Debug.Log("Exit HidePlace");
+
+                if(text != null)
+                {
+                    text.gameObject.SetActive(false);
+                }
+                
             }
         }
     }
