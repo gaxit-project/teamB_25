@@ -925,7 +925,7 @@ PrefabInstance:
     - target: {fileID: 1246363723672515240, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 5bec384a71ced6848b10b6486ea7141f, type: 2}
+      objectReference: {fileID: 9100000, guid: 67c52dde03e92d947b4c3f8c57febaf5, type: 2}
     - target: {fileID: 1246363723672515240, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_CullingMode
       value: 1
@@ -1055,22 +1055,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 842628084}
-  chaseDistance: 20
-  vigilanceDistance: 25
-  chaseSpeed: 10
-  vigilanceSpeed: 2
-  patrolSpeed: 2
-  turnSpeed: 2
+  modelTransform: {fileID: 538690293}
   patrolPoints:
   - {fileID: 188926089}
   - {fileID: 441618134}
   - {fileID: 1452496035}
   - {fileID: 2052987138}
-  modelTransform: {fileID: 538690293}
+  patrolSpeed: 2
+  vigilanceDistance: 25
+  vigilanceSpeed: 2
+  chaseDistance: 20
+  chaseSpeed: 10
+  loseSightDuration: 10
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
-  loseSightDuration: 10
+  turnSpeed: 2
   detectionRange: 15
   detectionAngle: 45
 --- !u!54 &538690289
@@ -1141,22 +1141,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 699647824}
-  chaseDistance: 60
-  vigilanceDistance: 20
-  chaseSpeed: 8
-  vigilanceSpeed: 2
-  patrolSpeed: 2
-  turnSpeed: 2
+  modelTransform: {fileID: 538690293}
   patrolPoints:
   - {fileID: 441618134}
   - {fileID: 2052987138}
   - {fileID: 188926089}
   - {fileID: 1452496035}
-  modelTransform: {fileID: 538690293}
+  patrolSpeed: 2
+  vigilanceDistance: 20
+  vigilanceSpeed: 2
+  chaseDistance: 60
+  chaseSpeed: 8
+  loseSightDuration: 10
   leapDistance: 5
   leapSpeed: 25
   leapDuration: 1.5
-  loseSightDuration: 10
+  turnSpeed: 2
   detectionRange: 40
   detectionAngle: 30
 --- !u!1 &625736979
@@ -2618,22 +2618,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 842628084}
-  chaseDistance: 20
-  vigilanceDistance: 25
-  chaseSpeed: 10
-  vigilanceSpeed: 2
-  patrolSpeed: 2
-  turnSpeed: 2
+  modelTransform: {fileID: 1883921949}
   patrolPoints:
   - {fileID: 188926089}
   - {fileID: 441618134}
   - {fileID: 1452496035}
   - {fileID: 2052987138}
-  modelTransform: {fileID: 1883921949}
+  patrolSpeed: 2
+  vigilanceDistance: 25
+  vigilanceSpeed: 2
+  chaseDistance: 20
+  chaseSpeed: 10
+  loseSightDuration: 3
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
-  loseSightDuration: 3
+  turnSpeed: 2
   detectionRange: 10
   detectionAngle: 10
 --- !u!195 &1883921945
@@ -2676,22 +2676,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 842628084}
-  chaseDistance: 20
-  vigilanceDistance: 25
-  chaseSpeed: 6
-  vigilanceSpeed: 2
-  patrolSpeed: 2
-  turnSpeed: 2
+  modelTransform: {fileID: 1883921949}
   patrolPoints:
   - {fileID: 2052987138}
   - {fileID: 441618134}
   - {fileID: 188926089}
   - {fileID: 1452496035}
-  modelTransform: {fileID: 1883921949}
+  patrolSpeed: 2
+  vigilanceDistance: 25
+  vigilanceSpeed: 2
+  chaseDistance: 20
+  chaseSpeed: 6
+  loseSightDuration: 3
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
-  loseSightDuration: 3
+  turnSpeed: 2
   detectionRange: 10
   detectionAngle: 30
 --- !u!1 &2049436277
