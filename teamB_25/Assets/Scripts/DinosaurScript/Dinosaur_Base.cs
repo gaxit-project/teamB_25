@@ -6,79 +6,75 @@ using UnityEngine.AI;
 // 恐竜の基本AIを制御するスクリプト（巡回・警戒・追跡）
 public class Dinosaur_Base : MonoBehaviour
 {
-    // NavMeshによる自動経路探索と移動を行うコンポーネント
+    // === 必須コンポーネント ===
     private NavMeshAgent agent;
+    private Rigidbody rb;
 
-    private Rigidbody rb; // Rigidbodyを追加
-
-    // プレイヤーのTransform（追跡対象）
+    // === 共通オブジェクト参照 ===
     [SerializeField] private Transform playerTransform;
-
-    // チェイス（追跡）に切り替える距離
-    [SerializeField] private float chaseDistance = 10f;
-
-    // 警戒状態に入る距離（チェイス未満）
-    [SerializeField] private float vigilanceDistance = 20f;
-
-    // 追跡中の移動速度
-    [SerializeField] private float chaseSpeed = 6f;
-
-    // 警戒中の移動速度
-    [SerializeField] private float vigilanceSpeed = 2f;
-
-    // 巡回中の移動速度
-    [SerializeField] private float patrolSpeed = 2f;
-
-    // 自前移動の際の旋回速度
-    [SerializeField] private float turnSpeed = 2f;
-
-    // 巡回ポイント（巡回用の目的地となる座標）
-    [SerializeField] private Transform[] patrolPoints;
-
     [SerializeField] private Transform modelTransform;
 
-    [SerializeField] private float leapDistance = 3f;     // 飛びつき発動距離
-    [SerializeField] private float leapSpeed = 10f;       // 飛びつき移動速度
-    [SerializeField] private float leapDuration = 1.5f;   // 飛びつき継続時間（秒）
-    private Vector3 leapDirection;
-
-    private float timeSinceLastSeen = Mathf.Infinity;
-    [SerializeField] private float loseSightDuration = 3f; // 追跡を諦めるまでの猶予秒数
-    private bool isPlayerVisible = false;
-
-    private float chargeTimer = 0f;
-    private float chargeDuration = 1.5f;  // 溜め時間1秒
-    private float leapTimer = 0f;
-    float postLeapWaitTimer = 0f;
-    bool isWaitingAfterLeap = false;
-
-    // 現在の巡回ポイントのインデックス
+    // === Patrolで使っている変数 ===
+    [Header("Patrol 設定")]
+    [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private float patrolSpeed = 2f;
     private int currentPatrolIndex = 0;
+    private float idleTimer = 0f;
+    private float waitDuration = 4f;
+    private float nextIdleTime = 0f;
+    private bool isWaiting = false;
 
+    // === Vigilanceで使っている変数 ===
+    [Header("Vigilance 設定")]
+    [SerializeField] private float vigilanceDistance = 20f;
+    [SerializeField] private float vigilanceSpeed = 2f;
     private Vector3 vigilanceTarget;
 
-    //吠えている時間
+    // === Chaseで使っている変数 ===
+    [Header("Chase 設定")]
+    [SerializeField] private float chaseDistance = 10f;
+    [SerializeField] private float chaseSpeed = 6f;
+    private float timeSinceLastSeen = Mathf.Infinity;
+    [SerializeField] private float loseSightDuration = 3f;
+    private bool isPlayerVisible = false;
+
+    // === Roarで使っている変数 ===
+    [Header("Roar 設定")]
     private float roarTimer = 0f;
     private float roarDuration = 3f;
-
     private bool hasRoared = false;
 
-    // 行動ステートの定義
+    // === Leapで使っている変数 ===
+    [Header("Leap 設定")]
+    [SerializeField] private float leapDistance = 3f;
+    [SerializeField] private float leapSpeed = 10f;
+    [SerializeField] private float leapDuration = 1.5f;
+    private float chargeTimer = 0f;
+    private float chargeDuration = 1.5f;
+    private Vector3 leapDirection;
+    private float leapTimer = 0f;
+    private float postLeapWaitTimer = 0f;
+    private bool isWaitingAfterLeap = false;
+
+    // === 自前回転制御 ===
+    [SerializeField] private float turnSpeed = 2f;
+
+    // === 視野角（視界検知） ===
+    [Header("視野角設定")]
+    [SerializeField] private float detectionRange = 10f;
+    [SerializeField] private float detectionAngle = 30f;
+
+    // === 現在の状態 ===
+    private State currentState = State.Patrol;
     public enum State
     {
-        Patrol,     // 巡回中
-        Chase,      // 追跡中
-        Vigilance,  // 警戒中
-        Roar,        // 吠え中
+        Patrol,
+        Chase,
+        Vigilance,
+        Roar,
         Leap
     }
 
-    // 現在のステート（初期値は巡回）
-    private State currentState = State.Patrol;
-
-    // Rayを使ったPlayer検知システム
-    [SerializeField] private float detectionRange = 10f;      // Rayの距離
-    [SerializeField] private float detectionAngle = 30f;      // 視野角（左右の許容角度）
 
     // 初期化処理
     void Start()
@@ -271,16 +267,51 @@ public class Dinosaur_Base : MonoBehaviour
     {
         // 巡回ポイントが設定されていない場合は処理しない
         if (patrolPoints.Length == 0) return;
+
+        // 停止中の処理（立ち止まってキョロキョロ）
+        if (isWaiting)
+        {
+            idleTimer += Time.deltaTime;
+
+            // 方向転換風の演出（例：左右にゆっくり回転）とりあえず入れてみた
+            float rotationSpeed = 30f;
+            transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
+
+            if (idleTimer >= waitDuration)
+            {
+                isWaiting = false;
+                idleTimer = 0f;
+                nextIdleTime = Time.time + Random.Range(10f, 60f);
+                agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+
+                AudioManager.Instance.DestroySE("Idle");
+                AudioManager.Instance.PlaySELoop("Walk", transform);
+            }
+
+            return;
+        }
+
+        // 巡回中に一定時間経過したら立ち止まる
+        if (Time.time >= nextIdleTime)
+        {
+            isWaiting = true;
+            agent.ResetPath(); // 一時停止
+            AudioManager.Instance.DestroySE("Walk");
+            AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
+            return;
+        }
+
+        // 巡回動作中の処理
         AudioManager.Instance.DestroySE("Dash");
         AudioManager.Instance.PlaySELoop("Walk", transform);
 
-        // 現在の目的地に到達したら、次のポイントに移動
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
         }
     }
+
 
     // 追跡中の処理（transformによる自前移動）
     void ChaseState()
