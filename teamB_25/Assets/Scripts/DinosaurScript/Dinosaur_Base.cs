@@ -64,6 +64,11 @@ public class Dinosaur_Base : MonoBehaviour
     [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float detectionAngle = 30f;
 
+    private DinosaurAnimationManager animationManager;
+
+    //animationランダム再生用
+    private bool playedIdleAnimation = false;
+
     // === 現在の状態 ===
     private State currentState = State.Patrol;
     public enum State
@@ -75,6 +80,10 @@ public class Dinosaur_Base : MonoBehaviour
         Leap
     }
 
+    private void Awake()
+    {
+        animationManager = GetComponent<DinosaurAnimationManager>();
+    }
 
     // 初期化処理
     void Start()
@@ -102,7 +111,7 @@ public class Dinosaur_Base : MonoBehaviour
     {
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        //Debug.Log("Current State: " + currentState);
+        Debug.Log("Current State: " + currentState);
 
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
@@ -277,6 +286,20 @@ public class Dinosaur_Base : MonoBehaviour
             float rotationSpeed = 30f;
             transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
 
+            // 停止中にアニメーションを再生（1回だけ再生するようにしたいならフラグが必要）
+            if (!playedIdleAnimation)
+            {
+                if (Random.value < 0.8f)
+                {
+                    animationManager.PlayIdle();
+                }
+                else
+                {
+                    animationManager.PlaySniff();
+                }
+                playedIdleAnimation = true;
+            }
+
             if (idleTimer >= waitDuration)
             {
                 isWaiting = false;
@@ -286,6 +309,8 @@ public class Dinosaur_Base : MonoBehaviour
 
                 AudioManager.Instance.DestroySE("Idle");
                 AudioManager.Instance.PlaySELoop("Walk", transform);
+
+                animationManager.PlayWalk();
             }
 
             return;
@@ -298,12 +323,16 @@ public class Dinosaur_Base : MonoBehaviour
             agent.ResetPath(); // 一時停止
             AudioManager.Instance.DestroySE("Walk");
             AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
+
+            animationManager.PlayIdle();
             return;
         }
 
         // 巡回動作中の処理
         AudioManager.Instance.DestroySE("Dash");
         AudioManager.Instance.PlaySELoop("Walk", transform);
+
+        animationManager.PlayWalk();
 
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
@@ -316,6 +345,7 @@ public class Dinosaur_Base : MonoBehaviour
     // 追跡中の処理（transformによる自前移動）
     void ChaseState()
     {
+        animationManager.PlayRun();
         agent.SetDestination(playerTransform.position);
 
         AudioManager.Instance.DestroySE("Walk");
@@ -361,6 +391,7 @@ public class Dinosaur_Base : MonoBehaviour
         if (!hasRoared && AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySE("Rouring", transform.position);
+            animationManager.PlayRoar();
             hasRoared = true;
         }
 
@@ -382,6 +413,7 @@ public class Dinosaur_Base : MonoBehaviour
             if (chargeTimer < chargeDuration)
             {
                 // 溜め期間中は動かさない
+                animationManager.PlayWalk();
                 return;
             }
 
@@ -393,6 +425,7 @@ public class Dinosaur_Base : MonoBehaviour
             }
 
             // 3. 飛びつき移動
+            animationManager.PlayLeap();
             leapTimer += Time.deltaTime;
             transform.position += leapDirection * leapSpeed * Time.deltaTime;
 
@@ -405,6 +438,7 @@ public class Dinosaur_Base : MonoBehaviour
         }
         else
         {
+            animationManager.PlayWalk();
             // 5. 飛び終わり後の1秒待機処理
             postLeapWaitTimer += Time.deltaTime;
 
