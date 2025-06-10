@@ -927,6 +927,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9100000, guid: 67c52dde03e92d947b4c3f8c57febaf5, type: 2}
     - target: {fileID: 1246363723672515240, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      propertyPath: m_UpdateMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1246363723672515240, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       propertyPath: m_CullingMode
       value: 1
       objectReference: {fileID: 0}
@@ -1007,6 +1011,9 @@ PrefabInstance:
       addedObject: {fileID: 538690288}
     - targetCorrespondingSourceObject: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 538690305}
+    - targetCorrespondingSourceObject: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 538690302}
     - targetCorrespondingSourceObject: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       insertIndex: -1
@@ -1054,7 +1061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d10ccebbe4e5d44881fe128a182049d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTransform: {fileID: 842628084}
+  playerTransform: {fileID: 699647824}
   modelTransform: {fileID: 538690293}
   patrolPoints:
   - {fileID: 188926089}
@@ -1159,6 +1166,18 @@ MonoBehaviour:
   turnSpeed: 2
   detectionRange: 40
   detectionAngle: 30
+--- !u!114 &538690305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 538690282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 710d13b93b2ba9845b3bee64a70d8a8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &625736979
 GameObject:
   m_ObjectHideFlags: 0
