@@ -18,6 +18,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
     [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Image image;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -259,8 +260,20 @@ public class PlayerBase : MonoBehaviour
         if (!countdownActive) return;  // ← 隠れ中は処理を中断
         
         ChangeSpeed();
+        image.fillAmount = stamina / maxStamina;
 
-        if(isFounding)
+        if (lostStamina)
+        {
+            // 回復中（スタミナ切れ）→ 赤っぽい色
+            image.color = Color.red;
+        }
+        else
+        {
+            // 通常 → 緑色
+            image.color = Color.green;
+        }
+
+        if (isFounding)
         { 
             rigidbody.velocity = Vector3.zero;
             velocity = Vector3.zero;
