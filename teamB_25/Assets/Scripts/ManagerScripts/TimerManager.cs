@@ -8,7 +8,8 @@ public class TimerManager : MonoBehaviour
 {
     public static bool countdownActive = false; // StartTimerを待つ
 
-    private float startTimer = 180f;
+    //private float startTimer = 180f; // 後で直す
+    private float startTimer = 240f;
     private float nowTimer;
 
     public TextMeshProUGUI timeText;
