@@ -7,7 +7,8 @@ public class BreakerManager : MonoBehaviour
     public static int _breakerTask = 4;
     public static int _breakerOn = 0;
     private bool exitOpened = false;
-    public GameObject[] exitObjects;
+    public GameObject[] exitObjects;　// 扉が開くアニメーションに使用するオブジェクト
+    public GameObject[] flag; // 扉に触れたか判定するオブジェクト
 
     public Camera[] exitCameras; // 脱出扉ごとのカメラ
     public Camera playerCamera;　// プレイヤーごとのカメラ
@@ -26,6 +27,13 @@ public class BreakerManager : MonoBehaviour
         {
             obj .SetActive(false);
         }
+
+        foreach (GameObject f in flag)
+        {
+            f.SetActive(false); // flagも非アクティブ化
+        }
+
+
         // 全カメラオフ
         playerCamera.enabled = true;
         foreach (Camera cam in exitCameras)
@@ -55,6 +63,12 @@ public class BreakerManager : MonoBehaviour
             Debug.Log($"脱出扉{number}が開きました");
             exitObjects[number].SetActive(true);
             exitObjects[number].GetComponent<DoorOpener>().OpenDoor();
+
+            // flagもアクティブ化（全て or ランダム or 特定の番号だけ）
+            foreach (GameObject f in flag)
+            {
+                f.SetActive(true);
+            }
 
             StartCoroutine(PlayExitCinematic(number));
         }
