@@ -27,14 +27,18 @@ public class PlayerBase : MonoBehaviour
     private float stepTimer;
     private Vector3 preHidePosition;
     private Transform currentHidePlace = null;
+    private Quaternion currentHidePlaceRotation;
     private Collider currentHideCollider; // 隠れる場所のCollider
 
 
     private bool isFounding = false;
+    public bool IsFounding => isFounding;
+
     private bool isRunning = false;
     private bool isPushRun = false;
     private bool isPushHide = false;
     private bool lostStamina = false;
+    private bool isChangingCamera = false;
 
     public int Hp = 0;
 
@@ -67,9 +71,13 @@ public class PlayerBase : MonoBehaviour
             if (!isFounding && currentHidePlace != null)
             {
                 isFounding = true;
+                isChangingCamera = true;
                 preHidePosition = transform.position;
                 Vector3 targetPos = currentHidePlace.position;
                 transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
+                transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
+
+                AudioManager.Instance.PlaySE("SE2",transform.position);
 
                 rigidbody.velocity = Vector3.zero;
                 if(text != null)
@@ -87,6 +95,7 @@ public class PlayerBase : MonoBehaviour
             else if (isFounding)
             {
                 isFounding = false;
+                isChangingCamera = false;
                 if (currentHideCollider != null)
                 {
                     currentHideCollider.enabled = true; // 当たり判定を復活
@@ -159,6 +168,7 @@ public class PlayerBase : MonoBehaviour
         if(other.gameObject.CompareTag("HidePlace"))
         {
             currentHidePlace = other.transform;
+            currentHidePlaceRotation = other.transform.rotation;
             Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
             currentHideCollider = other.collider;
             if(text != null)
@@ -280,6 +290,7 @@ public class PlayerBase : MonoBehaviour
             moveInputValue = Vector2.zero;
             return;
         }
+
         if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
         {
             // �J�����̕����ɍ��킹���ړ�

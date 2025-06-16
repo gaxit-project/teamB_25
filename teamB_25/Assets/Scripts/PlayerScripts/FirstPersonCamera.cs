@@ -69,7 +69,7 @@ public class FirstPersonCameraController : MonoBehaviour
         if (!StartTimer.IsGameStarted) return;
 
         //ƒ|[ƒY‰æ–Ê‚ª–³Œø‚Å‚ ‚éê‡
-        if (pauseManager != null && pauseManager.PauseCanvas != null && !pauseManager.PauseCanvas.enabled)
+        if (pauseManager != null && pauseManager.PauseCanvas != null && !pauseManager.PauseCanvas.enabled && !playerBase.IsFounding)
         {
             Look();
         }
