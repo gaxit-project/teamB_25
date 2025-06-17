@@ -70,6 +70,7 @@ public class PlayerBase : MonoBehaviour
         gameInputs.Player.Hide.started += ctx => {
             if (!isFounding && currentHidePlace != null)
             {
+                AudioManager.Instance.PlaySE("OpenLocker", transform.position);
                 isFounding = true;
                 isChangingCamera = true;
                 preHidePosition = transform.position;
@@ -94,6 +95,7 @@ public class PlayerBase : MonoBehaviour
             // 隠れてる状態で押されたら解除
             else if (isFounding)
             {
+                AudioManager.Instance.PlaySE("CloseLocker", transform.position);
                 isFounding = false;
                 isChangingCamera = false;
                 if (currentHideCollider != null)

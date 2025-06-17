@@ -66,6 +66,8 @@ public class Dinosaur_Base : MonoBehaviour
 
     private DinosaurAnimationManager animationManager;
 
+    private PlayerBase playerScript;
+
     //animationランダム再生用
     private bool playedIdleAnimation = false;
 
@@ -92,6 +94,14 @@ public class Dinosaur_Base : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         rb = GetComponent<Rigidbody>();
+
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+        {
+            playerTransform = playerObj.transform;
+        }
+
+        playerScript = FindObjectOfType<PlayerBase>();
 
         // 恐竜らしい曲がり方を実現するためにNavMeshAgent に回転を任せず、このスクリプトで制御する
         agent.updateRotation = false;
@@ -196,6 +206,12 @@ public class Dinosaur_Base : MonoBehaviour
     // Rayでプレイヤーを検知する処理
     private bool DetectPlayerByRay()
     {
+        PlayerBase playerBase = playerTransform.GetComponent<PlayerBase>();
+        if (playerBase != null && playerBase.IsFounding)
+        {
+            return false;
+        }
+
         Vector3 origin = transform.position + Vector3.up * 1.5f; // 恐竜の目線の高さ
         Vector3 toPlayer = playerTransform.position - origin;
         toPlayer.y = 0f; // 水平方向に限定（必要に応じて削除可）
@@ -346,12 +362,28 @@ public class Dinosaur_Base : MonoBehaviour
     void ChaseState()
     {
         animationManager.PlayRun();
-        agent.SetDestination(playerTransform.position);
+
+        if (playerScript != null && playerScript.IsFounding) // ← 修正ポイント
+        {
+            // ランダムな方向へ移動
+            Vector3 randomDirection = Random.insideUnitSphere * 5f;
+            randomDirection.y = 0f; // 水平移動のみに制限
+            randomDirection += transform.position;
+
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomDirection, out hit, 5f, NavMesh.AllAreas))
+            {
+                agent.SetDestination(hit.position);
+            }
+        }
+        else
+        {
+            agent.SetDestination(playerTransform.position);
+        }
 
         AudioManager.Instance.DestroySE("Walk");
         AudioManager.Instance.PlaySELoop("Dash", transform);
     }
-
 
     void SetRandomVigilanceTarget()
     {
@@ -451,6 +483,11 @@ public class Dinosaur_Base : MonoBehaviour
                 SwitchState(State.Chase);
             }
         }
+    }
+
+    public bool IsFoundingPlayer()
+    {
+        return playerScript != null && playerScript.IsFounding;
     }
 
 

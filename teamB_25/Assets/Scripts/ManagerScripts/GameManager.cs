@@ -7,11 +7,12 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] SceneChangeManager sceneChangeManager;
+    private PlayerBase playerBase;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerBase = GameObject.FindWithTag("Player").GetComponent<PlayerBase>();
     }
 
     // Update is called once per frame
@@ -23,14 +24,21 @@ public class GameManager : MonoBehaviour
     
     void OnCollisionEnter(Collision other)
     {
-        //恐竜と接触したらゲームオーバー
         if (other.gameObject.CompareTag("Enemy"))
         {
-            sceneChangeManager.ChangeScene("GameOver");
+            // PlayerBaseが存在し、かつ見つかっているときだけゲームオーバー
+            if (playerBase != null && !playerBase.IsFounding)
+            {
+                sceneChangeManager.ChangeScene("GameOver");
+            }
+            else
+            {
+                Debug.Log("見つかっていないのでゲームオーバーにならない");
+            }
         }
 
         // 出口にたどりつけたらゲームクリア
-        if(other.gameObject.CompareTag("Exit"))
+        if (other.gameObject.CompareTag("Exit"))
         {
             sceneChangeManager.ChangeScene("GameClear");
         }
