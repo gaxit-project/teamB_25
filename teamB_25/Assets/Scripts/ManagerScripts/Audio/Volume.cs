@@ -10,8 +10,8 @@ public class Volume : MonoBehaviour
 
     private void Start()
     {
-        float bgm = PlayerPrefs.GetFloat("BGM_VOLUME", 0.5f);
-        float se = PlayerPrefs.GetFloat("SE_VOLUME", 0.5f);
+        float bgm = PlayerPrefs.GetFloat(AudioKey.BGM_VOLUME_KEY, 0.5f);
+        float se = PlayerPrefs.GetFloat(AudioKey.SE_VOLUME_KEY, 0.5f);
 
         bgmSlider.value = bgm;
         seSlider.value = se;

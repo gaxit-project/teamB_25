@@ -8,7 +8,17 @@ public class NamedAudioClip
     public string name;
     public AudioClip clip;
 }
+class AudioKey
+{
+    public static string BGM_VOLUME_KEY = "BGM_VOLUME";
+    public static string SE_VOLUME_KEY = "SE_VOLUME";
+}
 
+class AudioDefine
+{
+    public static string PlayerRun = "PlayerRun";
+    public static string PlayerWalk = "PlayerWalk";
+}
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
@@ -32,10 +42,9 @@ public class AudioManager : MonoBehaviour
     private Dictionary<string, AudioClip> seLoopDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioSource> activeLoops = new Dictionary<string, AudioSource>();
 
+     
 
-
-    private const string BGM_VOLUME_KEY = "BGM_VOLUME";
-    private const string SE_VOLUME_KEY = "SE_VOLUME";
+    
 
     void Awake()
     {
@@ -84,8 +93,8 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     void LoadVolumeSettings()
     {
-        float bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME_KEY, 0.5f);
-        float seVolume = PlayerPrefs.GetFloat(SE_VOLUME_KEY, 0.5f);
+        float bgmVolume = PlayerPrefs.GetFloat(AudioKey.BGM_VOLUME_KEY, 0.5f);
+        float seVolume = PlayerPrefs.GetFloat(AudioKey.SE_VOLUME_KEY, 0.5f);
 
 
         SetBGMVolume(bgmVolume);
@@ -216,12 +225,12 @@ public class AudioManager : MonoBehaviour
     public void SetBGMVolume(float volume)
     {
         bgmSource.volume = volume;
-        PlayerPrefs.SetFloat(BGM_VOLUME_KEY, volume);
+        PlayerPrefs.SetFloat(AudioKey.BGM_VOLUME_KEY, volume);
     }
 
     public void SetSEVolume(float volume)
     {
         sePrefab.volume = volume;
-        PlayerPrefs.SetFloat(SE_VOLUME_KEY, volume);
+        PlayerPrefs.SetFloat(AudioKey.SE_VOLUME_KEY, volume);
     }
 }
