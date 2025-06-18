@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
             // PlayerBaseが存在し、かつ見つかっているときだけゲームオーバー
             if (playerBase != null && !playerBase.IsFounding)
             {
-                sceneChangeManager.ChangeScene("GameOver");
+                sceneChangeManager.ChangeScene("DeadScene");
             }
             else
             {

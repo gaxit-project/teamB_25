@@ -12,13 +12,16 @@ EditorBuildSettings:
     path: Assets/Scenes/Main.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
+    path: Assets/Scripts/ManagerScripts/Time/Sleep.unity
+    guid: 084fa06187ef9904597a3c3f4ce992a4
+  - enabled: 1
+    path: Assets/Scripts/ManagerScripts/Time/DeadScene.unity
+    guid: 1e8afdeab2bc3f5449e76fed79c22e56
+  - enabled: 1
     path: Assets/Scenes/GameOver.unity
     guid: bdb7f5d5f85ee0641b222ace37e09ce4
   - enabled: 1
     path: Assets/Scenes/GameClear.unity
     guid: c6a579bb647ccdf459759bd9d18a8323
-  - enabled: 1
-    path: Assets/Scripts/ManagerScripts/Time/DeadScene.unity
-    guid: 1e8afdeab2bc3f5449e76fed79c22e56
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}

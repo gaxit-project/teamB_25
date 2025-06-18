@@ -40,7 +40,7 @@ public class TimerManager : MonoBehaviour
         //�������Ԍo��
         if (nowTimer<=0f)
         {
-            SceneManager.LoadScene("GameOver");
+            SceneManager.LoadScene("Sleep");
         }
     }
     /// <summary>
