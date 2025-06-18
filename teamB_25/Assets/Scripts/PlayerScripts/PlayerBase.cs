@@ -19,6 +19,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float staminaDuration;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Image image;
+    [SerializeField] private Image hideview;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -79,9 +80,15 @@ public class PlayerBase : MonoBehaviour
                 transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
 
                 AudioManager.Instance.PlaySE("SE2",transform.position);
+                hideview.gameObject.SetActive(true);
 
                 rigidbody.velocity = Vector3.zero;
-                if(text != null)
+
+                // 動かないようにKinematic化
+                rigidbody.isKinematic = true;
+                // 移動・回転を凍結
+                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+                if (text != null)
                 {
                     text.text = "Exit[H]";
                 }
@@ -98,14 +105,21 @@ public class PlayerBase : MonoBehaviour
                 AudioManager.Instance.PlaySE("CloseLocker", transform.position);
                 isFounding = false;
                 isChangingCamera = false;
+                
                 if (currentHideCollider != null)
                 {
                     currentHideCollider.enabled = true; // 当たり判定を復活
                 }
 
+                rigidbody.isKinematic = false;
+                rigidbody.constraints = RigidbodyConstraints.None;
+                rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
+                hideview.gameObject.SetActive(false);
+
                 transform.position = preHidePosition;
                 currentHidePlace = null;
                 currentHideCollider = null;
+                
 
                 Debug.Log("Unhide"); 
             }
