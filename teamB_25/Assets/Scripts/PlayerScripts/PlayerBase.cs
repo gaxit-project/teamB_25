@@ -90,7 +90,7 @@ public class PlayerBase : MonoBehaviour
                 rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                 if (text != null)
                 {
-                    text.text = "Exit[H]";
+                    text.text = "Exit Ⓧ";
                 }
                 Debug.Log("Hiding");
                 
@@ -190,7 +190,7 @@ public class PlayerBase : MonoBehaviour
             if(text != null)
             {
                 text.gameObject.SetActive(true);
-                text.text = "Hide[H]";
+                text.text = "Hide Ⓧ";
             }
             
         }
