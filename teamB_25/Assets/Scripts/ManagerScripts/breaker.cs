@@ -26,7 +26,14 @@ public class breaker : MonoBehaviour
                 }
             }
 
-            GetComponent<Renderer>().material.color = Color.green; // 色を変える
+            // アウトラインの色を変更
+            Outline outline = GetComponent<Outline>();
+            if (outline != null)
+            {
+                outline.OutlineColor = Color.green;
+            }
+            
+            //GetComponent<Renderer>().material.color = Color.green; // 色を変える
             BreakerManager.Instance.ActivateBreaker();
         }
     }

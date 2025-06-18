@@ -22,6 +22,9 @@ public class BreakerManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _breakerOn = 0;
+        exitOpened = false;
+
         // 非アクティブにする
         foreach (GameObject obj in exitObjects)
         {
