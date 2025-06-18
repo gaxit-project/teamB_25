@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameClear.unity
     guid: c6a579bb647ccdf459759bd9d18a8323
+  - enabled: 1
+    path: Assets/Scripts/ManagerScripts/Time/DeadScene.unity
+    guid: 1e8afdeab2bc3f5449e76fed79c22e56
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}
