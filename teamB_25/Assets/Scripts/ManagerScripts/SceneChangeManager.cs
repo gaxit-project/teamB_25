@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneChangeManager : MonoBehaviour
 {
-    //[SerializeField]private string _sceneName; //移動先のScene名
     public static SceneChangeManager Instance;
 
     private void Awake()
@@ -13,7 +12,7 @@ public class SceneChangeManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            //DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
+            DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
         }
         else
         {
@@ -23,16 +22,33 @@ public class SceneChangeManager : MonoBehaviour
 
     public void ChangeScene(string _sceneName) //Sceneを変える
     {
-        AudioManager.Instance.StopAllSELoops();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAllSELoops();
+        }
+
+        if (_sceneName == "End")
+        {
+            EndScene();
+            return;
+        }
+
+
         SceneManager.LoadScene(_sceneName);
+    }
+
+    private IEnumerator DelayedSceneLoad(string sceneName)
+    {
+        yield return null; // 次のフレームまで待つ
+        SceneManager.LoadScene(sceneName);
     }
 
     public void EndScene() //ゲームを終了
     {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
-        #endif
+#endif
     }
 }

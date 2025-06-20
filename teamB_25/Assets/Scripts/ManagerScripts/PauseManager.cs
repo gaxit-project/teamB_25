@@ -1,14 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
     public Canvas PauseCanvas;
 
-    public void Update()
+    void OnEnable()
     {
-        
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PauseCanvas.enabled = false;
+    }
+
+    public void ChangeScene(string _sceneName)
+    {
+        Time.timeScale = 1.0f; // 時間を戻す
+        PauseCanvas.gameObject.SetActive(false); // UIを消す
+        AudioManager.Instance.ResumeAudio(); // Audio再開
+        if (_sceneName == "End")
+        {
+            Application.Quit();
+        }
+        SceneChangeManager.Instance.ChangeScene(_sceneName);
     }
     public void Pause()
     {
