@@ -1,40 +1,95 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using TMPro;
 
-public class breaker : MonoBehaviour
+
+public class Breaker : MonoBehaviour
 {
-    public bool isActivated = false;
+    [SerializeField] private TextMeshProUGUI text;
 
-    void OnCollisionEnter(Collision other)
+    private bool isCollision = false;
+    public bool isActivated = false;
+    private GameInputs input;
+
+    private void Awake()
     {
+        input = new GameInputs();
+    }
+
+    private bool toolTriggered = false;
+
+    private void Update()
+    {
+        toolTriggered = input.Player.Tool.triggered;
+    }
+
+
+    private void OnEnable()
+    {
+        input.Enable();
+    }
+
+    private void OnDisable()
+    {
+        input.Disable();
+    }
+
+
+    private void OnDestroy()
+    {
+        input?.Dispose();
+    }
+
+    void OnCollisionStay(Collision other)
+    {
+        //Debug.Log("CollisionStay with: " + other.gameObject.name);
         // playerが電力復旧出来たら
         if (!isActivated && other.gameObject.CompareTag("Player"))
         {
-            isActivated = true;
-
-            // ブレーカー名からエリア番号を取得
-            string breakerName = gameObject.name;
-            string number = System.Text.RegularExpressions.Regex.Replace(breakerName, "[^0-9]", "");
-
-            // 対応するライト親オブジェクトを探す
-            GameObject lightParent = GameObject.Find("light" + number);
-            if(lightParent != null)
+            Debug.Log("CollisionStay with: " + other.gameObject.name);
+            if (text != null)
             {
-                AreaLightController alc = lightParent.GetComponent<AreaLightController>();
-                if(alc != null)
+                text.gameObject.SetActive(true);
+                text.text = "x";
+            }
+            if (input.Player.Tool.triggered && toolTriggered)
+            {
+                isActivated = true;
+                text.gameObject.SetActive(false);
+
+                // ブレーカー名からエリア番号を取得
+                string breakerName = gameObject.name;
+                string number = System.Text.RegularExpressions.Regex.Replace(breakerName, "[^0-9]", "");
+
+                // 対応するライト親オブジェクトを探す
+                GameObject lightParent = GameObject.Find("light" + number);
+                if (lightParent != null)
                 {
-                    alc.IncreaseLight(); // 明るくする
+                    AreaLightController alc = lightParent.GetComponent<AreaLightController>();
+                    if (alc != null)
+                    {
+                        alc.IncreaseLight(); // 明るくする
+                    }
                 }
-            }
 
-            // アウトラインの色を変更
-            Outline outline = GetComponent<Outline>();
-            if (outline != null)
-            {
-                outline.OutlineColor = Color.green;
+                // アウトラインの色を変更
+                Outline outline = GetComponent<Outline>();
+                if (outline != null)
+                {
+                    outline.OutlineColor = Color.green;
+                }
+
+                //GetComponent<Renderer>().material.color = Color.green; // 色を変える
+                BreakerManager.Instance.ActivateBreaker();
             }
-            
-            //GetComponent<Renderer>().material.color = Color.green; // 色を変える
-            BreakerManager.Instance.ActivateBreaker();
+        }
+    }
+
+    public void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            if (text != null) text.gameObject.SetActive(false);
         }
     }
 }
