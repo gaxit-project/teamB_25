@@ -26,7 +26,8 @@ public class Dinosaur_Base : MonoBehaviour
 
     // === Vigilanceで使っている変数 ===
     [Header("Vigilance 設定")]
-    [SerializeField] private float vigilanceDistance = 20f;
+    [SerializeField] private float vigilanceWalkDistance = 20f;
+    [SerializeField] private float vigilanceRunDistance = 30f;
     [SerializeField] private float vigilanceSpeed = 2f;
     private Vector3 vigilanceTarget;
 
@@ -160,13 +161,33 @@ public class Dinosaur_Base : MonoBehaviour
             case State.Patrol:
                 if (isPlayerVisible)
                 {
-                    SwitchState(State.Roar);  // Patrol→RoarのみOK
+                    SwitchState(State.Roar);  // プレイヤー視認で咆哮へ
                 }
-                else if (distanceToPlayer < vigilanceDistance)
+                else
                 {
-                    SwitchState(State.Vigilance);
+                    PlayerBase player = playerTransform.GetComponent<PlayerBase>();
+
+                    if (player != null)
+                    {
+                        if (distanceToPlayer < vigilanceWalkDistance)
+                        {
+                            if (player.IsRunningNow)
+                            {
+                                SwitchState(State.Chase);  // 近距離で走っていたら追跡
+                            }
+                            else if (player.IsWalkingNow)
+                            {
+                                SwitchState(State.Vigilance);  // 近距離で歩いていたら警戒
+                            }
+                        }
+                        else if (distanceToPlayer < vigilanceRunDistance && player.IsRunningNow)
+                        {
+                            SwitchState(State.Vigilance);  // 中距離で走っていたら警戒
+                        }
+                    }
                 }
-                PatrolState();
+
+                PatrolState(); // 巡回処理は常に実行
                 break;
 
             case State.Vigilance:
@@ -174,7 +195,7 @@ public class Dinosaur_Base : MonoBehaviour
                 {
                     SwitchState(State.Roar);
                 }
-                else if (distanceToPlayer >= vigilanceDistance)
+                else if (distanceToPlayer >= vigilanceRunDistance)
                 {
                     SwitchState(State.Patrol);
                 }
@@ -388,7 +409,7 @@ public class Dinosaur_Base : MonoBehaviour
     void SetRandomVigilanceTarget()
     {
         // 警戒距離の範囲内でランダムな方向と距離を決める
-        Vector2 randomCircle = Random.insideUnitCircle * vigilanceDistance;
+        Vector2 randomCircle = Random.insideUnitCircle * vigilanceRunDistance;
         vigilanceTarget = transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
 
         // NavMesh上の位置にするならサンプル
@@ -404,6 +425,7 @@ public class Dinosaur_Base : MonoBehaviour
     // 警戒中の処理（ゆっくり近づく）
     void VigilanceState()
     {
+        animationManager.PlayWalk();
         // 目的地に近づいたら新しい警戒ポイントを設定
         if (!agent.pathPending && agent.remainingDistance <= 0.5f)
         {
