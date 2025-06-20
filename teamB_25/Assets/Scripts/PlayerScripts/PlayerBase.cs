@@ -34,6 +34,9 @@ public class PlayerBase : MonoBehaviour
 
     private bool isFounding = false;
     public bool IsFounding => isFounding;
+    // PlayerBase.cs に追加
+    public bool IsRunningNow => IsRunning(); // 外部から呼べるようにする
+    public bool IsWalkingNow => IsMoving() && !IsRunning();
 
     private bool isRunning = false;
     private bool isPushRun = false;

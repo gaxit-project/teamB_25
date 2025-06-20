@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 
-public class breaker : MonoBehaviour
+public class Breaker : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI text;
 
@@ -89,7 +89,7 @@ public class breaker : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            text.gameObject.SetActive(false);
+            if (text != null) text.gameObject.SetActive(false);
         }
     }
 }
