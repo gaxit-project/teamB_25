@@ -9,13 +9,16 @@ public class StartTimer : MonoBehaviour
     public Canvas StartCanvas;
     public TextMeshProUGUI startCountText;
 
+    private bool hasStarted = false;
+
     public float countdownTime = 5f;
 
     void Start()
     {
-        
+        countdownTime = 5f; // 初期化する
+        IsGameStarted = false;
+        startCountText.gameObject.SetActive(true); // 再表示
     }
-
     
     void Update()
     {
@@ -23,12 +26,13 @@ public class StartTimer : MonoBehaviour
         if(countdownTime > 0)
         {
             TimerManager.countdownActive = false; //TimerManagerを止める
-            countdownTime -= Time.deltaTime;
+            countdownTime -= Time.unscaledDeltaTime;
             startCountText.text = Mathf.Ceil(countdownTime).ToString(); 
         }
         // カウントダウン終了後の処理
-        else if(countdownTime <= 0)
+        else if(!hasStarted)
         {
+            hasStarted = true;
             StartPlay();
             startCountText.text = "Start!";
             StartCoroutine(WaitErase());
@@ -44,6 +48,8 @@ public class StartTimer : MonoBehaviour
         TimerManager.countdownActive = true;
         PlayerBase.countdownActive = true;
         IsGameStarted = true;
+
+        Time.timeScale = 1f; 
     }
 
     // テキストを１秒表示したのち非表示にする処理
