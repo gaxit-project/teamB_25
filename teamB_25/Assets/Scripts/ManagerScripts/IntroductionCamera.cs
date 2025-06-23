@@ -33,7 +33,7 @@ public class IntroductionCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown("joystick button 7"))
+        if(Input.GetKeyDown("joystick button 7") || Input.GetKeyDown(KeyCode.Space))
         {
             SceneChangeManager.Instance.ChangeScene("Main");
         }
