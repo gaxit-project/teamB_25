@@ -111,9 +111,13 @@ public class Dinosaur_Base : MonoBehaviour
         SetRandomVigilanceTarget();
 
         // 最初の巡回ポイントへ移動開始
-        if (patrolPoints.Length > 0)
+        if (patrolPoints.Length > 0 && patrolPoints[currentPatrolIndex] != null)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+        }
+        else
+        {
+            Debug.LogError("patrolPoints[" + currentPatrolIndex + "] が null です！");
         }
     }
 
@@ -326,11 +330,11 @@ public class Dinosaur_Base : MonoBehaviour
             // 停止中にアニメーションを再生（1回だけ再生するようにしたいならフラグが必要）
             if (!playedIdleAnimation)
             {
-                if (Random.value < 0.8f)
+                if (Random.value < 0.8f && animationManager != null)
                 {
                     animationManager.PlayIdle();
                 }
-                else
+                else if(animationManager != null)
                 {
                     animationManager.PlaySniff();
                 }
@@ -345,9 +349,15 @@ public class Dinosaur_Base : MonoBehaviour
                 agent.SetDestination(patrolPoints[currentPatrolIndex].position);
 
                 AudioManager.Instance.DestroySE("Idle");
-                AudioManager.Instance.PlaySELoop("Walk", transform);
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySELoop("Walk", transform);
+                }
 
-                animationManager.PlayWalk();
+                if (animationManager != null)
+                {
+                    animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+                }
             }
 
             return;
@@ -361,15 +371,26 @@ public class Dinosaur_Base : MonoBehaviour
             AudioManager.Instance.DestroySE("Walk");
             AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
 
-            animationManager.PlayIdle();
+            if (animationManager != null)
+            {
+                animationManager.PlayIdle(); // ← または他のアニメーション呼び出し
+            }
+
             return;
         }
 
         // 巡回動作中の処理
         AudioManager.Instance.DestroySE("Dash");
-        AudioManager.Instance.PlaySELoop("Walk", transform);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySELoop("Walk", transform);
+        }
 
-        animationManager.PlayWalk();
+        if (animationManager != null)
+        {
+            animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+        }
+
 
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
@@ -382,7 +403,11 @@ public class Dinosaur_Base : MonoBehaviour
     // 追跡中の処理（transformによる自前移動）
     void ChaseState()
     {
-        animationManager.PlayRun();
+        if (animationManager != null)
+        {
+            animationManager.PlayRun(); // ← または他のアニメーション呼び出し
+        }
+
 
         if (playerScript != null && playerScript.IsFounding) // ← 修正ポイント
         {
@@ -425,7 +450,11 @@ public class Dinosaur_Base : MonoBehaviour
     // 警戒中の処理（ゆっくり近づく）
     void VigilanceState()
     {
-        animationManager.PlayWalk();
+        if (animationManager != null)
+        {
+            animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+        }
+
         // 目的地に近づいたら新しい警戒ポイントを設定
         if (!agent.pathPending && agent.remainingDistance <= 0.5f)
         {
@@ -435,8 +464,11 @@ public class Dinosaur_Base : MonoBehaviour
 
     void RoarState()
     {
-        AudioManager.Instance.DestroySE("Dash");
-        AudioManager.Instance.DestroySE("Walk");
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.DestroySE("Dash");
+            AudioManager.Instance.DestroySE("Walk");
+        }
         roarTimer += Time.deltaTime;
 
         agent.velocity = Vector3.zero;
@@ -445,7 +477,7 @@ public class Dinosaur_Base : MonoBehaviour
         if (!hasRoared && AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySE("Rouring", transform.position);
-            animationManager.PlayRoar();
+            animationManager?.PlayRoar();
             hasRoared = true;
         }
 
@@ -464,7 +496,7 @@ public class Dinosaur_Base : MonoBehaviour
         {
             chargeTimer += Time.deltaTime;
 
-            if (chargeTimer < chargeDuration)
+            if (chargeTimer < chargeDuration && animationManager != null)
             {
                 // 溜め期間中は動かさない
                 animationManager.PlayWalk();
@@ -479,7 +511,11 @@ public class Dinosaur_Base : MonoBehaviour
             }
 
             // 3. 飛びつき移動
-            animationManager.PlayLeap();
+            if (animationManager != null)
+            {
+                animationManager.PlayLeap(); // ← または他のアニメーション呼び出し
+            }
+
             leapTimer += Time.deltaTime;
             transform.position += leapDirection * leapSpeed * Time.deltaTime;
 
@@ -492,7 +528,10 @@ public class Dinosaur_Base : MonoBehaviour
         }
         else
         {
-            animationManager.PlayWalk();
+            if (animationManager != null)
+            {
+                animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+            }
             // 5. 飛び終わり後の1秒待機処理
             postLeapWaitTimer += Time.deltaTime;
 
