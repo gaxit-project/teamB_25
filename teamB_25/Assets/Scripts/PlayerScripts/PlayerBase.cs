@@ -20,6 +20,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Image image;
     [SerializeField] private Image hideview;
+    [SerializeField] private int hideTime = 10;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -101,30 +102,14 @@ public class PlayerBase : MonoBehaviour
                 {
                     currentHideCollider.enabled = false; // 当たり判定を無効化
                 }
+
+                StartCoroutine(HideCountdown());
             }
             // 隠れてる状態で押されたら解除
             else if (isFounding)
             {
-                AudioManager.Instance.PlaySE("CloseLocker", transform.position);
-                isFounding = false;
-                isChangingCamera = false;
-                
-                if (currentHideCollider != null)
-                {
-                    currentHideCollider.enabled = true; // 当たり判定を復活
-                }
-
-                rigidbody.isKinematic = false;
-                rigidbody.constraints = RigidbodyConstraints.None;
-                rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
-                hideview.gameObject.SetActive(false);
-
-                transform.position = preHidePosition;
-                currentHidePlace = null;
-                currentHideCollider = null;
-                
-
-                Debug.Log("Unhide"); 
+                StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
+                CancelHide();
             }
         };
 
@@ -280,6 +265,39 @@ public class PlayerBase : MonoBehaviour
                     Debug.Log("スタミナが満タンになりました");
                 }
             }
+        }
+    }
+
+    private void CancelHide()
+    {
+        AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+        isFounding = false;
+        isChangingCamera = false;
+
+        if (currentHideCollider != null)
+        {
+            currentHideCollider.enabled = true; // 当たり判定を復活
+        }
+
+        rigidbody.isKinematic = false;
+        rigidbody.constraints = RigidbodyConstraints.None;
+        rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
+        hideview.gameObject.SetActive(false);
+
+        transform.position = preHidePosition;
+        currentHidePlace = null;
+        currentHideCollider = null;
+
+
+        Debug.Log("Unhide");
+    }
+
+    private IEnumerator HideCountdown()
+    {
+        yield return new WaitForSeconds(hideTime); // hideTime秒待つ
+        if (isFounding) // まだ隠れていれば
+        {
+            CancelHide();
         }
     }
 
