@@ -95,7 +95,7 @@ public class PlayerBase : MonoBehaviour
                 rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                 if (text != null)
                 {
-                    textback.color = new Color(0f, 250f / 255f, 1f);
+                    textback.color = new Color(0f, 250f / 255f, 1f,0.5f);
                     text.text = "Exit y";
                 }
                 Debug.Log("Hiding");
@@ -198,7 +198,7 @@ public class PlayerBase : MonoBehaviour
                 text.gameObject.SetActive(true);
                 text.text = "Hide y";
                 textback.gameObject.SetActive(true);
-                textback.color = new Color(0f, 250f / 255f, 1f);
+                textback.color = new Color(0f, 250f / 255f, 1f,0.5f);
                 
             }
             
