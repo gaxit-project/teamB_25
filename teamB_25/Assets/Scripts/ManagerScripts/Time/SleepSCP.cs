@@ -17,7 +17,7 @@ public class SleepSCP : MonoBehaviour
     {
         while (Camera.position.y > 1.4f)
         {
-            Camera.position += new Vector3(0, -0.005f, 0.005f);
+            Camera.position += new Vector3(0, -1f, 1f)*Time.deltaTime;
             Camera.rotation = Quaternion.Lerp(Camera.rotation, Quaternion.Euler(10, 0, 0), Time.deltaTime * 2f);
             yield return null;
         }
@@ -26,7 +26,7 @@ public class SleepSCP : MonoBehaviour
         StartCoroutine(FadeToBlack());
         while (Camera.position.y > 0.3f)
         {
-            Camera.position += new Vector3(0, -0.001f, 0.002f);
+            Camera.position += new Vector3(0, -0.5f, 0.8f)*Time.deltaTime;
             Camera.rotation = Quaternion.Lerp(Camera.rotation, Quaternion.Euler(0, 90, 90), Time.deltaTime * 1f);
             yield return null;
         }
