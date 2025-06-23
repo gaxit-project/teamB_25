@@ -12013,6 +12013,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729fd4e102e149c4bbc5bf13e050fc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startTimer: 300
   timeText: {fileID: 52187192}
 --- !u!4 &949729265
 Transform:

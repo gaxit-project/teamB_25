@@ -8,8 +8,8 @@ public class TimerManager : MonoBehaviour
 {
     public static bool countdownActive = false; // StartTimerを待つ
 
-    //private float startTimer = 180f; // 後で直す
-    private float startTimer = 240f;
+    [SerializeField] private float startTimer;
+
     private float nowTimer;
 
     public TextMeshProUGUI timeText;
@@ -50,6 +50,6 @@ public class TimerManager : MonoBehaviour
     {
         int minute = (int)nowTimer / 60;
         int second = (int)nowTimer % 60;
-        timeText.text = $"{minute:00}:{second:00}";
+        timeText.text = $"{minute:0}:{second:00}";
     }
 }
