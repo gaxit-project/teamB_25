@@ -348,7 +348,10 @@ public class Dinosaur_Base : MonoBehaviour
                 nextIdleTime = Time.time + Random.Range(10f, 60f);
                 agent.SetDestination(patrolPoints[currentPatrolIndex].position);
 
-                AudioManager.Instance.DestroySE("Idle");
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.DestroySE("Idle");
+                }
                 if (AudioManager.Instance != null)
                 {
                     AudioManager.Instance.PlaySELoop("Walk", transform);
@@ -380,7 +383,10 @@ public class Dinosaur_Base : MonoBehaviour
         }
 
         // „‰ñ“®ì’†‚Ìˆ—
-        AudioManager.Instance.DestroySE("Dash");
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.DestroySE("Dash");
+        }
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySELoop("Walk", transform);
