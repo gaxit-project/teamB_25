@@ -20,6 +20,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Image image;
     [SerializeField] private Image hideview;
+    [SerializeField] private int hideTime = 10;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -100,6 +101,11 @@ public class PlayerBase : MonoBehaviour
                 if (currentHideCollider != null)
                 {
                     currentHideCollider.enabled = false; // 当たり判定を無効化
+                }
+
+                while(Time.time >= hideTime)
+                {
+                    CancelHide();
                 }
             }
             // 隠れてる状態で押されたら解除
@@ -283,6 +289,29 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+    private void CancelHide()
+    {
+        AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+        isFounding = false;
+        isChangingCamera = false;
+
+        if (currentHideCollider != null)
+        {
+            currentHideCollider.enabled = true; // 当たり判定を復活
+        }
+
+        rigidbody.isKinematic = false;
+        rigidbody.constraints = RigidbodyConstraints.None;
+        rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
+        hideview.gameObject.SetActive(false);
+
+        transform.position = preHidePosition;
+        currentHidePlace = null;
+        currentHideCollider = null;
+
+
+        Debug.Log("Unhide");
+    }
 
     private void FixedUpdate()
     {
