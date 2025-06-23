@@ -18,8 +18,10 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
     [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Image textback;
     [SerializeField] private Image image;
     [SerializeField] private Image hideview;
+    
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -93,6 +95,7 @@ public class PlayerBase : MonoBehaviour
                 rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                 if (text != null)
                 {
+                    textback.color = new Color(0f, 250f / 255f, 1f);
                     text.text = "Exit y";
                 }
                 Debug.Log("Hiding");
@@ -194,6 +197,9 @@ public class PlayerBase : MonoBehaviour
             {
                 text.gameObject.SetActive(true);
                 text.text = "Hide y";
+                textback.gameObject.SetActive(true);
+                textback.color = new Color(0f, 250f / 255f, 1f);
+                
             }
             
         }
