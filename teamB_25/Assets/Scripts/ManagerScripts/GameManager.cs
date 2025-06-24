@@ -8,11 +8,13 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] SceneChangeManager sceneChangeManager;
     private PlayerBase playerBase;
+    private Dinosaur_Base dinosaur_Base;
 
     // Start is called before the first frame update
     void Start()
     {
         playerBase = GameObject.FindWithTag("Player").GetComponent<PlayerBase>();
+        dinosaur_Base = GameObject.FindWithTag("Enemy").GetComponent<Dinosaur_Base>();
     }
 
     // Update is called once per frame
@@ -27,7 +29,7 @@ public class GameManager : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy"))
         {
             // PlayerBaseが存在し、かつ見つかっているときだけゲームオーバー
-            if (playerBase != null && !playerBase.IsFounding)
+            if (playerBase != null && (!playerBase.IsFounding || dinosaur_Base.IsLooked))
             {
                 sceneChangeManager.ChangeScene("DeadScene");
             }

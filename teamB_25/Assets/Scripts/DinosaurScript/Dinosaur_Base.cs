@@ -65,6 +65,10 @@ public class Dinosaur_Base : MonoBehaviour
     [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float detectionAngle = 30f;
 
+    // === ロッカーに入ったところを見られているかどうか ===
+    private bool isLooked = false;
+    public bool IsLooked => isLooked;
+
     private DinosaurAnimationManager animationManager;
 
     private PlayerBase playerScript;
@@ -145,6 +149,7 @@ public class Dinosaur_Base : MonoBehaviour
         if (playerDetectedByRay)
         {
             isPlayerVisible = true;
+            isLooked = true;
             timeSinceLastSeen = 0f;
             Debug.Log($"Player detected by ray. timeSinceLastSeen reset to 0");
         }
@@ -315,6 +320,7 @@ public class Dinosaur_Base : MonoBehaviour
     // 巡回中の処理
     void PatrolState()
     {
+        isLooked = false;
         // 巡回ポイントが設定されていない場合は処理しない
         if (patrolPoints.Length == 0) return;
 
@@ -371,9 +377,14 @@ public class Dinosaur_Base : MonoBehaviour
         {
             isWaiting = true;
             agent.ResetPath(); // 一時停止
-            AudioManager.Instance.DestroySE("Walk");
-            AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
-
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.DestroySE("Walk");
+            }
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
+            }
             if (animationManager != null)
             {
                 animationManager.PlayIdle(); // ← または他のアニメーション呼び出し
@@ -415,7 +426,7 @@ public class Dinosaur_Base : MonoBehaviour
         }
 
 
-        if (playerScript != null && playerScript.IsFounding) // ← 修正ポイント
+        if (playerScript != null && playerScript.IsFounding && !isLooked) // ← 修正ポイント
         {
             // ランダムな方向へ移動
             Vector3 randomDirection = Random.insideUnitSphere * 5f;
@@ -456,6 +467,7 @@ public class Dinosaur_Base : MonoBehaviour
     // 警戒中の処理（ゆっくり近づく）
     void VigilanceState()
     {
+        isLooked = false;
         if (animationManager != null)
         {
             animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
@@ -557,6 +569,10 @@ public class Dinosaur_Base : MonoBehaviour
         return playerScript != null && playerScript.IsFounding;
     }
 
+    public void SetLooked(bool value)
+    {
+        isLooked = value;
+    }
 
     // transformによる恐竜っぽい移動処理（前進＋回転）
     void MoveTowards(Vector3 target, float speed)

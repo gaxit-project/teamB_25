@@ -32,6 +32,7 @@ public class PlayerBase : MonoBehaviour
     private Quaternion currentHidePlaceRotation;
     private Collider currentHideCollider; // 隠れる場所のCollider
 
+    private Dinosaur_Base dinosaur_Base;
 
     private bool isFounding = false;
     public bool IsFounding => isFounding;
@@ -98,7 +99,7 @@ public class PlayerBase : MonoBehaviour
                 }
                 Debug.Log("Hiding");
                 
-                if (currentHideCollider != null)
+                if (currentHideCollider != null && !dinosaur_Base.IsLooked)
                 {
                     currentHideCollider.enabled = false; // 当たり判定を無効化
                 }
@@ -123,6 +124,7 @@ public class PlayerBase : MonoBehaviour
 
     public void Start()
     {
+        dinosaur_Base = GameObject.FindWithTag("Enemy").GetComponent<Dinosaur_Base>();
         countdownActive = false;
         Attack();
     }
