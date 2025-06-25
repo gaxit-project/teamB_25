@@ -104,7 +104,7 @@ public class PlayerBase : MonoBehaviour
                 }
                 Debug.Log("Hiding");
                 
-                if (currentHideCollider != null && !dinosaur_Base.IsLooked)
+                if (currentHideCollider != null)
                 {
                     currentHideCollider.enabled = false; // 当たり判定を無効化
                 }
