@@ -7,12 +7,13 @@ public class SceneChangeManager : MonoBehaviour
 {
     public static SceneChangeManager Instance;
 
+
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
+            //DontDestroyOnLoad(gameObject); //Sceneをまたいで保持
         }
         else
         {
