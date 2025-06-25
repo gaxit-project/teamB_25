@@ -12,6 +12,7 @@ public class Breaker : MonoBehaviour
 
     public void bootBreaker()
     {
+        AudioManager.Instance.PlaySE("BreakerOn", transform.position);
         isActivated = true;
 
         // ブレーカー名からエリア番号を取得

@@ -2456,6 +2456,7 @@ GameObject:
   - component: {fileID: 5696258921856158819}
   - component: {fileID: 7200872474845805750}
   - component: {fileID: 1644738204059111363}
+  - component: {fileID: 2223140890050562087}
   m_Layer: 0
   m_Name: SK_Military_Survivalist (4)
   m_TagString: Untagged
@@ -2535,6 +2536,14 @@ MonoBehaviour:
   stamina: 10
   maxStamina: 10
   staminaDuration: 0
+  text: {fileID: 0}
+  hideButton: {fileID: 0}
+  breakerButton: {fileID: 0}
+  image: {fileID: 0}
+  hideview: {fileID: 0}
+  hideTime: 10
+  eyePosition: {fileID: 0}
+  rayLength: 3
   Hp: 0
 --- !u!54 &7200872474845805750
 Rigidbody:
@@ -2584,6 +2593,48 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.5, y: 1.9, z: 0.5}
   m_Center: {x: 0, y: 0.95, z: 0}
+--- !u!23 &2223140890050562087
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5355928461982673233}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &5450915333300059007
 GameObject:
   m_ObjectHideFlags: 0

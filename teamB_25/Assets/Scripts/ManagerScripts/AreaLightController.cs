@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class AreaLightController : MonoBehaviour
 {
-    public float intensityMultiplier = 1.5f;
+    [SerializeField]public float intensityMultiplier = 1.5f;
 
-   public void IncreaseLight()
+    public void IncreaseLight()
     {
         foreach (Light light in GetComponentsInChildren<Light>())
         {
-            light.intensity *= intensityMultiplier;
+            light.intensity += intensityMultiplier;
         }
     }
 }
