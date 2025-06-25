@@ -58,7 +58,7 @@ public class FirstPersonCameraController : MonoBehaviour
         yRotation = playerBody.eulerAngles.y;
 
         // カメラの上下方向も反映させたい場合（必要なら）
-        xRotation = transform.localEulerAngles.x;
+        //xRotation = transform.localEulerAngles.x;
 
         initialLocalPos = transform.localPosition;
     }
@@ -80,9 +80,9 @@ public class FirstPersonCameraController : MonoBehaviour
             Vector2 delta = lookInput * sensitivity;
 
             // 上下：カメラにだけ適用
-            xRotation -= delta.y;
+            /*xRotation -= delta.y;
             xRotation = Mathf.Clamp(xRotation, -40f, 20f);
-            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);*/
 
             // 左右：プレイヤー本体に適用
             yRotation += delta.x;

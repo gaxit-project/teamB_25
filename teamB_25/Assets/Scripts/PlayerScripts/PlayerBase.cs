@@ -18,9 +18,13 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
     [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Image hideButton;
+    [SerializeField] private Image breakerButton;
     [SerializeField] private Image image;
     [SerializeField] private Image hideview;
     [SerializeField] private int hideTime = 10;
+    [SerializeField] private Transform eyePosition;
+    [SerializeField] private float rayLength = 3f;
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -31,6 +35,7 @@ public class PlayerBase : MonoBehaviour
     private Transform currentHidePlace = null;
     private Quaternion currentHidePlaceRotation;
     private Collider currentHideCollider; // 隠れる場所のCollider
+    private bool toolTriggered = false;
 
     private Dinosaur_Base dinosaur_Base;
 
@@ -95,7 +100,7 @@ public class PlayerBase : MonoBehaviour
                 rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                 if (text != null)
                 {
-                    text.text = "Exit y";
+                    text.text = "Exit";
                 }
                 Debug.Log("Hiding");
                 
@@ -156,6 +161,76 @@ public class PlayerBase : MonoBehaviour
             AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk);
             AudioManager.Instance.DestroySE(AudioDefine.PlayerRun);
             return;
+        }
+
+        toolTriggered = gameInputs.Player.Tool.triggered;
+
+        Ray ray = new Ray(eyePosition.position, eyePosition.forward);
+        RaycastHit hit;
+
+        Debug.DrawLine(ray.origin, ray.origin + ray.direction * rayLength, Color.red);
+
+        if(Physics.Raycast(ray, out hit, rayLength))
+        {
+            if(hit.collider.CompareTag("HidePlace"))
+            {
+                currentHidePlace = hit.transform;
+                currentHidePlaceRotation = hit.transform.rotation;
+                Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
+                currentHideCollider = hit.collider;
+                if (text != null)
+                {
+                    text.gameObject.SetActive(true);
+                    hideButton.gameObject.SetActive(true);
+                    text.text = "Hide";
+                }
+            }
+            else
+            {
+                if (!isFounding)
+                {
+                    currentHidePlace = null;
+                    Debug.Log("Exit HidePlace");
+
+                    if (text != null)
+                    {
+                        text.gameObject.SetActive(false);
+                        hideButton.gameObject.SetActive(false);
+                    }
+
+                }
+            }
+
+            Breaker breaker = hit.collider.GetComponent<Breaker>();
+            if (hit.collider.CompareTag("Breaker") && !breaker.isActivated)
+            {
+                Debug.Log("Hit Breaker");
+                if(breakerButton != null)
+                {
+                    breakerButton.gameObject.SetActive(true);
+                }
+                if(gameInputs.Player.Tool.triggered && toolTriggered)
+                {
+                    breakerButton.gameObject.SetActive(false);
+                    breaker.bootBreaker();
+                }
+            }
+        }
+        else
+        {
+            if (!isFounding)
+            {
+                currentHidePlace = null;
+                Debug.Log("Exit HidePlace");
+
+                if (text != null)
+                {
+                    hideButton.gameObject.SetActive(false);
+                    text.gameObject.SetActive(false);
+                    breakerButton.gameObject.SetActive(false);
+                }
+
+            }
         }
     }
 
@@ -303,6 +378,11 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(eyePosition.position, eyePosition.forward * rayLength);
+    }
 
     private void FixedUpdate()
     {

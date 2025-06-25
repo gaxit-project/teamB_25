@@ -7,6 +7,7 @@ TagManager:
   - Exit
   - Enemy
   - HidePlace
+  - Breaker
   layers:
   - Default
   - TransparentFX
