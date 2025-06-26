@@ -3,11 +3,28 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseManager : MonoBehaviour
 {
-    public Canvas PauseCanvas;
+    public static PauseManager Instance;
 
+    public Canvas PauseCanvas;
+    [SerializeField] Button focusButton;
+    [SerializeField] CanvasGroup PauseCG;
+    [SerializeField] CanvasGroup otherCG;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -17,12 +34,26 @@ public class PauseManager : MonoBehaviour
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
+    public void SetOtherCG(CanvasGroup cg)
+    {
+        otherCG = cg;
+    }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         PauseCanvas.enabled = false;
     }
+    public void Start()
+    {
+        if (otherCG != null)
+        {
+            otherCG.interactable = true;
+        }
+        if (SceneManager.GetActiveScene().name == "Title")
+        {
 
+        }
+    }
     public void ChangeScene(string _sceneName)
     {
         Time.timeScale = 1.0f; // 時間を戻す
@@ -43,8 +74,14 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
+            PauseCG.interactable = false;
             AudioManager.Instance.ResumeAudio();
             PauseCanvas.enabled = false;
+            if (otherCG != null)
+            {
+                otherCG.interactable = true;
+            }
+            
         }
     }
 
@@ -53,6 +90,11 @@ public class PauseManager : MonoBehaviour
         AudioManager.Instance.StopAllSELoops();
         AudioManager.Instance.PauseAudio();
         PauseCanvas.enabled = true;
-
+        PauseCG.interactable = true;
+        if (otherCG != null)
+        {
+            otherCG.interactable = false;
+        }
+        focusButton.Select();
     }
 }

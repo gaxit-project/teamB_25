@@ -8,7 +8,7 @@ public class Au : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.B))
         {
-            AudioManager.Instance.PlayBGM("BGM1");
+            AudioManager.Instance.PlayBGM("BGM");
         }
         if (Input.GetKeyUp(KeyCode.N))
         {
