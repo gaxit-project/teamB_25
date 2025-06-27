@@ -13506,8 +13506,6 @@ GameObject:
   m_Component:
   - component: {fileID: 949729265}
   - component: {fileID: 949729264}
-  - component: {fileID: 949729266}
-  - component: {fileID: 949729267}
   - component: {fileID: 949729268}
   - component: {fileID: 949729269}
   - component: {fileID: 949729270}
@@ -13547,35 +13545,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &949729266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 949729263}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec03ac16d2fd0164088b61c1a445a7ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PauseCanvas: {fileID: 0}
-  focusButton: {fileID: 0}
-  PauseCG: {fileID: 0}
-  otherCG: {fileID: 0}
---- !u!114 &949729267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 949729263}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac51f898142309047b9c2fbd1ed95ff8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pauseManager: {fileID: 949729266}
 --- !u!114 &949729268
 MonoBehaviour:
   m_ObjectHideFlags: 0
