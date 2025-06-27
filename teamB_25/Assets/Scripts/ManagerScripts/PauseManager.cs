@@ -14,6 +14,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] CanvasGroup PauseCG;
     [SerializeField] CanvasGroup otherCG;
 
+    public bool CountDown;
     private void Awake()
     {
         if (Instance == null)
@@ -45,6 +46,7 @@ public class PauseManager : MonoBehaviour
     }
     public void Start()
     {
+        
         if (otherCG != null)
         {
             otherCG.interactable = true;
@@ -70,7 +72,11 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = (Time.timeScale == 0f) ? 1f : 0f;
         if (Time.timeScale == 0f)
         {
-            PauseNow();
+            if (!CountDown)
+            {
+                PauseNow();
+            }
+            
         }
         else
         {

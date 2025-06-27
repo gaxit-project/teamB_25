@@ -12,9 +12,11 @@ public class StartTimer : MonoBehaviour
     private bool hasStarted = false;
 
     public float countdownTime = 5f;
+    public 
 
     void Start()
     {
+        PauseManager.Instance.CountDown = true;
         countdownTime = 5f; // 初期化する
         IsGameStarted = false;
         startCountText.gameObject.SetActive(true); // 再表示
@@ -57,5 +59,6 @@ public class StartTimer : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         startCountText.gameObject.SetActive(false);
+        PauseManager.Instance.CountDown = false;
     }
 }
