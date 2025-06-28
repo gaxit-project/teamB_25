@@ -14,6 +14,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerBase player; // PlayerBase �X�N���v�g�Q��
+    [SerializeField] SceneChangeManager sceneChangeManager;
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
@@ -38,6 +39,7 @@ public class PlayerBase : MonoBehaviour
     private bool toolTriggered = false;
 
     private Dinosaur_Base dinosaur_Base;
+    private NormalDinosaur normalDinosaur;
 
     private bool isFounding = false;
     public bool IsFounding => isFounding;
@@ -77,7 +79,7 @@ public class PlayerBase : MonoBehaviour
             isPushRun = false;
             Debug.Log("Run canceled");
         };
-        
+
         gameInputs.Player.Hide.started += ctx => {
             if (!isFounding && currentHidePlace != null)
             {
@@ -89,35 +91,47 @@ public class PlayerBase : MonoBehaviour
                 transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
                 transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
 
-                AudioManager.Instance.PlaySE("SE2",transform.position);
+                AudioManager.Instance.PlaySE("SE2", transform.position);
                 hideview.gameObject.SetActive(true);
 
                 rigidbody.velocity = Vector3.zero;
 
-                // 動かないようにKinematic化
-                rigidbody.isKinematic = true;
-                // 移動・回転を凍結
-                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-                if (text != null)
+                // 物理演算を生かしたまま動かないように
+                rigidbody.isKinematic = false;  // kinematic解除
+                rigidbody.constraints = RigidbodyConstraints.FreezeAll; // 動きを凍結
+
+                // ColliderをTriggerにして衝突検知をOnTriggerEnterで行う
+                Collider col = GetComponent<Collider>();
+                if (col != null)
                 {
-                    text.text = "Exit";
+                    NormalDinosaur dino = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
+                    if (dino != null && dino.IsLooked)
+                    {
+                        col.isTrigger = false; // ⬅ 見つかっているなら衝突判定あり
+                    }
+                    else
+                    {
+                        col.isTrigger = true; // ⬅ 見つかっていないならすり抜けOK
+                    }
                 }
+
+                if (text != null) text.text = "Exit";
                 Debug.Log("Hiding");
-                
-                if (currentHideCollider != null)
+
+                if (currentHideCollider != null && currentHideCollider.CompareTag("HidePlace"))
                 {
-                    currentHideCollider.enabled = false; // 当たり判定を無効化
+                    currentHideCollider.enabled = false;
                 }
 
                 StartCoroutine(HideCountdown());
             }
-            // 隠れてる状態で押されたら解除
             else if (isFounding)
             {
                 StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
                 CancelHide();
             }
         };
+
 
         gameInputs.Enable();
     }
@@ -130,6 +144,7 @@ public class PlayerBase : MonoBehaviour
     public void Start()
     {
         dinosaur_Base = GameObject.FindWithTag("Enemy").GetComponent<Dinosaur_Base>();
+        normalDinosaur = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
         countdownActive = false;
         Attack();
     }
@@ -353,7 +368,14 @@ public class PlayerBase : MonoBehaviour
 
         if (currentHideCollider != null)
         {
-            currentHideCollider.enabled = true; // 当たり判定を復活
+            currentHideCollider.enabled = true; // 隠れる場所のCollider復活
+        }
+
+        // ColliderのisTriggerを戻す
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.isTrigger = false;
         }
 
         rigidbody.isKinematic = false;
@@ -364,7 +386,6 @@ public class PlayerBase : MonoBehaviour
         transform.position = preHidePosition;
         currentHidePlace = null;
         currentHideCollider = null;
-
 
         Debug.Log("Unhide");
     }
@@ -386,33 +407,41 @@ public class PlayerBase : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!countdownActive) return;  // ← 隠れ中は処理を中断
-        
-        ChangeSpeed();
-        image.fillAmount = stamina / maxStamina;
+        if (!countdownActive) return;
 
-        if (lostStamina)
-        {
-            // 回復中（スタミナ切れ）→ 赤っぽい色
-            image.color = Color.red;
-        }
-        else
-        {
-            // 通常 → 緑色
-            image.color = Color.green;
-        }
-
+        //  【追記】ロッカー中は恐竜に見られているかどうかで isTrigger を切り替える
         if (isFounding)
-        { 
+        {
+            NormalDinosaur dino = GameObject.FindWithTag("Enemy")?.GetComponent<NormalDinosaur>();
+            Collider col = GetComponent<Collider>();
+
+            if (dino != null && col != null)
+            {
+                // 恐竜に見られていれば isTrigger = false（= 衝突有効）
+                // 見られていなければ isTrigger = true（= すり抜け）
+                bool shouldBeTrigger = !dino.IsLooked;
+
+                if (col.isTrigger != shouldBeTrigger)
+                {
+                    col.isTrigger = shouldBeTrigger;
+                    Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
+                }
+            }
+
             rigidbody.velocity = Vector3.zero;
             velocity = Vector3.zero;
             moveInputValue = Vector2.zero;
             return;
         }
 
-        if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
+        // ↓ 既存の処理
+        ChangeSpeed();
+        image.fillAmount = stamina / maxStamina;
+
+        image.color = lostStamina ? Color.red : Color.green;
+
+        if (moveInputValue.sqrMagnitude > 0.01f)
         {
-            // �J�����̕����ɍ��킹���ړ�
             Vector3 camForward = mainCamera.transform.forward;
             Vector3 camRight = mainCamera.transform.right;
             camForward.y = 0;
@@ -425,10 +454,35 @@ public class PlayerBase : MonoBehaviour
         }
         else
         {
-            // ��~���͊��炩�Ɏ~�܂�
             Vector3 targetVelocity = new Vector3(0, rigidbody.velocity.y, 0);
             rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
         }
     }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("OnCollisionEnter with: " + collision.gameObject.name);
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            NormalDinosaur dino = collision.gameObject.GetComponent<NormalDinosaur>();
+
+            if (isFounding && dino != null && dino.IsLooked)
+            {
+                Debug.Log("ロッカー中に見つかって接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else if (!isFounding)
+            {
+                Debug.Log("隠れていない状態で接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else
+            {
+                Debug.Log("隠れていて見られていないのでセーフ");
+            }
+        }
+    }
+
 
 }

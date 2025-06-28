@@ -26,19 +26,6 @@ public class GameManager : MonoBehaviour
     
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Enemy"))
-        {
-            // PlayerBaseが存在し、かつ見つかっているときだけゲームオーバー
-            if (playerBase != null && (!playerBase.IsFounding || dinosaur_Base.IsLooked))
-            {
-                sceneChangeManager.ChangeScene("DeadScene");
-            }
-            else
-            {
-                Debug.Log("見つかっていないのでゲームオーバーにならない");
-            }
-        }
-
         // 出口にたどりつけたらゲームクリア
         if (other.gameObject.CompareTag("Exit"))
         {
