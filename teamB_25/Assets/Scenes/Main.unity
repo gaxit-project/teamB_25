@@ -14150,7 +14150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   miniMapCamera: {fileID: 1515474540}
   map: {fileID: 611005690}
-  player: {fileID: 1587165113}
+  player: {fileID: 461160520}
   miniMapTexture: {fileID: 8400000, guid: 9652e42aa55dded4ca181dc4a68286ed, type: 2}
   miniMapUI: {fileID: 1206074936}
   fogImage: {fileID: 1350762834}
