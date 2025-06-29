@@ -371,11 +371,11 @@ public partial class @GameInputs: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d58c421b-9a4b-4cb3-bc78-9aa6c27493a6"",
-                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""id"": ""69430ad7-e80d-494c-8585-a492c5812bca"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Gamepad"",
+                    ""groups"": """",
                     ""action"": ""Run"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
