@@ -126,7 +126,7 @@ public class Dinosaur_Base : MonoBehaviour
     }
 
     // 毎フレーム実行される処理
-    void Update()
+    void FixedUpdate()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
@@ -144,17 +144,11 @@ public class Dinosaur_Base : MonoBehaviour
             );
         }
 
-        bool playerDetectedByRay = DetectPlayerByRay();
-
+        isLooked =  DetectPlayerByRay();
         // 例: Update()の視認判定部分
-        if (playerDetectedByRay)
+        if (isLooked)
         {
             isPlayerVisible = true;
-            if (!isLooked)
-            {
-                Debug.Log("死亡恐竜がプレイヤーを視認しました。isLooked = true に設定します。");
-                isLooked = true;
-            }
             timeSinceLastSeen = 0f;
             Debug.Log("Player detected by ray. timeSinceLastSeen reset to 0");
         }
@@ -170,11 +164,7 @@ public class Dinosaur_Base : MonoBehaviour
                     Debug.Log("Lost sight of player. Setting isPlayerVisible to false.");
                     isPlayerVisible = false;
                 }
-                if (isLooked)
-                {
-                    Debug.Log("死亡恐竜がプレイヤーの視認を失いました。isLooked = false に設定します。");
-                    isLooked = false;
-                }
+                
             }
         }
 

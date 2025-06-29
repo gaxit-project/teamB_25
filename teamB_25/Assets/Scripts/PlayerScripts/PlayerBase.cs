@@ -101,19 +101,19 @@ public class PlayerBase : MonoBehaviour
                 rigidbody.constraints = RigidbodyConstraints.FreezeAll; // 動きを凍結
 
                 // ColliderをTriggerにして衝突検知をOnTriggerEnterで行う
-                Collider col = GetComponent<Collider>();
-                if (col != null)
-                {
-                    NormalDinosaur dino = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
-                    if (dino != null && dino.IsLooked)
-                    {
-                        col.isTrigger = false; // ⬅ 見つかっているなら衝突判定あり
-                    }
-                    else
-                    {
-                        col.isTrigger = true; // ⬅ 見つかっていないならすり抜けOK
-                    }
-                }
+                ///Collider col = GetComponent<Collider>();
+                ///if (col != null)
+                ///{
+                   /// NormalDinosaur dino = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
+                  ///  if (dino != null && dino.IsLooked)
+                    ///{
+                       /// col.isTrigger = false; // ⬅ 見つかっているなら衝突判定あり
+                   /// }
+                   /// else
+                   /// {
+                      ///  col.isTrigger = true; // ⬅ 見つかっていないならすり抜けOK
+                   /// }
+                ///}
 
                 if (text != null) text.text = "Exit";
                 Debug.Log("Hiding");
@@ -409,23 +409,20 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-        //  【追記】ロッカー中は恐竜に見られているかどうかで isTrigger を切り替える
+        //  ここを直さないといけない
         if (isFounding)
         {
             NormalDinosaur dino = GameObject.FindWithTag("Enemy")?.GetComponent<NormalDinosaur>();
             Collider col = GetComponent<Collider>();
-
+            
             if (dino != null && col != null)
             {
                 // 恐竜に見られていれば isTrigger = false（= 衝突有効）
-                // 見られていなければ isTrigger = true（= すり抜け）
+                //見られていなければ isTrigger = true（= すり抜け）
                 bool shouldBeTrigger = !dino.IsLooked;
 
-                if (col.isTrigger != shouldBeTrigger)
-                {
-                    col.isTrigger = shouldBeTrigger;
-                    Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
-                }
+                col.isTrigger = shouldBeTrigger;
+                Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
             }
 
             rigidbody.velocity = Vector3.zero;
