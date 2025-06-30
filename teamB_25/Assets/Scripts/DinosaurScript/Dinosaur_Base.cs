@@ -69,12 +69,17 @@ public class Dinosaur_Base : MonoBehaviour
     private bool isLooked = false;
     public bool IsLooked => isLooked;
 
+    private bool previousIsLooked = false; // 追加：前回のisLooked状態を記録
+
     private DinosaurAnimationManager animationManager;
 
     private PlayerBase playerScript;
 
     //animationランダム再生用
     private bool playedIdleAnimation = false;
+
+    // === 見ている恐竜の一元化 ===
+    public static List<Dinosaur_Base> dinosLookingAtPlayer = new List<Dinosaur_Base>();
 
     // === 現在の状態 ===
     private State currentState = State.Patrol;
@@ -144,7 +149,33 @@ public class Dinosaur_Base : MonoBehaviour
             );
         }
 
-        isLooked =  DetectPlayerByRay();
+        isLooked = DetectPlayerByRay();
+
+        if (isLooked != previousIsLooked)
+        {
+            Debug.Log($"[Look状態変化] isLooked が {previousIsLooked} → {isLooked} に変化しました");
+
+            if (isLooked)
+            {
+                if (!dinosLookingAtPlayer.Contains(this))
+                {
+                    dinosLookingAtPlayer.Add(this);
+                    Debug.Log($"{name} がプレイヤーを見つけてリストに追加されました");
+                }
+            }
+            else
+            {
+                if (dinosLookingAtPlayer.Contains(this))
+                {
+                    dinosLookingAtPlayer.Remove(this);
+                    Debug.Log($"{name} がプレイヤーを見失ってリストから削除されました");
+                }
+            }
+
+            previousIsLooked = isLooked;
+        }
+
+
         // 例: Update()の視認判定部分
         if (isLooked)
         {
@@ -430,9 +461,8 @@ public class Dinosaur_Base : MonoBehaviour
         }
 
 
-        if (playerScript != null && playerScript.IsFounding && !isLooked) // ← 修正ポイント
+        if (playerScript != null && playerScript.IsFounding) // ← 修正ポイント
         {
-            isLooked = true;
             // ランダムな方向へ移動
             Vector3 randomDirection = Random.insideUnitSphere * 5f;
             randomDirection.y = 0f; // 水平移動のみに制限
@@ -576,10 +606,7 @@ public class Dinosaur_Base : MonoBehaviour
         return playerScript != null && playerScript.IsFounding;
     }
 
-    public void SetLooked(bool value)
-    {
-        isLooked = value;
-    }
+    
 
     // transformによる恐竜っぽい移動処理（前進＋回転）
     void MoveTowards(Vector3 target, float speed)

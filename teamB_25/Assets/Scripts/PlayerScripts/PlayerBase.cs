@@ -14,6 +14,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerBase player; // PlayerBase �X�N���v�g�Q��
+    [SerializeField] SceneChangeManager sceneChangeManager;
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
@@ -51,6 +52,8 @@ public class PlayerBase : MonoBehaviour
     private bool lostStamina = false;
     private bool isChangingCamera = false;
 
+    private bool wasLookedWhenHiding = false;
+
     public int Hp = 0;
 
     public static bool countdownActive = false; // StartTimerを待つ
@@ -77,47 +80,58 @@ public class PlayerBase : MonoBehaviour
             isPushRun = false;
             Debug.Log("Run canceled");
         };
-        
+
         gameInputs.Player.Hide.started += ctx => {
-            if (!isFounding && currentHidePlace != null)
+            if (isFounding)
             {
-                AudioManager.Instance.PlaySE("OpenLocker", transform.position);
-                isFounding = true;
-                isChangingCamera = true;
-                preHidePosition = transform.position;
-                Vector3 targetPos = currentHidePlace.position;
-                transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
-                transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
-
-                AudioManager.Instance.PlaySE("SE2",transform.position);
-                hideview.gameObject.SetActive(true);
-
-                rigidbody.velocity = Vector3.zero;
-
-                // 動かないようにKinematic化
-                rigidbody.isKinematic = true;
-                // 移動・回転を凍結
-                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-                if (text != null)
-                {
-                    text.text = "Exit";
-                }
-                Debug.Log("Hiding");
-                
-                if (currentHideCollider != null)
-                {
-                    currentHideCollider.enabled = false; // 当たり判定を無効化
-                }
-
-                StartCoroutine(HideCountdown());
-            }
-            // 隠れてる状態で押されたら解除
-            else if (isFounding)
-            {
+                wasLookedWhenHiding = false; // 出るときにリセット
                 StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
                 CancelHide();
+                return;
             }
+
+            if (currentHidePlace == null)
+            {
+                Debug.LogWarning("currentHidePlace is null! 隠れる処理を中断します");
+                return;
+            }
+
+            wasLookedWhenHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
+
+            AudioManager.Instance?.PlaySE("OpenLocker", transform.position);
+
+            isFounding = true;
+            isChangingCamera = true;
+            preHidePosition = transform.position;
+
+            Vector3 targetPos = currentHidePlace.position;
+            transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
+            transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
+
+            AudioManager.Instance?.PlaySE("SE2", transform.position);
+            hideview?.gameObject.SetActive(true);
+
+            if (rigidbody != null)
+            {
+                rigidbody.velocity = Vector3.zero;
+                rigidbody.isKinematic = true;
+                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            }
+
+            if (text != null)
+            {
+                text.text = "Exit";
+            }
+
+            if (currentHideCollider != null)
+            {
+                currentHideCollider.enabled = false; // 当たり判定を無効化
+            }
+
+            Debug.Log("Hiding");
+            StartCoroutine(HideCountdown());
         };
+
 
         gameInputs.Enable();
     }
@@ -138,7 +152,7 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-  
+        Debug.Log($"isFounding: {isFounding}, 見ている恐竜の数: {Dinosaur_Base.dinosLookingAtPlayer.Count}");
 
         if (IsRunning())
         {
@@ -244,6 +258,28 @@ public class PlayerBase : MonoBehaviour
         moveInputValue = context.ReadValue<Vector2>();
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            if (isFounding && wasLookedWhenHiding)
+            {
+                Debug.Log("ロッカー中に見つかって接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else if (!isFounding)
+            {
+                Debug.Log("隠れていない状態で接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else
+            {
+                Debug.Log("隠れていて見られていないのでセーフ");
+            }
+        }
+    }
+
+
     public void OnCollisionStay(Collision other)
     {
         if(other.gameObject.CompareTag("HidePlace"))
@@ -347,7 +383,15 @@ public class PlayerBase : MonoBehaviour
 
     private void CancelHide()
     {
-        AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager.Instance が null です");
+        }
+
         isFounding = false;
         isChangingCamera = false;
 
@@ -356,18 +400,29 @@ public class PlayerBase : MonoBehaviour
             currentHideCollider.enabled = true; // 当たり判定を復活
         }
 
-        rigidbody.isKinematic = false;
-        rigidbody.constraints = RigidbodyConstraints.None;
-        rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
-        hideview.gameObject.SetActive(false);
+        if (rigidbody != null)
+        {
+            rigidbody.isKinematic = false;
+            rigidbody.constraints = RigidbodyConstraints.None;
+            rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
+        }
+        else
+        {
+            Debug.LogWarning("rigidbody が null です");
+        }
+
+        if (hideview != null)
+        {
+            hideview.gameObject.SetActive(false);
+        }
 
         transform.position = preHidePosition;
         currentHidePlace = null;
         currentHideCollider = null;
 
-
         Debug.Log("Unhide");
     }
+
 
     private IEnumerator HideCountdown()
     {
@@ -387,7 +442,7 @@ public class PlayerBase : MonoBehaviour
     private void FixedUpdate()
     {
         if (!countdownActive) return;  // ← 隠れ中は処理を中断
-        
+
         ChangeSpeed();
         image.fillAmount = stamina / maxStamina;
 
