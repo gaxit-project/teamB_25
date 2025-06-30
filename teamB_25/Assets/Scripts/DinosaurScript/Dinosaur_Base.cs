@@ -126,7 +126,7 @@ public class Dinosaur_Base : MonoBehaviour
     }
 
     // 毎フレーム実行される処理
-    void Update()
+    void FixedUpdate()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
@@ -144,14 +144,13 @@ public class Dinosaur_Base : MonoBehaviour
             );
         }
 
-        bool playerDetectedByRay = DetectPlayerByRay();
-
-        if (playerDetectedByRay)
+        isLooked =  DetectPlayerByRay();
+        // 例: Update()の視認判定部分
+        if (isLooked)
         {
             isPlayerVisible = true;
-            isLooked = true;
             timeSinceLastSeen = 0f;
-            Debug.Log($"Player detected by ray. timeSinceLastSeen reset to 0");
+            Debug.Log("Player detected by ray. timeSinceLastSeen reset to 0");
         }
         else
         {
@@ -160,10 +159,15 @@ public class Dinosaur_Base : MonoBehaviour
 
             if (timeSinceLastSeen > loseSightDuration)
             {
-                if (isPlayerVisible) Debug.Log("Lost sight of player. Setting isPlayerVisible to false.");
-                isPlayerVisible = false;
+                if (isPlayerVisible)
+                {
+                    Debug.Log("Lost sight of player. Setting isPlayerVisible to false.");
+                    isPlayerVisible = false;
+                }
+                
             }
         }
+
 
         switch (currentState)
         {
@@ -320,7 +324,6 @@ public class Dinosaur_Base : MonoBehaviour
     // 巡回中の処理
     void PatrolState()
     {
-        isLooked = false;
         // 巡回ポイントが設定されていない場合は処理しない
         if (patrolPoints.Length == 0) return;
 
@@ -420,6 +423,7 @@ public class Dinosaur_Base : MonoBehaviour
     // 追跡中の処理（transformによる自前移動）
     void ChaseState()
     {
+
         if (animationManager != null)
         {
             animationManager.PlayRun(); // ← または他のアニメーション呼び出し
@@ -428,6 +432,7 @@ public class Dinosaur_Base : MonoBehaviour
 
         if (playerScript != null && playerScript.IsFounding && !isLooked) // ← 修正ポイント
         {
+            isLooked = true;
             // ランダムな方向へ移動
             Vector3 randomDirection = Random.insideUnitSphere * 5f;
             randomDirection.y = 0f; // 水平移動のみに制限
@@ -444,8 +449,11 @@ public class Dinosaur_Base : MonoBehaviour
             agent.SetDestination(playerTransform.position);
         }
 
-        AudioManager.Instance.DestroySE("Walk");
-        AudioManager.Instance.PlaySELoop("Dash", transform);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.DestroySE("Walk");
+            AudioManager.Instance.PlaySELoop("Dash", transform);
+        }
     }
 
     void SetRandomVigilanceTarget()
@@ -467,7 +475,6 @@ public class Dinosaur_Base : MonoBehaviour
     // 警戒中の処理（ゆっくり近づく）
     void VigilanceState()
     {
-        isLooked = false;
         if (animationManager != null)
         {
             animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
