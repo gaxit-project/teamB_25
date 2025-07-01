@@ -13,7 +13,8 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float currentSpeed;
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
-    [SerializeField] private PlayerBase player; // PlayerBase �X�N���v�g�Q��
+    [SerializeField] private PlayerBase player; // PlayerBase  X N   v g Q  
+    [SerializeField] SceneChangeManager sceneChangeManager;
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
@@ -36,8 +37,11 @@ public class PlayerBase : MonoBehaviour
     private Quaternion currentHidePlaceRotation;
     private Collider currentHideCollider; // 隠れる場所のCollider
     private bool toolTriggered = false;
+    private Breaker breaker;
+
 
     private Dinosaur_Base dinosaur_Base;
+    private NormalDinosaur normalDinosaur;
 
     private bool isFounding = false;
     public bool IsFounding => isFounding;
@@ -58,16 +62,17 @@ public class PlayerBase : MonoBehaviour
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
+        image.color = Color.green;
 
         gameInputs = new GameInputs();
 
-        if(isFounding == false)
+        if (isFounding == false)
         {
             gameInputs.Player.Move.started += OnMove;
             gameInputs.Player.Move.performed += OnMove;
             gameInputs.Player.Move.canceled += OnMove;
         }
-        
+
 
         gameInputs.Player.Run.started += ctx => {
             isPushRun = true;
@@ -77,47 +82,21 @@ public class PlayerBase : MonoBehaviour
             isPushRun = false;
             Debug.Log("Run canceled");
         };
-        
+
         gameInputs.Player.Hide.started += ctx => {
             if (!isFounding && currentHidePlace != null)
             {
-                AudioManager.Instance.PlaySE("OpenLocker", transform.position);
-                isFounding = true;
-                isChangingCamera = true;
-                preHidePosition = transform.position;
-                Vector3 targetPos = currentHidePlace.position;
-                transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
-                transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
-
-                AudioManager.Instance.PlaySE("SE2",transform.position);
-                hideview.gameObject.SetActive(true);
-
-                rigidbody.velocity = Vector3.zero;
-
-                // 動かないようにKinematic化
-                rigidbody.isKinematic = true;
-                // 移動・回転を凍結
-                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-                if (text != null)
-                {
-                    text.text = "Exit";
-                }
-                Debug.Log("Hiding");
-                
-                if (currentHideCollider != null)
-                {
-                    currentHideCollider.enabled = false; // 当たり判定を無効化
-                }
+                EnterHide();
 
                 StartCoroutine(HideCountdown());
             }
-            // 隠れてる状態で押されたら解除
             else if (isFounding)
             {
                 StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
                 CancelHide();
             }
         };
+
 
         gameInputs.Enable();
     }
@@ -130,6 +109,7 @@ public class PlayerBase : MonoBehaviour
     public void Start()
     {
         dinosaur_Base = GameObject.FindWithTag("Enemy").GetComponent<Dinosaur_Base>();
+        normalDinosaur = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
         countdownActive = false;
         Attack();
     }
@@ -138,7 +118,7 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-  
+
 
         if (IsRunning())
         {
@@ -165,73 +145,7 @@ public class PlayerBase : MonoBehaviour
 
         toolTriggered = gameInputs.Player.Tool.triggered;
 
-        Ray ray = new Ray(eyePosition.position, eyePosition.forward);
-        RaycastHit hit;
-
-        Debug.DrawLine(ray.origin, ray.origin + ray.direction * rayLength, Color.red);
-
-        if(Physics.Raycast(ray, out hit, rayLength))
-        {
-            if(hit.collider.CompareTag("HidePlace"))
-            {
-                currentHidePlace = hit.transform;
-                currentHidePlaceRotation = hit.transform.rotation;
-                Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
-                currentHideCollider = hit.collider;
-                if (text != null)
-                {
-                    text.gameObject.SetActive(true);
-                    hideButton.gameObject.SetActive(true);
-                    text.text = "Hide";
-                }
-            }
-            else
-            {
-                if (!isFounding)
-                {
-                    currentHidePlace = null;
-                    Debug.Log("Exit HidePlace");
-
-                    if (text != null)
-                    {
-                        text.gameObject.SetActive(false);
-                        hideButton.gameObject.SetActive(false);
-                    }
-
-                }
-            }
-
-            Breaker breaker = hit.collider.GetComponent<Breaker>();
-            if (hit.collider.CompareTag("Breaker") && !breaker.isActivated)
-            {
-                Debug.Log("Hit Breaker");
-                if(breakerButton != null)
-                {
-                    breakerButton.gameObject.SetActive(true);
-                }
-                if(gameInputs.Player.Tool.triggered && toolTriggered)
-                {
-                    breakerButton.gameObject.SetActive(false);
-                    breaker.bootBreaker();
-                }
-            }
-        }
-        else
-        {
-            if (!isFounding)
-            {
-                currentHidePlace = null;
-                Debug.Log("Exit HidePlace");
-
-                if (text != null)
-                {
-                    hideButton.gameObject.SetActive(false);
-                    text.gameObject.SetActive(false);
-                    breakerButton.gameObject.SetActive(false);
-                }
-
-            }
-        }
+        
     }
 
     public virtual void Attack()
@@ -244,41 +158,81 @@ public class PlayerBase : MonoBehaviour
         moveInputValue = context.ReadValue<Vector2>();
     }
 
-    public void OnCollisionStay(Collision other)
+    public void OnTriggerStay(Collider other)
     {
-        if(other.gameObject.CompareTag("HidePlace"))
+        if (isFounding) return; // 既に隠れてるなら処理しない
+
+        Collider parentCollider = other.transform.parent?.GetComponent<Collider>();//判定に使ったコライダーの親のコライダーを取得
+        if (other.gameObject.CompareTag("HidePlace"))
         {
-            currentHidePlace = other.transform;
-            currentHidePlaceRotation = other.transform.rotation;
+            currentHidePlace = parentCollider.transform;
+            currentHidePlaceRotation = parentCollider.transform.rotation;
             Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
-            currentHideCollider = other.collider;
-            if(text != null)
+            currentHideCollider = parentCollider;//隠れるコライダーを設定したコライダーにする
+            if (text != null)
             {
                 text.gameObject.SetActive(true);
-                text.text = "Hide y";
+                hideButton.gameObject.SetActive(true);
+                text.text = "Hide";
             }
-            
+
         }
-        //isHideCollision = false;
+
+        breaker = parentCollider.GetComponent<Breaker>();//親のオブジェクトのBreakerスクリプトを取得
+
+        if (other.gameObject.CompareTag("Breaker") && !breaker.isActivated)
+        {
+            Debug.Log("Hit Breaker");
+            if (breakerButton != null)
+            {
+                breakerButton.gameObject.SetActive(true);
+                text.gameObject.SetActive(true);
+                text.text = "Boot";
+            }
+            if (gameInputs.Player.Tool.triggered && toolTriggered)
+            {
+                breakerButton.gameObject.SetActive(false);
+                text.gameObject.SetActive(false);
+                breaker.bootBreaker();
+                
+            }
+        }
     }
 
-    public void OnCollisionExit(Collision other)
+    public void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("HidePlace"))
         {
             if (!isFounding)
             {
-                currentHidePlace = null; 
+                currentHidePlace = null;//隠れ場所の情報をリセット
                 Debug.Log("Exit HidePlace");
 
-                if(text != null)
+                if (text != null)
                 {
+                    hideButton.gameObject.SetActive(false);
                     text.gameObject.SetActive(false);
                 }
-                
+
             }
         }
+
+        if (other.gameObject.CompareTag("Breaker") && !breaker.isActivated)
+        {
+            if (!isFounding)
+            {
+
+                if (text != null)
+                {
+                    text.gameObject.SetActive(false);
+                    breakerButton.gameObject.SetActive(false);
+                }
+
+            }
+        }
+
     }
+
 
 
     public bool IsMoving()
@@ -288,10 +242,9 @@ public class PlayerBase : MonoBehaviour
 
     public bool IsRunning()
     {
-        //Debug.Log($"isRunning={isRunning}, moveInputValue={moveInputValue}");
         return isRunning;
     }
-    
+
     private void ChangeSpeed()
     {
         if (!lostStamina && (stamina > 0) && isPushRun && (moveInputValue.y > 0))
@@ -345,6 +298,49 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
+    private void EnterHide()
+    {
+        AudioManager.Instance.PlaySE("OpenLocker", transform.position);
+        isFounding = true;//隠れているflag
+        isChangingCamera = true;
+        preHidePosition = transform.position;
+        Vector3 targetPos = currentHidePlace.position;
+        transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
+        transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
+
+        AudioManager.Instance.PlaySE("SE2", transform.position);
+        hideview.gameObject.SetActive(true);
+
+        rigidbody.velocity = Vector3.zero;
+
+        // 物理演算を生かしたまま動かないように
+        rigidbody.isKinematic = false;  // kinematic解除
+        rigidbody.constraints = RigidbodyConstraints.FreezeAll; // 動きを凍結
+
+        // ColliderをTriggerにして衝突検知をOnTriggerEnterで行う
+        ///Collider col = GetComponent<Collider>();
+        ///if (col != null)
+        ///{
+        /// NormalDinosaur dino = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
+        ///  if (dino != null && dino.IsLooked)
+        ///{
+        /// col.isTrigger = false; // ⬅ 見つかっているなら衝突判定あり
+        /// }
+        /// else
+        /// {
+        ///  col.isTrigger = true; // ⬅ 見つかっていないならすり抜けOK
+        /// }
+        ///}
+
+        if (text != null) text.text = "Exit";
+        Debug.Log("Hiding");
+
+        if (currentHideCollider != null && currentHideCollider.CompareTag("HidePlace"))
+        {
+            currentHideCollider.enabled = false;
+        }
+    }
+
     private void CancelHide()
     {
         AudioManager.Instance.PlaySE("CloseLocker", transform.position);
@@ -353,7 +349,14 @@ public class PlayerBase : MonoBehaviour
 
         if (currentHideCollider != null)
         {
-            currentHideCollider.enabled = true; // 当たり判定を復活
+            currentHideCollider.enabled = true; // 隠れる場所のCollider復活
+        }
+
+        // ColliderのisTriggerを戻す
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.isTrigger = false;
         }
 
         rigidbody.isKinematic = false;
@@ -361,10 +364,9 @@ public class PlayerBase : MonoBehaviour
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
         hideview.gameObject.SetActive(false);
 
-        transform.position = preHidePosition;
+        transform.position = preHidePosition;//もとの位置に戻す
         currentHidePlace = null;
         currentHideCollider = null;
-
 
         Debug.Log("Unhide");
     }
@@ -378,41 +380,42 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(eyePosition.position, eyePosition.forward * rayLength);
-    }
+    
 
     private void FixedUpdate()
     {
-        if (!countdownActive) return;  // ← 隠れ中は処理を中断
-        
-        ChangeSpeed();
-        image.fillAmount = stamina / maxStamina;
+        if (!countdownActive) return;
 
-        if (lostStamina)
-        {
-            // 回復中（スタミナ切れ）→ 赤っぽい色
-            image.color = Color.red;
-        }
-        else
-        {
-            // 通常 → 緑色
-            image.color = Color.green;
-        }
-
+        //  ここを直さないといけない
         if (isFounding)
-        { 
+        {
+            NormalDinosaur dino = GameObject.FindWithTag("Enemy")?.GetComponent<NormalDinosaur>();
+            Collider col = GetComponent<Collider>();
+
+            if (dino != null && col != null)
+            {
+                // 恐竜に見られていれば isTrigger = false（= 衝突有効）
+                //見られていなければ isTrigger = true（= すり抜け）
+                bool shouldBeTrigger = !dino.IsLooked;
+
+                col.isTrigger = shouldBeTrigger;
+                Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
+            }
+
             rigidbody.velocity = Vector3.zero;
             velocity = Vector3.zero;
             moveInputValue = Vector2.zero;
             return;
         }
 
-        if (moveInputValue.sqrMagnitude > 0.01f) // �قڃ[���łȂ����
+        // ↓ 既存の処理
+        ChangeSpeed();
+        image.fillAmount = stamina / maxStamina;
+
+        image.color = lostStamina ? Color.red : Color.green;
+
+        if (moveInputValue.sqrMagnitude > 0.01f)
         {
-            // �J�����̕����ɍ��킹���ړ�
             Vector3 camForward = mainCamera.transform.forward;
             Vector3 camRight = mainCamera.transform.right;
             camForward.y = 0;
@@ -425,10 +428,35 @@ public class PlayerBase : MonoBehaviour
         }
         else
         {
-            // ��~���͊��炩�Ɏ~�܂�
             Vector3 targetVelocity = new Vector3(0, rigidbody.velocity.y, 0);
             rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
         }
     }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("OnCollisionEnter with: " + collision.gameObject.name);
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            NormalDinosaur dino = collision.gameObject.GetComponent<NormalDinosaur>();
+
+            if (isFounding && dino != null && dino.IsLooked)
+            {
+                Debug.Log("ロッカー中に見つかって接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else if (!isFounding)
+            {
+                Debug.Log("隠れていない状態で接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else
+            {
+                Debug.Log("隠れていて見られていないのでセーフ");
+            }
+        }
+    }
+
 
 }
