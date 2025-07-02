@@ -55,6 +55,8 @@ public class PlayerBase : MonoBehaviour
     private bool lostStamina = false;
     private bool isChangingCamera = false;
 
+    private bool wasLookedWhenHiding = false;
+
     public int Hp = 0;
 
     public static bool countdownActive = false; // StartTimerを待つ
@@ -92,9 +94,12 @@ public class PlayerBase : MonoBehaviour
             }
             else if (isFounding)
             {
+                wasLookedWhenHiding = false;
                 StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
                 CancelHide();
             }
+            wasLookedWhenHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
+            Debug.LogError("死亡" + wasLookedWhenHiding);
         };
 
 
@@ -118,7 +123,7 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-
+        Debug.Log($"isFounding: {isFounding}, 見ている恐竜の数: {Dinosaur_Base.dinosLookingAtPlayer.Count}");
 
         if (IsRunning())
         {
@@ -156,6 +161,27 @@ public class PlayerBase : MonoBehaviour
     private void OnMove(InputAction.CallbackContext context)
     {
         moveInputValue = context.ReadValue<Vector2>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            if (isFounding && wasLookedWhenHiding)
+            {
+                Debug.Log("ロッカー中に見つかって接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else if (!isFounding)
+            {
+                Debug.Log("隠れていない状態で接触：死亡");
+                sceneChangeManager.ChangeScene("DeadScene");
+            }
+            else
+            {
+                Debug.Log("隠れていて見られていないのでセーフ");
+            }
+        }
     }
 
     public void OnTriggerStay(Collider other)
@@ -314,7 +340,7 @@ public class PlayerBase : MonoBehaviour
         rigidbody.velocity = Vector3.zero;
 
         // 物理演算を生かしたまま動かないように
-        rigidbody.isKinematic = false;  // kinematic解除
+        //rigidbody.isKinematic = false;  // kinematic解除
         rigidbody.constraints = RigidbodyConstraints.FreezeAll; // 動きを凍結
 
         // ColliderをTriggerにして衝突検知をOnTriggerEnterで行う
@@ -335,7 +361,7 @@ public class PlayerBase : MonoBehaviour
         if (text != null) text.text = "Exit";
         Debug.Log("Hiding");
 
-        if (currentHideCollider != null && currentHideCollider.CompareTag("HidePlace"))
+        if (currentHideCollider != null && currentHideCollider.CompareTag("HidePlace") && dinosaur_Base.IsLooked)
         {
             currentHideCollider.enabled = false;
         }
@@ -359,7 +385,7 @@ public class PlayerBase : MonoBehaviour
             col.isTrigger = false;
         }
 
-        rigidbody.isKinematic = false;
+        //rigidbody.isKinematic = false;
         rigidbody.constraints = RigidbodyConstraints.None;
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
         hideview.gameObject.SetActive(false);
@@ -385,29 +411,6 @@ public class PlayerBase : MonoBehaviour
     private void FixedUpdate()
     {
         if (!countdownActive) return;
-
-        //  ここを直さないといけない
-        if (isFounding)
-        {
-            NormalDinosaur dino = GameObject.FindWithTag("Enemy")?.GetComponent<NormalDinosaur>();
-            Collider col = GetComponent<Collider>();
-
-            if (dino != null && col != null)
-            {
-                // 恐竜に見られていれば isTrigger = false（= 衝突有効）
-                //見られていなければ isTrigger = true（= すり抜け）
-                bool shouldBeTrigger = !dino.IsLooked;
-
-                col.isTrigger = shouldBeTrigger;
-                Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
-            }
-
-            rigidbody.velocity = Vector3.zero;
-            velocity = Vector3.zero;
-            moveInputValue = Vector2.zero;
-            return;
-        }
-
         // ↓ 既存の処理
         ChangeSpeed();
         image.fillAmount = stamina / maxStamina;
@@ -432,31 +435,5 @@ public class PlayerBase : MonoBehaviour
             rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
         }
     }
-
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("OnCollisionEnter with: " + collision.gameObject.name);
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            NormalDinosaur dino = collision.gameObject.GetComponent<NormalDinosaur>();
-
-            if (isFounding && dino != null && dino.IsLooked)
-            {
-                Debug.Log("ロッカー中に見つかって接触：死亡");
-                sceneChangeManager.ChangeScene("DeadScene");
-            }
-            else if (!isFounding)
-            {
-                Debug.Log("隠れていない状態で接触：死亡");
-                sceneChangeManager.ChangeScene("DeadScene");
-            }
-            else
-            {
-                Debug.Log("隠れていて見られていないのでセーフ");
-            }
-        }
-    }
-
 
 }

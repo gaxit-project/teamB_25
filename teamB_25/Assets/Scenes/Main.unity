@@ -6188,6 +6188,7 @@ MonoBehaviour:
   stopTime: 0.05
   mainCamera: {fileID: 815959388}
   player: {fileID: 461160516}
+  sceneChangeManager: {fileID: 1003655137}
   stamina: 10
   maxStamina: 10
   staminaDuration: 0
