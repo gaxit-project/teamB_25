@@ -411,29 +411,6 @@ public class PlayerBase : MonoBehaviour
     private void FixedUpdate()
     {
         if (!countdownActive) return;
-
-        //  ここを直さないといけない
-        if (isFounding)
-        {
-            NormalDinosaur dino = GameObject.FindWithTag("Enemy")?.GetComponent<NormalDinosaur>();
-            Collider col = GetComponent<Collider>();
-
-            if (dino != null && col != null)
-            {
-                // 恐竜に見られていれば isTrigger = false（= 衝突有効）
-                //見られていなければ isTrigger = true（= すり抜け）
-                bool shouldBeTrigger = !dino.IsLooked;
-
-                col.isTrigger = shouldBeTrigger;
-                Debug.Log("isTrigger を " + shouldBeTrigger + " に切り替えました（IsLooked: " + dino.IsLooked + "）");
-            }
-
-            rigidbody.velocity = Vector3.zero;
-            velocity = Vector3.zero;
-            moveInputValue = Vector2.zero;
-            return;
-        }
-
         // ↓ 既存の処理
         ChangeSpeed();
         image.fillAmount = stamina / maxStamina;
