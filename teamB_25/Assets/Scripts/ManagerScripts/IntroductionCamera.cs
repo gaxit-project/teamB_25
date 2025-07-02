@@ -7,40 +7,78 @@ using UnityEngine.SceneManagement;
 
 public class IntroductionCamera : MonoBehaviour
 {
-    [Tooltip("切り替え順に並べたカメラをここに登録してください")]
+    [Tooltip("切り替え順に並べたカメラ")]
     public Camera[] cameras;
 
-    public float switchInterval = 5f;
-
+    public float switchInterval = 3f;
     private int currentIndex = 0;
     private float timer = 0f;
+    private bool initialized = false;
 
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    ///  初期化
+    /// </summary>
+    public void InitializeIntro()
     {
-        if(cameras == null || cameras.Length == 0)
+        Debug.Log($"InitializeIntro called. timer={timer}, currentIndex={currentIndex}, initialized={initialized}");
+
+
+        if (initialized) return; // 初期化済みなら再初期化を防ぐ
+
+        Debug.Log("Intro初期化開始");
+
+        AudioManager.Instance.PlaySE("Radio", transform.position);
+        Debug.Log("SE");
+
+        initialized = true;
+
+        if (cameras == null || cameras.Length == 0)
         {
-            //Debug.LogError("camersd 配列が空です！エディターで登録してください。");
-            enabled = false; // このスクリプトを無効化
+            enabled = false;
             return;
         }
 
-        // 最初のカメラだけONにする
         for (int i = 0; i < cameras.Length; i++)
-            cameras[i].enabled = (i == 0);
+            cameras[i].enabled = (i == 0);　// 最初のカメラをオン
+
+        currentIndex = 0; // カメラをリセット
+        timer = 0f;　//　タイマーをリセット
+
+        initialized = true;
     }
+
+    private void OnEnable()
+    {
+        Time.timeScale = 1f;
+        StartCoroutine(DelayedInitializeIntro());
+    }
+
+    private IEnumerator DelayedInitializeIntro()
+    {
+        yield return null;  // 1フレーム待つ
+
+        InitializeIntro();   // ここでSE再生などの初期化を呼ぶ
+    }
+
+
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown("joystick button 7") || Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown("joystick button 7") || Input.GetKeyDown(KeyCode.Space))
         {
+            // 既存の SE オブジェクトを削除
+            foreach (Transform child in AudioManager.Instance.transform)
+            {
+                Destroy(child.gameObject);
+            }
             SceneChangeManager.Instance.ChangeScene("Main");
         }
 
-
         timer += Time.deltaTime;
-        if(timer >= switchInterval)
+
+
+        if (timer >= switchInterval)
         {
             // 現在のカメラをOFF
             cameras[currentIndex].enabled = false;

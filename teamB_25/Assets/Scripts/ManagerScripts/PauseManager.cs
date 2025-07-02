@@ -40,13 +40,16 @@ public class PauseManager : MonoBehaviour
         otherCG = cg;
     }
 
+    //SceneLoadの処理
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Time.timeScale = 1f;                      // 時間の流れを再開
+        AudioListener.pause = false;              // 音を再開（全AudioSource対象）
         PauseCanvas.enabled = false;
     }
     public void Start()
     {
-        
+
         if (otherCG != null)
         {
             otherCG.interactable = true;
@@ -76,7 +79,7 @@ public class PauseManager : MonoBehaviour
             {
                 PauseNow();
             }
-            
+
         }
         else
         {
@@ -87,7 +90,7 @@ public class PauseManager : MonoBehaviour
             {
                 otherCG.interactable = true;
             }
-            
+
         }
     }
 
