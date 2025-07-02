@@ -1,12 +1,17 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BreakerManager : MonoBehaviour
 {
+    public static bool countdownActive = false; // StartTimerを待つ
+
     public static BreakerManager Instance;
     public static int _breakerTask = 4;
     public static int _breakerOn = 0;
     private bool exitOpened = false;
+    public TextMeshProUGUI _breakertext; 
     public GameObject[] exitObjects;　// 扉が開くアニメーションに使用するオブジェクト
     public GameObject[] flag; // 扉に触れたか判定するオブジェクト
 
@@ -24,6 +29,10 @@ public class BreakerManager : MonoBehaviour
     {
         _breakerOn = 0;
         exitOpened = false;
+        if (_breakertext != null)
+        {
+            _breakertext.text = $"{_breakerOn} / {_breakerTask}";
+        }
 
         // 非アクティブにする
         foreach (GameObject obj in exitObjects)
@@ -56,6 +65,11 @@ public class BreakerManager : MonoBehaviour
     public void ActivateBreaker()
     {
         _breakerOn++;
+        
+        if(_breakertext != null)
+        {
+            _breakertext.text = $"{_breakerOn} / {_breakerTask}";
+        }
 
         // playerが電力復旧出来たら
         if (!exitOpened && _breakerOn == _breakerTask)

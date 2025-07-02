@@ -1,38 +1,35 @@
 using System.Collections;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class StartTimer : MonoBehaviour
 {
-    public static bool IsGameStarted { get; private set; } = false; // ゲームが開始されたかのフラグ
+    public static bool IsGameStarted { get; private set; } = false;
 
     public Canvas StartCanvas;
     public TextMeshProUGUI startCountText;
 
     private bool hasStarted = false;
-
     public float countdownTime = 5f;
-    public 
 
     void Start()
     {
         PauseManager.Instance.CountDown = true;
-        countdownTime = 5f; // 初期化する
+        countdownTime = 5f;
         IsGameStarted = false;
-        startCountText.gameObject.SetActive(true); // 再表示
+        hasStarted = false;
+        startCountText.gameObject.SetActive(true);
     }
-    
+
     void Update()
     {
-        // カウントダウン進行中の処理
-        if(countdownTime > 0)
+        if (countdownTime > 0)
         {
-            TimerManager.countdownActive = false; //TimerManagerを止める
+            TimerManager.countdownActive = false;
             countdownTime -= Time.unscaledDeltaTime;
-            startCountText.text = Mathf.Ceil(countdownTime).ToString(); 
+            startCountText.text = Mathf.Ceil(countdownTime).ToString();
         }
-        // カウントダウン終了後の処理
-        else if(!hasStarted)
+        else if (!hasStarted)
         {
             hasStarted = true;
             StartPlay();
@@ -41,20 +38,18 @@ public class StartTimer : MonoBehaviour
         }
     }
 
-    // ゲームを開始する処理
     void StartPlay()
     {
         Debug.Log("Start!");
 
-        // ゲーム内の他のコンポーネントを動作させる
+        // 他のコンポーネントへフラグ通知
         TimerManager.countdownActive = true;
         PlayerBase.countdownActive = true;
-        IsGameStarted = true;
 
-        Time.timeScale = 1f; 
+        IsGameStarted = true;
+        Time.timeScale = 1f;
     }
 
-    // テキストを１秒表示したのち非表示にする処理
     IEnumerator WaitErase()
     {
         yield return new WaitForSeconds(1f);
