@@ -38,7 +38,7 @@ public class MapManager : MonoBehaviour
     void MarkerCreate()
     {
         GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        marker.transform.localScale = new Vector3(3f, 1f, 3f);
+        marker.transform.localScale = new Vector3(5f, 1f,5f);
         marker.GetComponent<Renderer>().material.color = Color.red;
         RedPosition = marker.transform;
     }
