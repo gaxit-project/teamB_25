@@ -77,15 +77,16 @@ public class FirstPersonCameraController : MonoBehaviour
 
     public void Look()
     {
-            Vector2 delta = lookInput * sensitivity;
+        Vector2 delta = lookInput * sensitivity * Time.deltaTime;
 
-            // 上下：カメラにだけ適用
-            /*xRotation -= delta.y;
-            xRotation = Mathf.Clamp(xRotation, -40f, 20f);
-            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);*/
 
-            // 左右：プレイヤー本体に適用
-            yRotation += delta.x;
+        // 上下：カメラにだけ適用
+        /*xRotation -= delta.y;
+        xRotation = Mathf.Clamp(xRotation, -40f, 20f);
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);*/
+
+        // 左右：プレイヤー本体に適用
+        yRotation += delta.x;
             playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
 
             if (playerBase.IsRunning()) // プレイヤーが走っているか判定（下に例あり）
