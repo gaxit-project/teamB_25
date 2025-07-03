@@ -28,6 +28,13 @@ public class MapManager : MonoBehaviour
         InitFog();
     }
 
+    void GoalMarkerCreate(Vector3 GoalPosition)
+    {
+        GameObject GoalMarker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GoalMarker.transform.localScale = new Vector3(3f, 1f, 3f);
+        GoalMarker.GetComponent<Renderer>().material.color = Color.blue;
+        GoalMarker.transform.position = GoalPosition;
+    }
     void MarkerCreate()
     {
         GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
