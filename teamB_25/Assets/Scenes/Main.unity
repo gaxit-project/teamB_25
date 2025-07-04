@@ -18050,7 +18050,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerBody: {fileID: 461160520}
-  sensitivity: 185
+  sensitivity: 180
   shakeAmount: 0.15
   shakeSpeed: 10
   playerBase: {fileID: 461160516}
