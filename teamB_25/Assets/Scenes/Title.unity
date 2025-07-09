@@ -2117,6 +2117,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: a0e3c5430e3de274eb8477dcad4ad23b, type: 3}
   - name: Radio
     clip: {fileID: 8300000, guid: 839b850b8b0028b40aae20e3446a9736, type: 3}
+  - name: ReBreaker
+    clip: {fileID: 8300000, guid: f1e467cf96b7c954388a0bb9b1fae7d5, type: 3}
   seLoopClips:
   - name: Dash
     clip: {fileID: 8300000, guid: 951f6e596c4d8f94eb8284c59f888b84, type: 3}
@@ -2126,6 +2128,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 5f84ced31e8b74f49b22a4d9bab318fd, type: 3}
   - name: PlayerRun
     clip: {fileID: 8300000, guid: db4117bda6525e147b640892c116a105, type: 3}
+  - name: BrokenBreaker
+    clip: {fileID: 8300000, guid: 0e0934ca08680be40908ee59100eb10d, type: 3}
 --- !u!114 &1148193185
 MonoBehaviour:
   m_ObjectHideFlags: 0

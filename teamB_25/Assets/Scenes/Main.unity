@@ -2052,6 +2052,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 460737465}
+    - targetCorrespondingSourceObject: {fileID: 9205915046389637074, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 920136739}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
       insertIndex: -1
@@ -4609,6 +4612,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: videoController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7897780343420846187, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: m_Size.y
       value: 1.5
@@ -4749,7 +4756,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -4764,7 +4771,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.6388889
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -13643,6 +13650,89 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slideOffset: {x: 0, y: 4, z: 0}
   slideDuration: 2
+--- !u!1 &920136738
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920136739}
+  - component: {fileID: 920136740}
+  m_Layer: 0
+  m_Name: testcamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &920136739
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920136738}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.25783423, y: -0.084186025, z: 0.02255758, w: 0.9622502}
+  m_LocalPosition: {x: 0.5, y: 2, z: -2.31}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 427338738}
+  m_LocalEulerAnglesHint: {x: 30, y: -10, z: 0}
+--- !u!20 &920136740
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920136738}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1001 &920236621
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15101,6 +15191,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: videoController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7897780343420846187, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: m_Size.y
       value: 1.5
@@ -15241,7 +15335,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -15256,7 +15350,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.6388889
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -19785,6 +19879,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: videoController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7897780343420846187, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: m_Size.y
       value: 1.5
@@ -19925,7 +20023,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -19940,7 +20038,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.6388889
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -22383,7 +22481,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -280, y: 130}
+  m_AnchoredPosition: {x: -310, y: 130}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1596445471
@@ -22406,7 +22504,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 26cfcf5adaa30d040b3525f69931b62e, type: 2}
   m_sharedMaterial: {fileID: 191139472186500870, guid: 26cfcf5adaa30d040b3525f69931b62e, type: 2}
@@ -22433,8 +22531,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 33
+  m_fontSizeBase: 33
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -22600,7 +22698,7 @@ GameObject:
   - component: {fileID: 1631937813}
   - component: {fileID: 1631937812}
   m_Layer: 5
-  m_Name: breaker
+  m_Name: breakerIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22615,14 +22713,14 @@ RectTransform:
   m_GameObject: {fileID: 1631937810}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 148815615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -350, y: 130}
+  m_AnchoredPosition: {x: -360, y: 130}
   m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1631937812
@@ -22645,7 +22743,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2e414cae07ed0b149a9d8a0cf9724c7a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a93972610edda22458cba4abdf04be73, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -205910,6 +206008,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: videoController
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7897780343420846187, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: m_Size.y
       value: 1.5
@@ -206062,7 +206164,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -206077,7 +206179,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.6388889
       inSlope: 0
       outSlope: 0
       tangentMode: 0
