@@ -5,6 +5,20 @@ using UnityEngine.UI; // UIコンポーネント操作に必要
 
 public class MapManager : MonoBehaviour
 {
+    public static MapManager Instance;
+
+    void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public Camera miniMapCamera;
     public Transform map;
     public Transform player;
@@ -20,6 +34,7 @@ public class MapManager : MonoBehaviour
     private Texture2D fogTexture;
     private Color32[] fogPixels;
     private int fogResolution = 128;
+
     void Start()
     {
         mapLoad = false;
@@ -28,12 +43,13 @@ public class MapManager : MonoBehaviour
         InitFog();
     }
 
-    void GoalMarkerCreate(Vector3 GoalPosition)
+    public void GoalMarkerCreate(Vector3 GoalPosition)
     {
         GameObject GoalMarker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        GoalMarker.transform.localScale = new Vector3(3f, 1f, 3f);
+        GoalMarker.transform.localScale = new Vector3(5f, 1f, 5f);
         GoalMarker.GetComponent<Renderer>().material.color = Color.blue;
         GoalMarker.transform.position = GoalPosition;
+        RevealFog(GoalPosition);
     }
     void MarkerCreate()
     {
