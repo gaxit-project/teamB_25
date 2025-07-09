@@ -81,6 +81,8 @@ public class Dinosaur_Base : MonoBehaviour
     // === 見ている恐竜の一元化 ===
     public static List<Dinosaur_Base> dinosLookingAtPlayer = new List<Dinosaur_Base>();
 
+    private bool hasPlayedChaseBGM = false;
+
     // === 現在の状態 ===
     private State currentState = State.Patrol;
     public enum State
@@ -317,6 +319,14 @@ public class Dinosaur_Base : MonoBehaviour
         if (newState == State.Patrol)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+
+            // チェイスBGM停止（追跡終了）
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+                Debug.Log("オーディオが止まった");
+                hasPlayedChaseBGM = false; // フラグもリセットしておく
+            }
         }
         else if (newState == State.Vigilance)
         {
@@ -534,6 +544,13 @@ public class Dinosaur_Base : MonoBehaviour
             AudioManager.Instance.PlaySE("Rouring", transform.position);
             animationManager?.PlayRoar();
             hasRoared = true;
+
+            if (!hasPlayedChaseBGM)
+            {
+                AudioManager.Instance.PlayBGM("ChaseBGM");
+                Debug.Log("オーディオ開始");
+                hasPlayedChaseBGM = true;
+            }
         }
 
         if (roarTimer >= roarDuration)

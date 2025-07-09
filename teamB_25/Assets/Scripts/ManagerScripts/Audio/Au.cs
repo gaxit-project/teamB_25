@@ -18,10 +18,10 @@ public class Au : MonoBehaviour
         {
             AudioManager.Instance.PlaySE("SE2", transform.position);
         }
-        if (Input.GetKeyUp(KeyCode.L))
-        {
-            AudioManager.Instance.StopBGM();
-        }
+        //if (Input.GetKeyUp(KeyCode.L))
+       // {
+         //   AudioManager.Instance.StopBGM();
+        //}
         if(Input.GetKeyUp(KeyCode.R))
         {
             AudioManager.Instance.PlaySELoop("SELoop", transform);

@@ -170,11 +170,19 @@ public class PlayerBase : MonoBehaviour
             if (isFounding && wasLookedWhenHiding)
             {
                 Debug.Log("ロッカー中に見つかって接触：死亡");
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.StopBGM();
+                }
                 sceneChangeManager.ChangeScene("DeadScene");
             }
             else if (!isFounding)
             {
                 Debug.Log("隠れていない状態で接触：死亡");
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.StopBGM();
+                }
                 sceneChangeManager.ChangeScene("DeadScene");
             }
             else
