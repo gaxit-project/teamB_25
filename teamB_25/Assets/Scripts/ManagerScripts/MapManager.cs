@@ -49,7 +49,31 @@ public class MapManager : MonoBehaviour
         GoalMarker.transform.localScale = new Vector3(5f, 1f, 5f);
         GoalMarker.GetComponent<Renderer>().material.color = Color.blue;
         GoalMarker.transform.position = GoalPosition;
-        RevealFog(GoalPosition);
+
+        Renderer markerRenderer = GoalMarker.GetComponent<Renderer>();
+        RevealArea(markerRenderer.bounds);
+    }
+    public void RevealArea(Bounds areaBounds)
+    {
+        // ワールド座標のBoundsをミニマップのピクセル座標に変換
+        int minX = Mathf.RoundToInt(Mathf.InverseLerp(mapBounds.min.x, mapBounds.max.x, areaBounds.min.x) * fogResolution);
+        int maxX = Mathf.RoundToInt(Mathf.InverseLerp(mapBounds.min.x, mapBounds.max.x, areaBounds.max.x) * fogResolution);
+        int minY = Mathf.RoundToInt(Mathf.InverseLerp(mapBounds.min.z, mapBounds.max.z, areaBounds.min.z) * fogResolution);
+        int maxY = Mathf.RoundToInt(Mathf.InverseLerp(mapBounds.min.z, mapBounds.max.z, areaBounds.max.z) * fogResolution);
+
+        for (int y = minY; y < maxY; y++)
+        {
+            for (int x = minX; x < maxX; x++)
+            {
+                if (x >= 0 && x < fogResolution && y >= 0 && y < fogResolution)
+                {
+                    fogPixels[y * fogResolution + x] = new Color32(0, 0, 0, 0); // 透明
+                }
+            }
+        }
+
+        fogTexture.SetPixels32(fogPixels);
+        fogTexture.Apply();
     }
     void MarkerCreate()
     {
@@ -161,4 +185,5 @@ public class MapManager : MonoBehaviour
         fogTexture.SetPixels32(fogPixels);
         fogTexture.Apply();
     }
+    
 }

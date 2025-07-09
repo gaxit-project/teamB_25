@@ -80,7 +80,7 @@ public class BreakerManager : MonoBehaviour
             Debug.Log($"脱出扉{number}が開きました");
             exitObjects[number].SetActive(true);
             exitObjects[number].GetComponent<DoorOpener>().OpenDoor();
-            Vector3 GoalPosition = new Vector3(exitObjects[number].transform.position.x,20f,exitObjects[number].transform.position.z);
+            Vector3 GoalPosition = new Vector3(exitObjects[number].transform.position.x, 20f, exitObjects[number].transform.position.z);
             MapManager.Instance.GoalMarkerCreate(GoalPosition);
             // flagもアクティブ化（全て or ランダム or 特定の番号だけ）
             foreach (GameObject f in flag)
