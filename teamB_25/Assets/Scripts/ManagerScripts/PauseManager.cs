@@ -11,6 +11,7 @@ public class PauseManager : MonoBehaviour
 
     public Canvas PauseCanvas;
     [SerializeField] Button focusButton;
+    [SerializeField] Button StartButton;
     [SerializeField] CanvasGroup PauseCG;
     [SerializeField] CanvasGroup otherCG;
 
@@ -53,10 +54,11 @@ public class PauseManager : MonoBehaviour
         if (otherCG != null)
         {
             otherCG.interactable = true;
+            //StartButton.Select();
         }
         if (SceneManager.GetActiveScene().name == "Title")
         {
-
+            PauseCG.interactable = false;
         }
     }
     public void ChangeScene(string _sceneName)
@@ -85,10 +87,12 @@ public class PauseManager : MonoBehaviour
         {
             PauseCG.interactable = false;
             AudioManager.Instance.ResumeAudio();
+            
             PauseCanvas.enabled = false;
             if (otherCG != null)
             {
                 otherCG.interactable = true;
+                StartButton.Select();
             }
 
         }
