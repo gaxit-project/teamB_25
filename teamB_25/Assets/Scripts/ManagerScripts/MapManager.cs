@@ -46,8 +46,8 @@ public class MapManager : MonoBehaviour
     public void GoalMarkerCreate(Vector3 GoalPosition)
     {
         GameObject GoalMarker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        GoalMarker.transform.localScale = new Vector3(5f, 1f, 5f);
-        GoalMarker.GetComponent<Renderer>().material.color = Color.blue;
+        GoalMarker.transform.localScale = new Vector3(10f, 1f, 10f);
+        GoalMarker.GetComponent<Renderer>().material.color = Color.white;
         GoalMarker.transform.position = GoalPosition;
 
         Renderer markerRenderer = GoalMarker.GetComponent<Renderer>();
