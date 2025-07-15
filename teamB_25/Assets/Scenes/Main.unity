@@ -7094,6 +7094,8 @@ MonoBehaviour:
   hideTime: 5
   eyePosition: {fileID: 815959385}
   rayLength: 3
+  reloadtime: 1
+  firstPersonCamera: {fileID: 1217860627}
   Hp: 0
 --- !u!136 &461160517
 CapsuleCollider:
@@ -7176,14 +7178,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 461160515}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -20.1, y: 1, z: 16.8}
   m_LocalScale: {x: 1.1149, y: 1.480365, z: 1.1149}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1217860626}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &461160521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12155,13 +12157,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 815959384}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.095, y: 0.037, z: 0.092}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.037000027, z: 0.09499997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1217860626}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &815959386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20330,15 +20332,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1217860625}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.13, y: 0.80047566, z: 0.23}
-  m_LocalScale: {x: 1.3454123, y: 1.0132637, z: 1.3454123}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.23000069, y: 0.80047566, z: -0.13000046}
+  m_LocalScale: {x: 1.3454124, y: 1.0132637, z: 1.3454124}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 815959385}
   - {fileID: 1042344926}
+  - {fileID: 815959385}
   m_Father: {fileID: 461160520}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1217860627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20356,6 +20358,7 @@ MonoBehaviour:
   shakeAmount: 0.15
   shakeSpeed: 10
   playerBase: {fileID: 461160516}
+  yRotation: 0
 --- !u!1 &1232459009 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5735183905496812083, guid: 2b23fd819e8890e4bae6782feabf3193, type: 3}

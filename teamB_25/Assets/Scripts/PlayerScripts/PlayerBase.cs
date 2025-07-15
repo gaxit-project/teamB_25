@@ -26,6 +26,9 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private int hideTime = 10;
     [SerializeField] private Transform eyePosition;
     [SerializeField] private float rayLength = 3f;
+    [SerializeField] private float reloadtime = 1f;
+    [SerializeField] private FirstPersonCameraController firstPersonCamera;
+
 
     private Rigidbody rigidbody;
     private GameInputs gameInputs;
@@ -38,6 +41,7 @@ public class PlayerBase : MonoBehaviour
     private Collider currentHideCollider; // 隠れる場所のCollider
     private bool toolTriggered = false;
     private Breaker breaker;
+    
 
 
     private Dinosaur_Base dinosaur_Base;
@@ -196,13 +200,27 @@ public class PlayerBase : MonoBehaviour
     {
         if (isFounding) return; // 既に隠れてるなら処理しない
 
-        Collider parentCollider = other.transform.parent?.GetComponent<Collider>();//判定に使ったコライダーの親のコライダーを取得
         if (other.gameObject.CompareTag("HidePlace"))
         {
+            Collider parentCollider = other.transform.parent.GetComponent<Collider>();
+            
             currentHidePlace = parentCollider.transform;
             currentHidePlaceRotation = parentCollider.transform.rotation;
             Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
-            currentHideCollider = parentCollider;//隠れるコライダーを設定したコライダーにする
+            if (other.transform.parent != null)
+            {
+                if (parentCollider != null)
+                {
+                    currentHideCollider = parentCollider;
+                    Debug.Log("Parent Collider: " + parentCollider.name);
+                }
+                else
+                {
+                    Debug.LogWarning("1つ上の親にはColliderがありません");
+                }
+            }
+
+
             if (text != null)
             {
                 text.gameObject.SetActive(true);
@@ -210,12 +228,12 @@ public class PlayerBase : MonoBehaviour
                 text.text = "Hide";
             }
 
-        }
-
-        breaker = parentCollider.GetComponent<Breaker>();//親のオブジェクトのBreakerスクリプトを取得
+        }        
 
         if (other.gameObject.CompareTag("Breaker") && !breaker.isActivated)
         {
+            Transform parent = other.transform.parent;// 1つ上の親のColliderを取得
+            breaker = parent.GetComponent<Breaker>();//親のオブジェクトのBreakerスクリプトを取得
             Debug.Log("Hit Breaker");
             if (breakerButton != null)
             {
@@ -378,9 +396,9 @@ public class PlayerBase : MonoBehaviour
     private void CancelHide()
     {
         AudioManager.Instance.PlaySE("CloseLocker", transform.position);
-        isFounding = false;
         isChangingCamera = false;
-
+        isFounding = false;
+        
         if (currentHideCollider != null)
         {
             currentHideCollider.enabled = true; // 隠れる場所のCollider復活
@@ -398,7 +416,22 @@ public class PlayerBase : MonoBehaviour
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
         hideview.gameObject.SetActive(false);
 
-        transform.position = preHidePosition;//もとの位置に戻す
+       
+        if (currentHidePlace != null)
+        {
+            // ロッカーの前に出る位置を計算（ロッカーの向きに対して前方へ1m）
+            Vector3 exitDirection = currentHidePlace.forward;
+            Vector3 exitPos = currentHidePlace.position + exitDirection * 1.0f;
+            transform.position = new Vector3(exitPos.x, preHidePosition.y, exitPos.z);
+
+            float yAngle = currentHidePlace.rotation.eulerAngles.y;
+            firstPersonCamera.SetRotation(yAngle, 0f);
+        }
+        else
+        {
+            Debug.LogWarning("currentHidePlace is null in CancelHide!");
+        }
+
         currentHidePlace = null;
         currentHideCollider = null;
 
@@ -414,8 +447,7 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
-    
-
+   
     private void FixedUpdate()
     {
         if (!countdownActive) return;

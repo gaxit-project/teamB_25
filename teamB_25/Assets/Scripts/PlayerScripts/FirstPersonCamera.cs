@@ -19,7 +19,7 @@ public class FirstPersonCameraController : MonoBehaviour
     private GameInputs inputActions;
     private Vector2 lookInput;
     private float xRotation = 0f;
-    private float yRotation = 0f;
+    public float yRotation = 0f;
 
 
     private void Awake()
@@ -77,6 +77,8 @@ public class FirstPersonCameraController : MonoBehaviour
 
     public void Look()
     {
+        if (playerBase.IsFounding) return; // 隠れている間は回転させない
+
         Vector2 delta = lookInput * sensitivity * Time.deltaTime;
 
 
@@ -102,4 +104,14 @@ public class FirstPersonCameraController : MonoBehaviour
                 shakeTimer = 0f;
             }
     }
+
+    public void SetRotation(float newYRotation, float newXRotation = 0f)
+    {
+        yRotation = newYRotation;
+        xRotation = newXRotation;
+
+        playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);      // プレイヤー本体（左右回転）
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);  // カメラ（上下回転）
+    }
+
 }
