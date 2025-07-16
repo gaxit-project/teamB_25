@@ -7168,8 +7168,9 @@ MonoBehaviour:
   image: {fileID: 1511703860}
   hideTimeImage: {fileID: 396374479}
   hideview: {fileID: 1185181765}
-  hideTime: 5
+  maxHideTime: 10
   currentHideTime: 5
+  defaultHideTime: 8
   eyePosition: {fileID: 815959385}
   rayLength: 3
   reloadtime: 1

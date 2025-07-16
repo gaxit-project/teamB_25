@@ -24,8 +24,8 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private Image image;
     [SerializeField] private Image hideTimeImage;
     [SerializeField] private Image hideview;
-    [SerializeField] private float maxHideTime = 10f;
-    [SerializeField] private float currentHideTime = 10f;
+     private float maxHideTime = 10f;
+     private float currentHideTime = 10f;
     [SerializeField] private float defaultHideTime = 5f;
     [SerializeField] private Transform eyePosition;
     [SerializeField] private float rayLength = 3f;
