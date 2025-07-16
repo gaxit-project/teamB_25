@@ -22,8 +22,10 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private Image hideButton;
     [SerializeField] private Image breakerButton;
     [SerializeField] private Image image;
+    [SerializeField] private Image hideTimeImage;
     [SerializeField] private Image hideview;
-    [SerializeField] private int hideTime = 10;
+    [SerializeField] private float hideTime = 10f;
+    [SerializeField] private float currentHideTime = 10f;
     [SerializeField] private Transform eyePosition;
     [SerializeField] private float rayLength = 3f;
     [SerializeField] private float reloadtime = 1f;
@@ -41,7 +43,9 @@ public class PlayerBase : MonoBehaviour
     private Collider currentHideCollider; // 隠れる場所のCollider
     private bool toolTriggered = false;
     private Breaker breaker;
-    
+    private float defaultHideTime = 5f;
+    private Coroutine hideCoroutine;
+    private GameObject locker;
 
 
     private Dinosaur_Base dinosaur_Base;
@@ -93,13 +97,26 @@ public class PlayerBase : MonoBehaviour
             if (!isFounding && currentHidePlace != null)
             {
                 EnterHide();
+                hideTime = defaultHideTime;    // 毎回初期値に戻す
+                currentHideTime = defaultHideTime;
+                hideTimeImage.fillAmount = 1f;
 
-                StartCoroutine(HideCountdown());
+                if (hideCoroutine != null)
+                {
+                    StopCoroutine(hideCoroutine);
+                }
+
+                 hideCoroutine = StartCoroutine(HideCountdown());
             }
             else if (isFounding)
             {
                 wasLookedWhenHiding = false;
-                StopCoroutine(HideCountdown()); // プレイヤーが自分で出たら中断
+                // 隠れ解除時もコルーチンを止める
+                if (hideCoroutine != null)
+                {
+                    StopCoroutine(hideCoroutine);
+                    hideCoroutine = null;
+                }
                 CancelHide();
             }
             wasLookedWhenHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
@@ -203,7 +220,8 @@ public class PlayerBase : MonoBehaviour
         if (other.gameObject.CompareTag("HidePlace"))
         {
             Collider parentCollider = other.transform.parent.GetComponent<Collider>();
-            
+
+            locker = parentCollider.gameObject;
             currentHidePlace = parentCollider.transform;
             currentHidePlaceRotation = parentCollider.transform.rotation;
             Debug.Log("Enter HidePlace"); // ← これで呼ばれているか確認
@@ -228,12 +246,14 @@ public class PlayerBase : MonoBehaviour
                 text.text = "Hide";
             }
 
-        }        
+        }
+
+        Collider parent = other.transform.parent?.GetComponent<Collider>();// 1つ上の親のColliderを取得
+        breaker = parent.GetComponent<Breaker>();//親のオブジェクトのBreakerスクリプトを取得
 
         if (other.gameObject.CompareTag("Breaker") && !breaker.isActivated)
         {
-            Transform parent = other.transform.parent;// 1つ上の親のColliderを取得
-            breaker = parent.GetComponent<Breaker>();//親のオブジェクトのBreakerスクリプトを取得
+            
             Debug.Log("Hit Breaker");
             if (breakerButton != null)
             {
@@ -384,12 +404,14 @@ public class PlayerBase : MonoBehaviour
         ///}
 
         if (text != null) text.text = "Exit";
+        hideTimeImage.gameObject.SetActive(true);
         Debug.Log("Hiding");
 
         if (currentHideCollider != null && currentHideCollider.CompareTag("HidePlace") && dinosaur_Base.IsLooked)
         {
             currentHideCollider.enabled = false;
         }
+        locker.SetActive(false);
     }
 
     private void CancelHide()
@@ -433,13 +455,23 @@ public class PlayerBase : MonoBehaviour
 
         currentHidePlace = null;
         currentHideCollider = null;
+        hideTimeImage.gameObject.SetActive(false);
+        locker.SetActive(true);
 
         Debug.Log("Unhide");
     }
 
     private IEnumerator HideCountdown()
     {
-        yield return new WaitForSeconds(hideTime); // hideTime秒待つ
+
+        while (currentHideTime > 0f)
+        {
+            currentHideTime -= Time.deltaTime; // フレームごとの経過時間を引く
+
+            hideTimeImage.fillAmount = currentHideTime / hideTime; // 割合でUI更新
+
+            yield return null; // 次のフレームまで待つ
+        }
         if (isFounding) // まだ隠れていれば
         {
             CancelHide();
