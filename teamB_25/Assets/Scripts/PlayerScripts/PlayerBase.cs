@@ -24,8 +24,9 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private Image image;
     [SerializeField] private Image hideTimeImage;
     [SerializeField] private Image hideview;
-    [SerializeField] private float hideTime = 10f;
+    [SerializeField] private float maxHideTime = 10f;
     [SerializeField] private float currentHideTime = 10f;
+    [SerializeField] private float defaultHideTime = 5f;
     [SerializeField] private Transform eyePosition;
     [SerializeField] private float rayLength = 3f;
     [SerializeField] private float reloadtime = 1f;
@@ -43,7 +44,6 @@ public class PlayerBase : MonoBehaviour
     private Collider currentHideCollider; // 隠れる場所のCollider
     private bool toolTriggered = false;
     private Breaker breaker;
-    private float defaultHideTime = 5f;
     private Coroutine hideCoroutine;
     private GameObject locker;
 
@@ -97,7 +97,7 @@ public class PlayerBase : MonoBehaviour
             if (!isFounding && currentHidePlace != null)
             {
                 EnterHide();
-                hideTime = defaultHideTime;    // 毎回初期値に戻す
+                maxHideTime = defaultHideTime;    // 毎回初期値に戻す
                 currentHideTime = defaultHideTime;
                 hideTimeImage.fillAmount = 1f;
 
@@ -468,7 +468,7 @@ public class PlayerBase : MonoBehaviour
         {
             currentHideTime -= Time.deltaTime; // フレームごとの経過時間を引く
 
-            hideTimeImage.fillAmount = currentHideTime / hideTime; // 割合でUI更新
+            hideTimeImage.fillAmount = currentHideTime / maxHideTime; // 割合でUI更新
 
             yield return null; // 次のフレームまで待つ
         }
