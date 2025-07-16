@@ -42,11 +42,11 @@ public class AudioManager : MonoBehaviour
     private Dictionary<string, AudioClip> bgmDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seLoopDict = new Dictionary<string, AudioClip>();
-    private Dictionary<string, AudioSource> activeLoops = new Dictionary<string, AudioSource>();
+    private Dictionary<(string, int), AudioSource> activeLoops = new Dictionary<(string, int), AudioSource>();
 
-     
 
-    
+
+
 
     void Awake()
     {
@@ -176,8 +176,10 @@ public class AudioManager : MonoBehaviour
         }
         if (seLoopDict.TryGetValue(name, out var clip))
         {
+            int instanceId = target.gameObject.GetInstanceID();
+            var key = (name, instanceId);
             // Ç∑Ç≈Ç…çƒê∂íÜÇ»ÇÁé~ÇﬂÇÈ
-            if (activeLoops.ContainsKey(name))
+            if (activeLoops.ContainsKey(key))
             {
                 return;
             }
@@ -190,20 +192,22 @@ public class AudioManager : MonoBehaviour
             seLoop.spatialBlend = 1f;
             seLoop.loop = true;
             seLoop.Play();
-            activeLoops[name] = seLoop;
+            activeLoops[key] = seLoop;
         }
     }
     /// <summary>
     /// LoopÇµÇƒÇ¢ÇÈSEÇçÌèúÇ∑ÇÈ
     /// </summary>
     /// <param name="name"></param>
-    public void DestroySE(string name)
+    public void DestroySE(string name,Transform target)
     {
-        if (activeLoops.TryGetValue(name, out var source))
+        int instanceId = target.gameObject.GetInstanceID();
+        var key = (name, instanceId);
+        if (activeLoops.TryGetValue(key, out var source))
         {
             source.Stop();
             Destroy(source);
-            activeLoops.Remove(name);
+            activeLoops.Remove(key);
         }
     }
 

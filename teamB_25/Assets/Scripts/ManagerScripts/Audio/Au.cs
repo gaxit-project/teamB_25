@@ -28,7 +28,7 @@ public class Au : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.G))
         {
-            AudioManager.Instance.DestroySE("SELoop");
+            AudioManager.Instance.DestroySE("SELoop",transform);
         }
     }
 }
