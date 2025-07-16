@@ -18,6 +18,8 @@ class AudioDefine
 {
     public static string PlayerRun = "PlayerRun";
     public static string PlayerWalk = "PlayerWalk";
+    public static string Walk = "Walk";
+    public static string Dash = "Dash";
 }
 public class AudioManager : MonoBehaviour
 {

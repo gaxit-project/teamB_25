@@ -122,7 +122,7 @@ public class PlayerBase : MonoBehaviour
         countdownActive = false;
         Attack();
     }
-
+    
     private void Update()
     {
         if (!countdownActive) return;
@@ -360,7 +360,6 @@ public class PlayerBase : MonoBehaviour
         transform.position = new Vector3(targetPos.x, preHidePosition.y, targetPos.z);
         transform.rotation = Quaternion.Euler(0, currentHidePlaceRotation.eulerAngles.y, 0);
 
-        AudioManager.Instance.PlaySE("SE2", transform.position);
         hideview.gameObject.SetActive(true);
 
         rigidbody.velocity = Vector3.zero;

@@ -83,6 +83,8 @@ public class Dinosaur_Base : MonoBehaviour
 
     private bool hasPlayedChaseBGM = false;
 
+    private string currentSE = ""; // 現在再生中のSE名
+
     // === 現在の状態 ===
     private State currentState = State.Patrol;
     public enum State
@@ -91,7 +93,7 @@ public class Dinosaur_Base : MonoBehaviour
         Chase,
         Vigilance,
         Roar,
-        Leap
+        // Leap
     }
 
     private void Awake()
@@ -255,7 +257,7 @@ public class Dinosaur_Base : MonoBehaviour
             case State.Chase:
                 if (distanceToPlayer <= leapDistance)
                 {
-                    SwitchState(State.Leap);
+                    // SwitchState(State.Leap); ← コメントアウト
                 }
                 else if (timeSinceLastSeen > loseSightDuration)
                 {
@@ -264,11 +266,32 @@ public class Dinosaur_Base : MonoBehaviour
                 ChaseState();
                 break;
 
-            case State.Leap:
-                LeapState();
-                break;
+            //case State.Leap:
+                // LeapState(); ← コメントアウト
+              //  break;
         }
     }
+
+    private void UpdateFootstepSE(string newSE)
+    {
+        if (AudioManager.Instance == null) return;
+
+        if (currentSE != newSE)
+        {
+            if (!string.IsNullOrEmpty(currentSE))
+            {
+                AudioManager.Instance.DestroySE(currentSE);
+            }
+
+            if (!string.IsNullOrEmpty(newSE))
+            {
+                AudioManager.Instance.PlaySELoop(newSE, transform);
+            }
+
+            currentSE = newSE;
+        }
+    }
+
 
     // Rayでプレイヤーを検知する処理
     private bool DetectPlayerByRay()
@@ -337,10 +360,10 @@ public class Dinosaur_Base : MonoBehaviour
             agent.ResetPath(); // 停止
             roarTimer = 0f;
         }
-        else if (newState == State.Leap)
-        {
-            leapTimer = 0f;
-        }
+        //else if (newState == State.Leap)
+        //{
+            // leapTimer = 0f; ← コメントアウト
+       // }
 
         agent.enabled = true;
     }
@@ -365,29 +388,22 @@ public class Dinosaur_Base : MonoBehaviour
     // 巡回中の処理
     void PatrolState()
     {
-        // 巡回ポイントが設定されていない場合は処理しない
         if (patrolPoints.Length == 0) return;
 
-        // 停止中の処理（立ち止まってキョロキョロ）
         if (isWaiting)
         {
             idleTimer += Time.deltaTime;
 
-            // 方向転換風の演出（例：左右にゆっくり回転）とりあえず入れてみた
             float rotationSpeed = 30f;
             transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
 
-            // 停止中にアニメーションを再生（1回だけ再生するようにしたいならフラグが必要）
             if (!playedIdleAnimation)
             {
                 if (Random.value < 0.8f && animationManager != null)
-                {
                     animationManager.PlayIdle();
-                }
                 else if (animationManager != null)
-                {
                     animationManager.PlaySniff();
-                }
+
                 playedIdleAnimation = true;
             }
 
@@ -398,60 +414,24 @@ public class Dinosaur_Base : MonoBehaviour
                 nextIdleTime = Time.time + Random.Range(10f, 60f);
                 agent.SetDestination(patrolPoints[currentPatrolIndex].position);
 
-                if (AudioManager.Instance != null)
-                {
-                    AudioManager.Instance.DestroySE("Idle");
-                }
-                if (AudioManager.Instance != null)
-                {
-                    AudioManager.Instance.PlaySELoop("Walk", transform);
-                }
-
-                if (animationManager != null)
-                {
-                    animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
-                }
+                UpdateFootstepSE(AudioDefine.Walk); // ← ここでSE切り替え
+                animationManager?.PlayWalk();
             }
 
             return;
         }
 
-        // 巡回中に一定時間経過したら立ち止まる
         if (Time.time >= nextIdleTime)
         {
             isWaiting = true;
-            agent.ResetPath(); // 一時停止
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.DestroySE("Walk");
-            }
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlaySELoop("Idle", transform); // 「フンッ…」みたいな声でも可
-            }
-            if (animationManager != null)
-            {
-                animationManager.PlayIdle(); // ← または他のアニメーション呼び出し
-            }
-
+            agent.ResetPath();
+            UpdateFootstepSE("Idle"); // ← 「フンッ…」みたいな声など
+            animationManager?.PlayIdle();
             return;
         }
 
-        // 巡回動作中の処理
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.DestroySE("Dash");
-        }
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlaySELoop("Walk", transform);
-        }
-
-        if (animationManager != null)
-        {
-            animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
-        }
-
+        UpdateFootstepSE(AudioDefine.Walk);
+        animationManager?.PlayWalk();
 
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
@@ -460,26 +440,17 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
-
-    // 追跡中の処理（transformによる自前移動）
     void ChaseState()
     {
+        animationManager?.PlayRun();
 
-        if (animationManager != null)
+        if (playerScript != null && playerScript.IsFounding)
         {
-            animationManager.PlayRun(); // ← または他のアニメーション呼び出し
-        }
-
-
-        if (playerScript != null && playerScript.IsFounding) // ← 修正ポイント
-        {
-            // ランダムな方向へ移動
             Vector3 randomDirection = Random.insideUnitSphere * 5f;
-            randomDirection.y = 0f; // 水平移動のみに制限
+            randomDirection.y = 0f;
             randomDirection += transform.position;
 
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(randomDirection, out hit, 5f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 5f, NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
             }
@@ -489,11 +460,7 @@ public class Dinosaur_Base : MonoBehaviour
             agent.SetDestination(playerTransform.position);
         }
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.DestroySE("Walk");
-            AudioManager.Instance.PlaySELoop("Dash", transform);
-        }
+        UpdateFootstepSE(AudioDefine.Dash);
     }
 
     void SetRandomVigilanceTarget()
@@ -561,62 +528,66 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
-    void LeapState()
+    /*
+void LeapState()
+{
+    // 1. 溜め時間の進行
+    if (!isWaitingAfterLeap)
     {
-        // 1. 溜め時間の進行
-        if (!isWaitingAfterLeap)
+        chargeTimer += Time.deltaTime;
+
+        if (chargeTimer < chargeDuration && animationManager != null)
         {
-            chargeTimer += Time.deltaTime;
-
-            if (chargeTimer < chargeDuration && animationManager != null)
-            {
-                // 溜め期間中は動かさない
-                animationManager.PlayWalk();
-                return;
-            }
-
-            // 2. 飛びつき方向の決定（1回だけ）
-            if (leapTimer == 0f)
-            {
-                leapDirection = (playerTransform.position - transform.position).normalized;
-                leapDirection.y = 0f;
-            }
-
-            // 3. 飛びつき移動
-            if (animationManager != null)
-            {
-                animationManager.PlayLeap(); // ← または他のアニメーション呼び出し
-            }
-
-            leapTimer += Time.deltaTime;
-            transform.position += leapDirection * leapSpeed * Time.deltaTime;
-
-            // 4. 飛び終わったら待機状態へ
-            if (leapTimer >= leapDuration)
-            {
-                isWaitingAfterLeap = true;
-                postLeapWaitTimer = 0f;
-            }
+            // 溜め期間中は動かさない
+            animationManager.PlayWalk();
+            return;
         }
-        else
-        {
-            if (animationManager != null)
-            {
-                animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
-            }
-            // 5. 飛び終わり後の1秒待機処理
-            postLeapWaitTimer += Time.deltaTime;
 
-            if (postLeapWaitTimer >= 1f)
-            {
-                // 6. タイマーリセットしてChaseへ
-                chargeTimer = 0f;
-                leapTimer = 0f;
-                isWaitingAfterLeap = false;
-                SwitchState(State.Chase);
-            }
+        // 2. 飛びつき方向の決定（1回だけ）
+        if (leapTimer == 0f)
+        {
+            leapDirection = (playerTransform.position - transform.position).normalized;
+            leapDirection.y = 0f;
+        }
+
+        // 3. 飛びつき移動
+        if (animationManager != null)
+        {
+            animationManager.PlayLeap(); // ← または他のアニメーション呼び出し
+        }
+
+        leapTimer += Time.deltaTime;
+        transform.position += leapDirection * leapSpeed * Time.deltaTime;
+
+        // 4. 飛び終わったら待機状態へ
+        if (leapTimer >= leapDuration)
+        {
+            isWaitingAfterLeap = true;
+            postLeapWaitTimer = 0f;
         }
     }
+    else
+    {
+        if (animationManager != null)
+        {
+            animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+        }
+
+        // 5. 飛び終わり後の1秒待機処理
+        postLeapWaitTimer += Time.deltaTime;
+
+        if (postLeapWaitTimer >= 1f)
+        {
+            // 6. タイマーリセットしてChaseへ
+            chargeTimer = 0f;
+            leapTimer = 0f;
+            isWaitingAfterLeap = false;
+            SwitchState(State.Chase);
+        }
+    }
+}
+*/
+
 
     public bool IsFoundingPlayer()
     {
