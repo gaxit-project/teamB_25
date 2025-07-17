@@ -23,7 +23,7 @@ public class Breaker : MonoBehaviour
 
     public void bootBreaker()
     {
-        AudioManager.Instance.DestroySE("BrokenBreaker");
+        AudioManager.Instance.DestroySE("BrokenBreaker",transform);
         AudioManager.Instance.PlaySE("BreakerOn", transform.position);
         isActivated = true;
 

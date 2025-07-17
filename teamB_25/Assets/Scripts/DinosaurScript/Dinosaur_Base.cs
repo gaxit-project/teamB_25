@@ -280,7 +280,7 @@ public class Dinosaur_Base : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(currentSE))
             {
-                AudioManager.Instance.DestroySE(currentSE);
+                AudioManager.Instance.DestroySE(currentSE,transform);
             }
 
             if (!string.IsNullOrEmpty(newSE))
@@ -498,8 +498,8 @@ public class Dinosaur_Base : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.DestroySE("Dash");
-            AudioManager.Instance.DestroySE("Walk");
+            AudioManager.Instance.DestroySE("Dash",transform);
+            AudioManager.Instance.DestroySE("Walk",transform);
         }
         roarTimer += Time.deltaTime;
 

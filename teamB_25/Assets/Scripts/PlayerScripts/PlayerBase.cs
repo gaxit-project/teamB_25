@@ -149,23 +149,23 @@ public class PlayerBase : MonoBehaviour
         if (IsRunning())
         {
             AudioManager.Instance.PlaySELoop(AudioDefine.PlayerRun, transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
         }
         else if (IsMoving())
         {
             AudioManager.Instance.PlaySELoop(AudioDefine.PlayerWalk, transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
         }
         else
         {
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
         }
 
         if (isFounding)
         {
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
             return;
         }
 
