@@ -94,6 +94,12 @@ public class PlayerBase : MonoBehaviour
         };
 
         gameInputs.Player.Hide.started += ctx => {
+            if (currentHidePlace == null)
+            {
+                Debug.Log("隠れ場所がないので Hide は実行されません。");
+                return;
+            }
+
             if (!isFounding && currentHidePlace != null)
             {
                 EnterHide();
