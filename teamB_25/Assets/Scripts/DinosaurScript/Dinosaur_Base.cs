@@ -85,6 +85,8 @@ public class Dinosaur_Base : MonoBehaviour
 
     private string currentSE = ""; // Œ»İÄ¶’†‚ÌSE–¼
 
+    [SerializeField] private WarningUIManager warningUIManager;
+
     // === Œ»İ‚Ìó‘Ô ===
     private State currentState = State.Patrol;
     public enum State
@@ -338,6 +340,19 @@ public class Dinosaur_Base : MonoBehaviour
         currentState = newState;
 
         SetSpeedForState(newState); // ©š‚±‚±‚Åó‘Ô‚É‰‚¶‚½‘¬“x‚ğ©“®İ’è
+
+        // UI§Œä
+        if (warningUIManager != null)
+        {
+            if (newState == State.Chase || newState == State.Roar)
+            {
+                warningUIManager.ShowWarning();
+            }
+            else
+            {
+                warningUIManager.HideWarning();
+            }
+        }
 
         if (newState == State.Patrol)
         {
