@@ -13,12 +13,14 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private float currentSpeed;
     [SerializeField] public float stopTime = 0f;
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private Camera backCamera;
     [SerializeField] private PlayerBase player; // PlayerBase  X N   v g Q  
     [SerializeField] SceneChangeManager sceneChangeManager;
     [SerializeField] private float stamina = 10f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float staminaDuration;
     [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private TextMeshProUGUI back;
     [SerializeField] private Image hideButton;
     [SerializeField] private Image breakerButton;
     [SerializeField] private Image image;
@@ -93,7 +95,7 @@ public class PlayerBase : MonoBehaviour
             Debug.Log("Run canceled");
         };
 
-        gameInputs.Player.Hide.started += ctx => {
+        gameInputs.Player.Tool.started += ctx => {
             if (currentHidePlace == null)
             {
                 Debug.Log("隠れ場所がないので Hide は実行されません。");
@@ -129,6 +131,9 @@ public class PlayerBase : MonoBehaviour
             Debug.LogError("死亡" + wasLookedWhenHiding);
         };
 
+        gameInputs.Player.Back.started += OnBack;
+        gameInputs.Player.Back.performed += OnBack;
+        gameInputs.Player.Back.canceled += OnBack;
 
         gameInputs.Enable();
     }
@@ -180,6 +185,34 @@ public class PlayerBase : MonoBehaviour
         
     }
 
+    private void FixedUpdate()
+    {
+        if (!countdownActive) return;
+        // ↓ 既存の処理
+        ChangeSpeed();
+        image.fillAmount = stamina / maxStamina;
+
+        image.color = lostStamina ? Color.red : Color.green;
+
+        if (moveInputValue.sqrMagnitude > 0.01f)
+        {
+            Vector3 camForward = mainCamera.transform.forward;
+            Vector3 camRight = mainCamera.transform.right;
+            camForward.y = 0;
+            camRight.y = 0;
+            camForward.Normalize();
+            camRight.Normalize();
+
+            Vector3 moveDirection = camForward * moveInputValue.y + camRight * moveInputValue.x;
+            rigidbody.velocity = moveDirection * currentSpeed;
+        }
+        else
+        {
+            Vector3 targetVelocity = new Vector3(0, rigidbody.velocity.y, 0);
+            rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
+        }
+    }
+
     public virtual void Attack()
     {
         Debug.Log("test");
@@ -188,6 +221,23 @@ public class PlayerBase : MonoBehaviour
     private void OnMove(InputAction.CallbackContext context)
     {
         moveInputValue = context.ReadValue<Vector2>();
+    }
+
+    private void OnBack(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            mainCamera.enabled = false;
+            backCamera.enabled = true;
+            back.gameObject.SetActive(true);
+        }
+        else if(context.canceled)
+        {
+            mainCamera.enabled = true;
+            backCamera.enabled = false;
+            back.gameObject.SetActive(false);
+        }
+            
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -485,32 +535,6 @@ public class PlayerBase : MonoBehaviour
     }
 
    
-    private void FixedUpdate()
-    {
-        if (!countdownActive) return;
-        // ↓ 既存の処理
-        ChangeSpeed();
-        image.fillAmount = stamina / maxStamina;
-
-        image.color = lostStamina ? Color.red : Color.green;
-
-        if (moveInputValue.sqrMagnitude > 0.01f)
-        {
-            Vector3 camForward = mainCamera.transform.forward;
-            Vector3 camRight = mainCamera.transform.right;
-            camForward.y = 0;
-            camRight.y = 0;
-            camForward.Normalize();
-            camRight.Normalize();
-
-            Vector3 moveDirection = camForward * moveInputValue.y + camRight * moveInputValue.x;
-            rigidbody.velocity = moveDirection * currentSpeed;
-        }
-        else
-        {
-            Vector3 targetVelocity = new Vector3(0, rigidbody.velocity.y, 0);
-            rigidbody.velocity = Vector3.SmoothDamp(rigidbody.velocity, targetVelocity, ref velocity, stopTime);
-        }
-    }
+    
 
 }
