@@ -4912,7 +4912,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1956ae886c09834419725c5806f7c1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  intensityMultiplier: 1
+  intensityMultiplier: 2
+  blinkingSpeed: 15
+  blinkingTime: 2
 --- !u!1 &351682489
 GameObject:
   m_ObjectHideFlags: 0
@@ -5156,6 +5158,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: sceneToMuteSE
+      value: Introduction
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: videoController
       value: 
@@ -16636,7 +16642,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1956ae886c09834419725c5806f7c1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  intensityMultiplier: 1
+  intensityMultiplier: 2
+  blinkingSpeed: 15
+  blinkingTime: 2
 --- !u!1 &1002179953 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5735183905496812083, guid: 2b23fd819e8890e4bae6782feabf3193, type: 3}
@@ -17036,6 +17044,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: sceneToMuteSE
+      value: Introduction
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: videoController
       value: 
@@ -22478,6 +22490,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1089692463}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: sceneToMuteSE
+      value: Introduction
+      objectReference: {fileID: 0}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: videoController
       value: 
       objectReference: {fileID: 0}
@@ -26422,7 +26438,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1956ae886c09834419725c5806f7c1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  intensityMultiplier: 1
+  intensityMultiplier: 2
+  blinkingSpeed: 15
+  blinkingTime: 2
 --- !u!1 &1723126083 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5303730925990620609, guid: 04a1884dd990f754eb9cdacecd1738ff, type: 3}
@@ -27831,7 +27849,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1956ae886c09834419725c5806f7c1f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  intensityMultiplier: 1
+  intensityMultiplier: 2
+  blinkingSpeed: 15
+  blinkingTime: 2
 --- !u!1 &1845105456
 GameObject:
   m_ObjectHideFlags: 0
@@ -209160,6 +209180,10 @@ PrefabInstance:
       propertyPath: text
       value: 
       objectReference: {fileID: 1089692463}
+    - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
+      propertyPath: sceneToMuteSE
+      value: Introduction
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: videoController
       value: 
