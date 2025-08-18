@@ -141,7 +141,7 @@ public class Dinosaur_Base : MonoBehaviour
     {
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        //Debug.Log("Current State: " + currentState);
+        Debug.Log("Current State: " + currentState);
 
         if (agent.velocity.sqrMagnitude > 0.01f)
         {
