@@ -65,7 +65,7 @@ public class PlayerBase : MonoBehaviour
     private bool lostStamina = false;
     private bool isChangingCamera = false;
 
-    private bool wasLookedWhenHiding = false;
+    private bool lookedHiding = false;
 
     public int Hp = 0;
 
@@ -118,7 +118,7 @@ public class PlayerBase : MonoBehaviour
             }
             else if (isFounding)
             {
-                wasLookedWhenHiding = false;
+                lookedHiding = false;
                 // 隠れ解除時もコルーチンを止める
                 if (hideCoroutine != null)
                 {
@@ -127,8 +127,8 @@ public class PlayerBase : MonoBehaviour
                 }
                 CancelHide();
             }
-            wasLookedWhenHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
-            Debug.LogError("死亡" + wasLookedWhenHiding);
+            lookedHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
+            Debug.LogError("死亡" + lookedHiding);
         };
 
         gameInputs.Player.Back.started += OnBack;
@@ -244,7 +244,7 @@ public class PlayerBase : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            if (isFounding && wasLookedWhenHiding)
+            if (isFounding && lookedHiding) 
             {
                 Debug.Log("ロッカー中に見つかって接触：死亡");
                 if (AudioManager.Instance != null)

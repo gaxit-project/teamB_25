@@ -81,7 +81,7 @@ public class Dinosaur_Base : MonoBehaviour
     // === 見ている恐竜の一元化 ===
     public static List<Dinosaur_Base> dinosLookingAtPlayer = new List<Dinosaur_Base>();
 
-    private bool hasPlayedChaseBGM = false;
+    //private bool hasPlayedChaseBGM = false;
 
     private string currentSE = ""; // 現在再生中のSE名
 
@@ -187,12 +187,12 @@ public class Dinosaur_Base : MonoBehaviour
         {
             isPlayerVisible = true;
             timeSinceLastSeen = 0f;
-            Debug.Log("Player detected by ray. timeSinceLastSeen reset to 0");
+            //Debug.Log("Player detected by ray. timeSinceLastSeen reset to 0");
         }
         else
         {
             timeSinceLastSeen += Time.deltaTime;
-            Debug.Log($"Player NOT detected. timeSinceLastSeen = {timeSinceLastSeen:F2} seconds");
+            //Debug.Log($"Player NOT detected. timeSinceLastSeen = {timeSinceLastSeen:F2} seconds");
 
             if (timeSinceLastSeen > loseSightDuration)
             {
@@ -337,9 +337,19 @@ public class Dinosaur_Base : MonoBehaviour
     // ステート変更時の処理
     void SwitchState(State newState)
     {
+        // BGM停止条件
+        if (currentState == State.Chase && newState != State.Chase)
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+                Debug.Log("チェイスBGM停止");
+            }
+        }
+
         currentState = newState;
 
-        SetSpeedForState(newState); // ←★ここで状態に応じた速度を自動設定
+        SetSpeedForState(newState); // 状態に応じた速度設定
 
         if (warningUIManager != null)
         {
@@ -352,17 +362,10 @@ public class Dinosaur_Base : MonoBehaviour
                 warningUIManager.HideWarning();
             }
         }
+
         if (newState == State.Patrol)
         {
             agent.SetDestination(patrolPoints[currentPatrolIndex].position);
-
-            // チェイスBGM停止（追跡終了）
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.StopBGM();
-                Debug.Log("オーディオが止まった");
-                hasPlayedChaseBGM = false; // フラグもリセットしておく
-            }
         }
         else if (newState == State.Vigilance)
         {
@@ -372,11 +375,14 @@ public class Dinosaur_Base : MonoBehaviour
         {
             agent.ResetPath(); // 停止
             roarTimer = 0f;
+
+            // BGM開始条件
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayBGM("ChaseBGM");
+                Debug.Log("チェイスBGM開始");
+            }
         }
-        //else if (newState == State.Leap)
-        //{
-            // leapTimer = 0f; ← コメントアウト
-       // }
 
         agent.enabled = true;
     }
@@ -457,21 +463,7 @@ public class Dinosaur_Base : MonoBehaviour
     {
         animationManager?.PlayRun();
 
-        if (playerScript != null && playerScript.IsFounding)
-        {
-            Vector3 randomDirection = Random.insideUnitSphere * 5f;
-            randomDirection.y = 0f;
-            randomDirection += transform.position;
-
-            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 5f, NavMesh.AllAreas))
-            {
-                agent.SetDestination(hit.position);
-            }
-        }
-        else
-        {
-            agent.SetDestination(playerTransform.position);
-        }
+        agent.SetDestination(playerTransform.position);
 
         UpdateFootstepSE(AudioDefine.Dash);
     }
@@ -511,8 +503,8 @@ public class Dinosaur_Base : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.DestroySE("Dash",transform);
-            AudioManager.Instance.DestroySE("Walk",transform);
+            AudioManager.Instance.DestroySE("Dash", transform);
+            AudioManager.Instance.DestroySE("Walk", transform);
         }
         roarTimer += Time.deltaTime;
 
@@ -524,13 +516,6 @@ public class Dinosaur_Base : MonoBehaviour
             AudioManager.Instance.PlaySE("Rouring", transform.position);
             animationManager?.PlayRoar();
             hasRoared = true;
-
-            if (!hasPlayedChaseBGM)
-            {
-                AudioManager.Instance.PlayBGM("ChaseBGM");
-                Debug.Log("オーディオ開始");
-                hasPlayedChaseBGM = true;
-            }
         }
 
         if (roarTimer >= roarDuration)
@@ -540,7 +525,6 @@ public class Dinosaur_Base : MonoBehaviour
             SwitchState(State.Chase);
         }
     }
-
     /*
 void LeapState()
 {
