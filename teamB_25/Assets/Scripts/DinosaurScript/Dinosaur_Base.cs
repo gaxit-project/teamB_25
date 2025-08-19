@@ -386,7 +386,7 @@ public class Dinosaur_Base : MonoBehaviour
 
         agent.enabled = true;
     }
-
+    
     // ó‘Ô‚É‰‚¶‚½‘¬“xİ’è‚ğˆêŒ³‰»
     void SetSpeedForState(State state)
     {
