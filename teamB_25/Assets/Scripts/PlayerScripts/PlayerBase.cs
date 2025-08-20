@@ -440,10 +440,7 @@ public class PlayerBase : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySE("OpenLocker", transform.position);
-            if (lookedHiding)
-            {
-                AudioManager.Instance.PlaySELoop("HeartBeat", transform);
-            }
+            AudioManager.Instance.PlaySELoop("HeartBeat", transform);
         }
         isFounding = true;//隠れているflag
         isChangingCamera = true;
