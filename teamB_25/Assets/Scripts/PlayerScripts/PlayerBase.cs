@@ -50,6 +50,9 @@ public class PlayerBase : MonoBehaviour
     private GameObject locker;
     private float resetTime = 1.5f;
 
+    public RawImage deathEffectImage;  // ← Inspectorに割り当て（恐竜の動画）
+    public float effectDuration = 3.0f; // エフェクト再生時間
+    private bool isDeadProcessing = false; // 死亡処理が二重に走らないように制御
 
     private Dinosaur_Base dinosaur_Base;
     private NormalDinosaur normalDinosaur;
@@ -161,6 +164,11 @@ public class PlayerBase : MonoBehaviour
         normalDinosaur = GameObject.FindWithTag("Enemy").GetComponent<NormalDinosaur>();
         countdownActive = false;
         Attack();
+
+        if (deathEffectImage != null)
+        {
+            deathEffectImage.gameObject.SetActive(false); // 初期状態で非表示
+        }
     }
     
     private void Update()
@@ -280,16 +288,18 @@ public class PlayerBase : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
+        if (isDeadProcessing) return; // 二重実行防止
+
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            if (isFounding && lookedHiding) 
+            if (isFounding && lookedHiding)
             {
                 Debug.Log("ロッカー中に見つかって接触：死亡");
                 if (AudioManager.Instance != null)
                 {
                     AudioManager.Instance.StopBGM();
                 }
-                sceneChangeManager.ChangeScene("DeadScene");
+                StartCoroutine(PlayDeathEffectAndChangeScene()); // ←演出付き
             }
             else if (!isFounding)
             {
@@ -298,7 +308,7 @@ public class PlayerBase : MonoBehaviour
                 {
                     AudioManager.Instance.StopBGM();
                 }
-                sceneChangeManager.ChangeScene("DeadScene");
+                ChangeSceneImmediately(); // ←即シーン遷移
             }
             else
             {
@@ -306,6 +316,40 @@ public class PlayerBase : MonoBehaviour
             }
         }
     }
+
+    private IEnumerator PlayDeathEffectAndChangeScene()
+    {
+        isDeadProcessing = true;
+
+        if (deathEffectImage != null)
+        {
+            deathEffectImage.gameObject.SetActive(true); // RawImageを表示
+        }
+
+        // 恐竜の声を鳴らす
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("Rouring", transform.position);
+        }
+
+        yield return new WaitForSeconds(effectDuration); // 演出時間だけ待つ
+
+        ChangeSceneImmediately();
+    }
+
+
+    private void ChangeSceneImmediately()
+    {
+        isDeadProcessing = true;
+
+        if (deathEffectImage != null)
+        {
+            deathEffectImage.gameObject.SetActive(false); // シーン遷移前に非表示に戻す
+        }
+
+        sceneChangeManager.ChangeScene("DeadScene");
+    }
+
 
     public void OnTriggerStay(Collider other)
     {
