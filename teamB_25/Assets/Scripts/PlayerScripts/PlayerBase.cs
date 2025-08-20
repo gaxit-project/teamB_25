@@ -63,6 +63,7 @@ public class PlayerBase : MonoBehaviour
     private bool isPushRun = false;
     private bool isPushHide = false;
     private bool lostStamina = false;
+    private bool isTurning = false;
     private bool isChangingCamera = false;
 
     private bool lookedHiding = false;
@@ -135,6 +136,8 @@ public class PlayerBase : MonoBehaviour
         gameInputs.Player.Back.performed += OnBack;
         gameInputs.Player.Back.canceled += OnBack;
 
+        gameInputs.Player.Tool.performed += OnTool;
+
         gameInputs.Enable();
     }
 
@@ -180,14 +183,12 @@ public class PlayerBase : MonoBehaviour
             return;
         }
 
-        toolTriggered = gameInputs.Player.Tool.triggered;
-
         
     }
 
     private void FixedUpdate()
     {
-        if (!countdownActive) return;
+        if (!countdownActive || isTurning) return;
         // ↓ 既存の処理
         ChangeSpeed();
         image.fillAmount = stamina / maxStamina;
@@ -230,14 +231,28 @@ public class PlayerBase : MonoBehaviour
             mainCamera.enabled = false;
             backCamera.enabled = true;
             back.gameObject.SetActive(true);
+            isTurning = true;
+            rigidbody.velocity = new Vector3(0, 0, 0);
         }
         else if(context.canceled)
         {
             mainCamera.enabled = true;
             backCamera.enabled = false;
             back.gameObject.SetActive(false);
+            isTurning = false;
         }
             
+    }
+
+    private void OnTool(InputAction.CallbackContext callback)
+    {
+        if (!breaker.isActivated)
+        {
+            breakerButton.gameObject.SetActive(false);
+            text.gameObject.SetActive(false);
+            breaker.bootBreaker();
+
+        }
     }
 
     private void OnCollisionStay(Collision collision)
@@ -317,13 +332,7 @@ public class PlayerBase : MonoBehaviour
                 text.gameObject.SetActive(true);
                 text.text = "Boot";
             }
-            if (gameInputs.Player.Tool.triggered && toolTriggered)
-            {
-                breakerButton.gameObject.SetActive(false);
-                text.gameObject.SetActive(false);
-                breaker.bootBreaker();
-                
-            }
+            
         }
     }
 
