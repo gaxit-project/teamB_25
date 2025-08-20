@@ -2426,7 +2426,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1392295307}
   - component: {fileID: 1392295306}
-  - component: {fileID: 1392295305}
   m_Layer: 0
   m_Name: ExitCamera
   m_TagString: MainCamera
@@ -2434,14 +2433,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1392295305
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1392295304}
-  m_Enabled: 1
 --- !u!20 &1392295306
 Camera:
   m_ObjectHideFlags: 0
@@ -2518,7 +2509,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1394354535}
   - component: {fileID: 1394354534}
-  - component: {fileID: 1394354533}
   m_Layer: 0
   m_Name: 'DinosaurCamera '
   m_TagString: MainCamera
@@ -2526,14 +2516,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1394354533
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1394354532}
-  m_Enabled: 1
 --- !u!20 &1394354534
 Camera:
   m_ObjectHideFlags: 0
@@ -2745,6 +2727,7 @@ GameObject:
   - component: {fileID: 1755298071}
   - component: {fileID: 1755298073}
   - component: {fileID: 1755298072}
+  - component: {fileID: 1755298076}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2892,6 +2875,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 258693635}
   m_LocalEulerAnglesHint: {x: 41.13, y: 7.865, z: 7.42}
+--- !u!81 &1755298076
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755298070}
+  m_Enabled: 1
 --- !u!1001 &1861010676
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -180776,7 +180767,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2015246935}
   - component: {fileID: 2015246934}
-  - component: {fileID: 2015246933}
   m_Layer: 0
   m_Name: BreakerCamera
   m_TagString: MainCamera
@@ -180784,14 +180774,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &2015246933
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015246932}
-  m_Enabled: 1
 --- !u!20 &2015246934
 Camera:
   m_ObjectHideFlags: 0

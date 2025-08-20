@@ -8,29 +8,29 @@ public class Breaker : MonoBehaviour
 {
     private bool isCollision = false;
     public bool isActivated = false;
-    public string sceneToMuteSE = "Introduction";
-
-    // Mainシーンのみ音を出す
-    /*private void Start()
-    {
-        string currentSceneName = SceneManager.GetActiveScene().name;
-
-        if (currentSceneName != sceneToMuteSE)
-        {
-            AudioManager.Instance.PlaySELoop("BrokenBreaker", transform);
-        }
-    }*/
+    public Electrical electricalScript;
+    public GameObject[] electricalObjects; // ここで設定されたオブジェクトが消える
 
     public void bootBreaker()
     {
-        //AudioManager.Instance.DestroySE("BrokenBreaker",transform);
         AudioManager.Instance.PlaySE("BreakerOn", transform.position);
         isActivated = true;
 
         // ブレーカー名からエリア番号を取得
         string breakerName = gameObject.name;
         string number = Regex.Replace(breakerName, "[^0-9]", ""); // System.Text.RegularExpressions.Regex を using で追加済み
+        int num = int.Parse(number);
         Image breakerIconImage;
+
+
+        electricalScript.StopElectrical(num); //電気エフェクト消す処理
+        foreach (GameObject electricalObject in electricalObjects)
+        {
+            if (electricalObject != null)
+            {
+                electricalObject.SetActive(false);
+            }
+        }
 
         switch (number)
         {

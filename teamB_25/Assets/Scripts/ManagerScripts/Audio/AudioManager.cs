@@ -38,7 +38,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("SELoop Clips")]
     public List<NamedAudioClip> seLoopClips;
-    //«‘
+    //ï¿½ï¿½ï¿½ï¿½
     private Dictionary<string, AudioClip> bgmDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seDict = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> seLoopDict = new Dictionary<string, AudioClip>();
@@ -77,7 +77,7 @@ public class AudioManager : MonoBehaviour
         AudioListener.pause = false;
     }
     /// <summary>
-    /// –¼‘O‚ÅŒŸõ‚Å‚«‚é‚æ‚¤‚É‚·‚é
+    /// ï¿½ï¿½ï¿½Oï¿½ÅŒï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½æ‚¤ï¿½É‚ï¿½ï¿½ï¿½
     /// </summary>
     void LoadClips()
     {
@@ -91,7 +91,7 @@ public class AudioManager : MonoBehaviour
             seLoopDict[named.name] = named.clip;
     }
     /// <summary>
-    /// •Û‘¶‚µ‚½‰¹—Ê‚ğ“Ç‚İ‚İ”½‰f‚³‚¹‚é
+    /// ï¿½Û‘ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê‚ï¿½Ç‚İï¿½ï¿½İ”ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     void LoadVolumeSettings()
     {
@@ -103,7 +103,7 @@ public class AudioManager : MonoBehaviour
         SetSEVolume(seVolume); 
     }
     /// <summary>
-    /// BGM–Â‚ç‚·
+    /// BGMï¿½Â‚ç‚·
     /// </summary>
     /// <param name="name"></param>
     public void PlayBGM(string name)
@@ -114,13 +114,13 @@ public class AudioManager : MonoBehaviour
         }
         if (bgmDict.TryGetValue(name, out var clip))
         {
-            //V‚µ‚¢‚à‚Ì‚Ìê‡
+            //ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ìê‡
             if (bgmSource.clip != clip)
             {
                 bgmSource.clip = clip;
                 bgmSource.loop = true;
             }
-            //Ä¶‚µ‚Ä‚¢‚È‚©‚Á‚½‚ç
+            //ï¿½Äï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             if (!bgmSource.isPlaying)
             {
                 bgmSource.Play();
@@ -128,18 +128,18 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("BGM‚ª‚È‚¢");
+            Debug.Log("BGMï¿½ï¿½ï¿½È‚ï¿½");
         }
     }
     /// <summary>
-    /// BGM‚ğ~‚ß‚é
+    /// BGMï¿½ï¿½~ï¿½ß‚ï¿½
     /// </summary>
     public void StopBGM()
     {
         bgmSource.Stop();
     }
     /// <summary>
-    /// SE‚ğ‚È‚ç‚·
+    /// SEï¿½ï¿½È‚ç‚·
     /// </summary>
     /// <param name="name"></param>
     public void PlaySE(string name,Vector3 position)
@@ -161,11 +161,11 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("SE‚ª‚È‚¢");
+            Debug.Log("SEï¿½ï¿½ï¿½È‚ï¿½");
         }
     }
     /// <summary>
-    /// Loopê—pSE
+    /// Loopï¿½ï¿½pSE
     /// </summary>
     /// <param name="name"></param>
     public void PlaySELoop(string name, Transform target)
@@ -178,7 +178,7 @@ public class AudioManager : MonoBehaviour
         {
             int instanceId = target.gameObject.GetInstanceID();
             var key = (name, instanceId);
-            // ‚·‚Å‚ÉÄ¶’†‚È‚ç~‚ß‚é
+            // ï¿½ï¿½ï¿½Å‚ÉÄï¿½ï¿½ï¿½ï¿½È‚ï¿½~ï¿½ß‚ï¿½
             if (activeLoops.ContainsKey(key))
             {
                 return;
@@ -196,7 +196,7 @@ public class AudioManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// Loop‚µ‚Ä‚¢‚éSE‚ğíœ‚·‚é
+    /// Loopï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½SEï¿½ï¿½íœï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="name"></param>
     public void DestroySE(string name,Transform target)
@@ -225,7 +225,7 @@ public class AudioManager : MonoBehaviour
         activeLoops.Clear();
     }
     /// <summary>
-    /// ‰¹—Ê•Û‘¶
+    /// ï¿½ï¿½ï¿½Ê•Û‘ï¿½
     /// </summary>
     /// <param name="volume"></param>
     public void SetBGMVolume(float volume)
