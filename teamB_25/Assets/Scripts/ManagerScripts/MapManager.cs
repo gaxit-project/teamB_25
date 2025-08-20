@@ -165,7 +165,7 @@ public class MapManager : MonoBehaviour
         int centerX = Mathf.RoundToInt(percentX * fogResolution);
         int centerY = Mathf.RoundToInt(percentY * fogResolution);
 
-        int radius = 5;
+        int radius = 7;
 
         for (int y = -radius; y <= radius; y++)
         {
