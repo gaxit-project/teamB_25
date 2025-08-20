@@ -107,6 +107,11 @@ public class PlayerBase : MonoBehaviour
 
             if (!isFounding && currentHidePlace != null)
             {
+                if (isTurning)
+                {
+                    mainCamera.transform.rotation *= Quaternion.Euler(0f, 180f, 0f);
+                    isTurning = false;
+                }
                 EnterHide();
                 maxHideTime = defaultHideTime;    // 毎回初期値に戻す
                 currentHideTime = defaultHideTime;
@@ -192,7 +197,7 @@ public class PlayerBase : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!countdownActive || isTurning) return;
+        if (!countdownActive /*|| isTurning*/) return;
         // ↓ 既存の処理
         ChangeSpeed();
         image.fillAmount = stamina / maxStamina;
@@ -230,7 +235,21 @@ public class PlayerBase : MonoBehaviour
 
     private void OnBack(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.performed)
+        {
+            mainCamera.transform.rotation *= Quaternion.Euler(0f, 180f, 0f);
+            if(!isTurning)
+            {
+                isTurning = true;
+            }
+            else if(isTurning)
+            {
+                isTurning = false;
+            }
+            
+        }
+        
+        /*if (context.started)
         {
             mainCamera.enabled = false;
             backCamera.enabled = true;
@@ -244,8 +263,8 @@ public class PlayerBase : MonoBehaviour
             backCamera.enabled = false;
             back.gameObject.SetActive(false);
             isTurning = false;
-        }
-            
+        }*/
+
     }
 
     private void OnTool(InputAction.CallbackContext callback)
@@ -450,6 +469,7 @@ public class PlayerBase : MonoBehaviour
             AudioManager.Instance.PlaySE("OpenLocker", transform.position);
             AudioManager.Instance.PlaySELoop("HeartBeat", transform);
         }
+
         isFounding = true;//隠れているflag
         isChangingCamera = true;
         preHidePosition = transform.position;
