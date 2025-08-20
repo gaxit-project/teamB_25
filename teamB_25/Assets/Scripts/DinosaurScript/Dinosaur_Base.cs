@@ -211,13 +211,13 @@ public class Dinosaur_Base : MonoBehaviour
             case State.Patrol:
                 if (isPlayerVisible)
                 {
-                    SwitchState(State.Roar);  // プレイヤー視認で咆哮へ
+                    SwitchState(State.Roar);  // 見えたら咆哮
                 }
                 else
                 {
                     PlayerBase player = playerTransform.GetComponent<PlayerBase>();
 
-                    if (player != null)
+                    if (player != null && !player.IsFounding) // ← ロッカー中は遷移しない
                     {
                         if (distanceToPlayer < vigilanceWalkDistance)
                         {
@@ -237,7 +237,7 @@ public class Dinosaur_Base : MonoBehaviour
                     }
                 }
 
-                PatrolState(); // 巡回処理は常に実行
+                PatrolState();
                 break;
 
             case State.Vigilance:
@@ -257,11 +257,7 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Chase:
-                if (distanceToPlayer <= leapDistance)
-                {
-                    // SwitchState(State.Leap); ← コメントアウト
-                }
-                else if (timeSinceLastSeen > loseSightDuration)
+                if (timeSinceLastSeen > loseSightDuration)
                 {
                     SwitchState(State.Patrol);
                 }
@@ -511,12 +507,18 @@ public class Dinosaur_Base : MonoBehaviour
         agent.velocity = Vector3.zero;
         agent.isStopped = true;
 
-        if (!hasRoared && AudioManager.Instance != null)
+        if (!hasRoared)
         {
-            AudioManager.Instance.PlaySE("Rouring", transform.position);
             animationManager?.PlayRoar();
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySE("Rouring", transform.position);
+            }
+
             hasRoared = true;
         }
+
 
         if (roarTimer >= roarDuration)
         {
