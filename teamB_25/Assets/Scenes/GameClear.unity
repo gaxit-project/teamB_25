@@ -1146,6 +1146,8 @@ MonoBehaviour:
   myImage: {fileID: 1973646797}
   titleButton: {fileID: 449276321}
   exitButton: {fileID: 1882051008}
+  titleButtonBG: {fileID: 449276322}
+  exitButtonBG: {fileID: 1882051009}
 --- !u!1 &2018703067
 GameObject:
   m_ObjectHideFlags: 0
