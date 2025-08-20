@@ -99,7 +99,7 @@ public class PlayerBase : MonoBehaviour
         };
 
         gameInputs.Player.Tool.started += ctx => {
-            if (currentHidePlace == null)
+            if (currentHidePlace == null || isReseting)
             {
                 Debug.Log("隠れ場所がないので Hide は実行されません。");
                 return;
