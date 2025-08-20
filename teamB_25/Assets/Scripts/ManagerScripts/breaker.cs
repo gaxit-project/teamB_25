@@ -11,7 +11,7 @@ public class Breaker : MonoBehaviour
     public string sceneToMuteSE = "Introduction";
 
     // Mainシーンのみ音を出す
-    private void Start()
+    /*private void Start()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
 
@@ -19,17 +19,41 @@ public class Breaker : MonoBehaviour
         {
             AudioManager.Instance.PlaySELoop("BrokenBreaker", transform);
         }
-    }
+    }*/
 
     public void bootBreaker()
     {
-        AudioManager.Instance.DestroySE("BrokenBreaker",transform);
+        //AudioManager.Instance.DestroySE("BrokenBreaker",transform);
         AudioManager.Instance.PlaySE("BreakerOn", transform.position);
         isActivated = true;
 
         // ブレーカー名からエリア番号を取得
         string breakerName = gameObject.name;
         string number = Regex.Replace(breakerName, "[^0-9]", ""); // System.Text.RegularExpressions.Regex を using で追加済み
+        Image breakerIconImage;
+
+        switch (number)
+        {
+            case "1":
+                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
+                breakerIconImage.color = new Color(1.0f, 1.0f, 0f);
+                break;
+
+            case "2":
+                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
+                breakerIconImage.color = new Color(0f, 1.0f, 0f);
+                break;
+
+            case "3":
+                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
+                breakerIconImage.color = new Color(1.0f, 0f, 0.8f);
+                break;
+
+            case "4":
+                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
+                breakerIconImage.color = new Color(0f, 1.0f, 0.9f);
+                break;
+        }
 
         // 対応するライト親オブジェクトを探す
         GameObject lightParent = GameObject.Find("light" + number);
