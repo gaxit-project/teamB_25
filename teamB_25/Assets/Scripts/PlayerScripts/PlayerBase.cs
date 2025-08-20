@@ -437,7 +437,14 @@ public class PlayerBase : MonoBehaviour
 
     private void EnterHide()
     {
-        AudioManager.Instance.PlaySE("OpenLocker", transform.position);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("OpenLocker", transform.position);
+            if (lookedHiding)
+            {
+                AudioManager.Instance.PlaySELoop("HeartBeat", transform);
+            }
+        }
         isFounding = true;//隠れているflag
         isChangingCamera = true;
         preHidePosition = transform.position;
@@ -481,7 +488,11 @@ public class PlayerBase : MonoBehaviour
 
     private void CancelHide()
     {
-        AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("CloseLocker", transform.position);
+            AudioManager.Instance.DestroySE("HeartBeat", transform);
+        }
         isChangingCamera = false;
         isFounding = false;
         
