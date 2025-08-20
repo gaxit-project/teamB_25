@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -902,7 +902,6 @@ GameObject:
   m_Component:
   - component: {fileID: 550551349}
   - component: {fileID: 550551348}
-  - component: {fileID: 550551347}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -910,14 +909,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &550551347
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 550551346}
-  m_Enabled: 1
 --- !u!20 &550551348
 Camera:
   m_ObjectHideFlags: 0
@@ -3218,6 +3209,7 @@ GameObject:
   - component: {fileID: 1286458471}
   - component: {fileID: 1286458470}
   - component: {fileID: 1286458474}
+  - component: {fileID: 1286458475}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -3324,6 +3316,14 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!81 &1286458475
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1286458469}
+  m_Enabled: 1
 --- !u!1 &1559277647
 GameObject:
   m_ObjectHideFlags: 0

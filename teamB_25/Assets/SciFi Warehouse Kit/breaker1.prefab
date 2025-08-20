@@ -70,6 +70,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActivated: 0
+  sceneToMuteSE: Introduction
 --- !u!114 &2102708663767737205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,6 +171,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8888818892383247301}
     m_Modifications:
+    - target: {fileID: 933096238232314128, guid: 53c4d40c18754024a9a56916ec0d1286, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: c133acdb4b757304cac42731a69f5d7a, type: 2}
     - target: {fileID: 1882639191518274683, guid: 53c4d40c18754024a9a56916ec0d1286, type: 3}
       propertyPath: m_Name
       value: Shield
@@ -226,6 +231,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9169535235168354626, guid: 53c4d40c18754024a9a56916ec0d1286, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: c133acdb4b757304cac42731a69f5d7a, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
