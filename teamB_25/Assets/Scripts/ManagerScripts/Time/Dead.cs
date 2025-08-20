@@ -9,11 +9,11 @@ public class Dead : MonoBehaviour
     public class Slash
     {
         public RawImage image;
-        public Vector2 position; 
-        public float rotationZ;  
+        public Vector2 position;
+        public float rotationZ;
     }
 
-    public Slash[] slashes; 
+    public Slash[] slashes;
     public float delayBetweenSlashes = 0.2f;
     public float fadeDuration = 0.1f;
 
@@ -44,6 +44,12 @@ public class Dead : MonoBehaviour
         c.a = 0f;
         slash.image.color = c;
         slash.image.gameObject.SetActive(true);
+
+        // ƒXƒ‰ƒbƒVƒ…‰¹‚ð–Â‚ç‚·
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("Slash", transform.position);
+        }
 
         // Fade In
         float t = 0f;
