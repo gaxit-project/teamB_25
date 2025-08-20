@@ -48,6 +48,7 @@ public class PlayerBase : MonoBehaviour
     private Breaker breaker;
     private Coroutine hideCoroutine;
     private GameObject locker;
+    private float resetTime = 1.5f;
 
 
     private Dinosaur_Base dinosaur_Base;
@@ -64,6 +65,7 @@ public class PlayerBase : MonoBehaviour
     private bool isPushHide = false;
     private bool lostStamina = false;
     private bool isTurning = false;
+    private bool isReseting = false;
     private bool isChangingCamera = false;
 
     private bool lookedHiding = false;
@@ -97,7 +99,7 @@ public class PlayerBase : MonoBehaviour
         };
 
         gameInputs.Player.Tool.started += ctx => {
-            if (currentHidePlace == null)
+            if (currentHidePlace == null || isReseting)
             {
                 Debug.Log("隠れ場所がないので Hide は実行されません。");
                 return;
@@ -127,6 +129,8 @@ public class PlayerBase : MonoBehaviour
                     hideCoroutine = null;
                 }
                 CancelHide();
+                StartCoroutine(ResetTime());
+
             }
             lookedHiding = Dinosaur_Base.dinosLookingAtPlayer.Count > 0;
             Debug.LogError("死亡" + lookedHiding);
@@ -312,6 +316,8 @@ public class PlayerBase : MonoBehaviour
 
             if (text != null)
             {
+                if (isReseting) return;
+
                 text.gameObject.SetActive(true);
                 hideButton.gameObject.SetActive(true);
                 text.text = "Hide";
@@ -347,6 +353,8 @@ public class PlayerBase : MonoBehaviour
 
                 if (text != null)
                 {
+                    if (isReseting) return;
+
                     hideButton.gameObject.SetActive(false);
                     text.gameObject.SetActive(false);
                 }
@@ -472,7 +480,11 @@ public class PlayerBase : MonoBehaviour
         /// }
         ///}
 
-        if (text != null) text.text = "Exit";
+        if (text != null)
+        {
+            text.text = "Exit";
+        }
+
         hideTimeImage.gameObject.SetActive(true);
         Debug.Log("Hiding");
 
@@ -531,6 +543,12 @@ public class PlayerBase : MonoBehaviour
         hideTimeImage.gameObject.SetActive(false);
         locker.SetActive(true);
 
+        if (text != null)
+        {
+            text.text = "Hide";
+        }
+
+
         Debug.Log("Unhide");
     }
 
@@ -551,7 +569,24 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
-   
-    
+    private IEnumerator ResetTime()
+    {
+        text.gameObject.SetActive(false);
+        hideButton.gameObject.SetActive(false);
+        isReseting = true;
+        while (resetTime > 0f)
+        {
+            resetTime -= Time.deltaTime;
+
+            yield return null;
+        }
+
+        isReseting = false;
+        resetTime = 1.5f;
+        text.gameObject.SetActive(true);
+        hideButton.gameObject.SetActive(true);
+    }
+
+
 
 }
