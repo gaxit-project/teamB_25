@@ -329,6 +329,9 @@ public class PlayerBase : MonoBehaviour
         // 恐竜の声を鳴らす
         if (AudioManager.Instance != null)
         {
+            AudioManager.Instance.DestroySE("HeartBeat", transform);
+            AudioManager.Instance.DestroySE("Dash", transform);
+            AudioManager.Instance.DestroySE("Walk", transform);
             AudioManager.Instance.PlaySE("Rouring", transform.position);
         }
 
