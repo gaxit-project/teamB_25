@@ -457,10 +457,9 @@ public class Dinosaur_Base : MonoBehaviour
 
     void ChaseState()
     {
+        agent.isStopped = false; // ← 追加
         animationManager?.PlayRun();
-
         agent.SetDestination(playerTransform.position);
-
         UpdateFootstepSE(AudioDefine.Dash);
     }
 
@@ -523,8 +522,9 @@ public class Dinosaur_Base : MonoBehaviour
         if (roarTimer >= roarDuration)
         {
             hasRoared = false; // 次回Roarのためにリセット
-            agent.isStopped = false;
-            SwitchState(State.Chase);
+            // Roar 終了と同時に Chase 開始
+            agent.isStopped = false;               // ← ここで解除
+            SwitchState(State.Chase);             // すぐ Chase に切り替え
         }
     }
     /*
