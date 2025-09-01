@@ -245,6 +245,10 @@ public class PlayerBase : MonoBehaviour
     {
         if (context.performed)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySE("Turn", transform.position);
+            }
             mainCamera.transform.rotation *= Quaternion.Euler(0f, 180f, 0f);
             if(!isTurning)
             {
@@ -277,6 +281,13 @@ public class PlayerBase : MonoBehaviour
 
     private void OnTool(InputAction.CallbackContext callback)
     {
+        if (breaker == null)
+        {
+            Debug.Log("ブレーカーがありません");
+            return;
+        }
+
+
         if (!breaker.isActivated)
         {
             breakerButton.gameObject.SetActive(false);
@@ -650,8 +661,13 @@ public class PlayerBase : MonoBehaviour
 
         isReseting = false;
         resetTime = 1.5f;
-        text.gameObject.SetActive(true);
-        hideButton.gameObject.SetActive(true);
+
+        if(currentHidePlace != null)
+        {
+            text.gameObject.SetActive(true);
+            hideButton.gameObject.SetActive(true);
+        }
+        
     }
 
 
