@@ -95,6 +95,8 @@ public class Dinosaur_Base : MonoBehaviour
         Chase,
         Vigilance,
         Roar,
+        Fight,
+        Dead
         // Leap
     }
 
@@ -205,51 +207,14 @@ public class Dinosaur_Base : MonoBehaviour
             }
         }
 
-
         switch (currentState)
         {
             case State.Patrol:
-                if (isPlayerVisible)
-                {
-                    SwitchState(State.Roar);  // 見えたら咆哮
-                }
-                else
-                {
-                    PlayerBase player = playerTransform.GetComponent<PlayerBase>();
-
-                    if (player != null && !player.IsFounding) // ← ロッカー中は遷移しない
-                    {
-                        if (distanceToPlayer < vigilanceWalkDistance)
-                        {
-                            if (player.IsRunningNow)
-                            {
-                                SwitchState(State.Chase);  // 近距離で走っていたら追跡
-                            }
-                            else if (player.IsWalkingNow)
-                            {
-                                SwitchState(State.Vigilance);  // 近距離で歩いていたら警戒
-                            }
-                        }
-                        else if (distanceToPlayer < vigilanceRunDistance && player.IsRunningNow)
-                        {
-                            SwitchState(State.Vigilance);  // 中距離で走っていたら警戒
-                        }
-                    }
-                }
-
-                PatrolState();
+                HandlePatrolState();
                 break;
 
             case State.Vigilance:
-                if (isPlayerVisible)
-                {
-                    SwitchState(State.Roar);
-                }
-                else if (distanceToPlayer >= vigilanceRunDistance)
-                {
-                    SwitchState(State.Patrol);
-                }
-                VigilanceState();
+                HandleVigilanceState();
                 break;
 
             case State.Roar:
@@ -257,18 +222,94 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Chase:
-                if (timeSinceLastSeen > loseSightDuration)
-                {
-                    SwitchState(State.Patrol);
-                }
-                ChaseState();
+                HandleChaseState();
                 break;
 
-            //case State.Leap:
-                // LeapState(); ← コメントアウト
-              //  break;
+            case State.Fight:
+                HandleFightState();
+                break;
+
+            case State.Dead:
+                HandleDeadState();
+                break;
         }
+
     }
+
+    private void HandlePatrolState()
+    {
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (isPlayerVisible)
+        {
+            // 発見したら最優先で Roar
+            SwitchState(State.Roar);
+        }
+        else
+        {
+            PlayerBase player = playerTransform.GetComponent<PlayerBase>();
+            if (player != null && !player.IsFounding) // ロッカー中は無視
+            {
+                if (distanceToPlayer < vigilanceWalkDistance)
+                {
+                    if (player.IsRunningNow)
+                    {
+                        SwitchState(State.Chase); // 近距離 + 走り = 追跡
+                    }
+                    else if (player.IsWalkingNow)
+                    {
+                        SwitchState(State.Vigilance); // 近距離 + 歩き = 警戒
+                    }
+                }
+                else if (distanceToPlayer < vigilanceRunDistance && player.IsRunningNow)
+                {
+                    SwitchState(State.Vigilance); // 中距離 + 走り = 警戒
+                }
+            }
+        }
+
+        PatrolState();
+    }
+
+    private void HandleVigilanceState()
+    {
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (isPlayerVisible)
+        {
+            SwitchState(State.Roar); // 発見したら咆哮
+        }
+        else if (distanceToPlayer >= vigilanceRunDistance)
+        {
+            SwitchState(State.Patrol); // 離れたら巡回へ戻る
+        }
+
+        VigilanceState();
+    }
+
+    private void HandleChaseState()
+    {
+        if (timeSinceLastSeen > loseSightDuration)
+        {
+            SwitchState(State.Patrol); // 見失ったら巡回へ
+        }
+
+        ChaseState();
+    }
+
+    private void HandleFightState()
+    {
+        // 戦闘条件を満たしている場合に本体処理を呼ぶ
+        FightState();
+    }
+
+    private void HandleDeadState()
+    {
+        // 必要ならここで明示的に死亡処理
+        // ただし Die() やコルーチンで処理するなら空でもよい
+        DeadState();
+    }
+
 
     private void UpdateFootstepSE(string newSE)
     {
@@ -344,19 +385,14 @@ public class Dinosaur_Base : MonoBehaviour
         }
 
         currentState = newState;
-
-        SetSpeedForState(newState); // 状態に応じた速度設定
+        SetSpeedForState(newState);
 
         if (warningUIManager != null)
         {
             if (newState == State.Chase || newState == State.Roar)
-            {
                 warningUIManager.ShowWarning();
-            }
             else
-            {
                 warningUIManager.HideWarning();
-            }
         }
 
         if (newState == State.Patrol)
@@ -369,20 +405,36 @@ public class Dinosaur_Base : MonoBehaviour
         }
         else if (newState == State.Roar)
         {
-            agent.ResetPath(); // 停止
+            agent.ResetPath();
             roarTimer = 0f;
 
-            // BGM開始条件
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.PlayBGM("ChaseBGM");
                 Debug.Log("チェイスBGM開始");
             }
+
+            StartCoroutine(RoarThenChase());
+        }
+        else if (newState == State.Fight)
+        {
+            agent.ResetPath(); // 戦闘中は移動を止める
+        }
+        else if (newState == State.Dead)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
         }
 
         agent.enabled = true;
     }
-    
+
+    private IEnumerator RoarThenChase()
+    {
+        yield return new WaitForSeconds(2f); // 咆哮アニメーション時間
+        SwitchState(State.Chase);
+    }
+
     // 状態に応じた速度設定を一元化
     void SetSpeedForState(State state)
     {
@@ -461,6 +513,19 @@ public class Dinosaur_Base : MonoBehaviour
         animationManager?.PlayRun();
         agent.SetDestination(playerTransform.position);
         UpdateFootstepSE(AudioDefine.Dash);
+    }
+
+    private void FightState()
+    {
+        // 戦闘アニメ再生やコルーチン開始など
+        // 実際には StartFight() や FightRoutine() で管理しているので
+        // ここはトリガーをかけるだけでも良い
+    }
+
+    private void DeadState()
+    {
+        // 死亡アニメ再生後の無効化処理
+        // 今の Die() で十分なら空にしてもOK
     }
 
     void SetRandomVigilanceTarget()
