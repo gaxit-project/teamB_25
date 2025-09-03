@@ -57,6 +57,11 @@ public class Dinosaur_Base : MonoBehaviour
     private float postLeapWaitTimer = 0f;
     private bool isWaitingAfterLeap = false;
 
+    // === Fightで使っている変数 ===
+    // 戦闘管理用フラグ
+    private bool isInFight = false;          // 現在戦闘中かどうか
+    public Transform fightTarget = null;     // 戦闘相手（Transform参照）
+
     // === 自前回転制御 ===
     [SerializeField] private float turnSpeed = 2f;
 
@@ -419,11 +424,12 @@ public class Dinosaur_Base : MonoBehaviour
         else if (newState == State.Fight)
         {
             agent.ResetPath(); // 戦闘中は移動を止める
+            agent.isStopped = true;
         }
         else if (newState == State.Dead)
         {
-            agent.isStopped = true;
             agent.ResetPath();
+            agent.isStopped = true;
         }
 
         agent.enabled = true;
@@ -517,9 +523,51 @@ public class Dinosaur_Base : MonoBehaviour
 
     private void FightState()
     {
-        // 戦闘アニメ再生やコルーチン開始など
-        // 実際には StartFight() や FightRoutine() で管理しているので
-        // ここはトリガーをかけるだけでも良い
+        // 既に戦闘中なら何もしない
+        if (isInFight) return;
+
+        if (fightTarget != null)
+        {
+            isInFight = true;
+
+            // 相手をFight状態にする
+            var enemyState = fightTarget.GetComponent<Dinosaur_Base>(); // ← DinosaurAI → Dinosaur_Base に変更
+            if (enemyState != null && enemyState.currentState != State.Fight)
+            {
+                enemyState.SwitchState(State.Fight);
+                enemyState.fightTarget = this.transform; // 相互ターゲット設定
+            }
+
+            // 移動を止める
+            agent.ResetPath();
+            agent.isStopped = true;
+
+            // アニメーション再生
+            animationManager?.PlayFighting();
+
+            // 戦闘コルーチン開始
+            StartCoroutine(FightRoutine(enemyState));
+        }
+    }
+
+    private IEnumerator FightRoutine(Dinosaur_Base enemy) // ← DinosaurAI → Dinosaur_Base に変更
+    {
+        yield return new WaitForSeconds(2f); // 戦闘時間のシミュレーション
+
+        bool iWin = (Random.value > 0.5f); // ランダム勝敗（例）
+
+        if (iWin)
+        {
+            enemy.SwitchState(State.Dead);
+            SwitchState(State.Patrol); // 勝った側は巡回へ戻る
+        }
+        else
+        {
+            SwitchState(State.Dead);
+            enemy.SwitchState(State.Patrol);
+        }
+
+        isInFight = false;
     }
 
     private void DeadState()
