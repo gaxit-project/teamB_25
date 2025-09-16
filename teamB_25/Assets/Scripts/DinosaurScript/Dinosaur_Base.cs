@@ -20,7 +20,7 @@ public class Dinosaur_Base : MonoBehaviour
     [SerializeField] private float patrolSpeed = 2f;
     private int currentPatrolIndex = 0;
     private float idleTimer = 0f;
-    private float waitDuration = 4f;
+    private float idleDuration = 4f;
     private float nextIdleTime = 0f;
     private bool isWaiting = false;
 
@@ -422,7 +422,7 @@ public class Dinosaur_Base : MonoBehaviour
                 playedIdleAnimation = true;
             }
 
-            if (idleTimer >= waitDuration)
+            if (idleTimer >= idleDuration)
             {
                 isWaiting = false;
                 idleTimer = 0f;
