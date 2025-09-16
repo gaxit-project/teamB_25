@@ -43,7 +43,7 @@ public class Dinosaur_Base : MonoBehaviour
     // === Roarで使っている変数 ===
     [Header("Roar 設定")]
     private float roarTimer = 0f;
-    private float roarDuration = 3f;
+    private float roarDuration = 2.5f;
     private bool hasRoared = false;
 
     // === Leapで使っている変数 ===
@@ -173,10 +173,7 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
 
             case State.Roar:
-                if (roarTimer >= roarDuration)
-                {
-                    return State.Chase;
-                }
+                if (roarTimer >= roarDuration) return State.Chase;
                 break;
 
 
@@ -213,6 +210,7 @@ public class Dinosaur_Base : MonoBehaviour
 
     void SwitchState(State newState)
     {
+        Debug.Log($"[{Time.time:F1}] {name}: {currentState} → {newState}");
         // 現在の状態をリセット
         switch (currentState)
         {
@@ -438,10 +436,10 @@ public class Dinosaur_Base : MonoBehaviour
 
     void RoarState()
     {
+        Debug.Log($"RoarState, roarTimer={roarTimer}");
+        roarTimer += Time.deltaTime;  // ← これがないとずっと吠え続ける
         agent.velocity = Vector3.zero;
         agent.isStopped = true;
-
-        roarTimer += Time.deltaTime; // ← ここで加算
 
         if (!hasRoared)
         {
@@ -450,6 +448,7 @@ public class Dinosaur_Base : MonoBehaviour
             hasRoared = true;
         }
     }
+
 
     public bool IsFoundingPlayer()
     {
