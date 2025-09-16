@@ -7,18 +7,19 @@ using UnityEngine.AI;
 public class Dinosaur_Base : MonoBehaviour
 {
     // === 必須コンポーネント ===
-    private NavMeshAgent agent;
-    private Rigidbody rb;
+    private NavMeshAgent agent; //移動経路(NavMesh)を使って目的地まで歩かせるために使用
+    private Rigidbody rb; //物理挙動を扱うために使用
 
     // === 共通オブジェクト参照 ===
-    [SerializeField] private Transform playerTransform;
-    [SerializeField] private Transform modelTransform;
+    [SerializeField] private Transform playerTransform; //プレイヤーの位置を取得
+    [SerializeField] private Transform modelTransform; //恐竜の見た目を進行咆哮に向かせるために使用
 
     // === Patrolで使っている変数 ===
     [Header("Patrol 設定")]
-    [SerializeField] private Transform[] patrolPoints;
-    [SerializeField] private float patrolSpeed = 2f;
-    private int currentPatrolIndex = 0;
+    [SerializeField] private Transform[] patrolPoints; //巡回ポイント
+    [SerializeField] private float patrolSpeed = 2f; //巡回スピード
+    private int patrolDest = 0; //現在の目的地
+
     private float idleTimer = 0f;
     private float idleDuration = 4f;
     private float nextIdleTime = 0f;
@@ -89,11 +90,13 @@ public class Dinosaur_Base : MonoBehaviour
 
     // === 現在の状態 ===
     private State currentState = State.Patrol;
+
     public enum State
     {
         Patrol,
-        Chase,
+        Idle,
         Vigilance,
+        Chase,
         Roar,
         // Leap
     }
@@ -126,13 +129,13 @@ public class Dinosaur_Base : MonoBehaviour
         SetRandomVigilanceTarget();
 
         // 最初の巡回ポイントへ移動開始
-        if (patrolPoints.Length > 0 && patrolPoints[currentPatrolIndex] != null)
+        if (patrolPoints.Length > 0 && patrolPoints[patrolDest] != null)
         {
-            agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+            agent.SetDestination(patrolPoints[patrolDest].position);
         }
         else
         {
-            Debug.LogError("patrolPoints[" + currentPatrolIndex + "] が null です！");
+            Debug.LogError("patrolPoints[" + patrolDest + "] が null です！");
         }
     }
 
@@ -344,45 +347,49 @@ public class Dinosaur_Base : MonoBehaviour
         }
 
         currentState = newState;
-
-        SetSpeedForState(newState); // 状態に応じた速度設定
+        SetSpeedForState(newState);
 
         if (warningUIManager != null)
         {
             if (newState == State.Chase || newState == State.Roar)
-            {
                 warningUIManager.ShowWarning();
-            }
             else
-            {
                 warningUIManager.HideWarning();
-            }
         }
 
-        if (newState == State.Patrol)
+        switch (newState)
         {
-            agent.SetDestination(patrolPoints[currentPatrolIndex].position);
-        }
-        else if (newState == State.Vigilance)
-        {
-            agent.SetDestination(playerTransform.position);
-        }
-        else if (newState == State.Roar)
-        {
-            agent.ResetPath(); // 停止
-            roarTimer = 0f;
+            case State.Patrol:
+                if (patrolPoints.Length > 0)
+                    agent.SetDestination(patrolPoints[patrolDest].position);
+                break;
 
-            // BGM開始条件
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayBGM("ChaseBGM");
-                Debug.Log("チェイスBGM開始");
-            }
+            case State.Idle:
+                agent.ResetPath(); // 移動停止
+                idleTimer = 0f;
+                playedIdleAnimation = false;
+                UpdateFootstepSE("Idle");
+                break;
+
+            case State.Vigilance:
+                agent.SetDestination(playerTransform.position);
+                break;
+
+            case State.Roar:
+                agent.ResetPath();
+                roarTimer = 0f;
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayBGM("ChaseBGM");
+                    Debug.Log("チェイスBGM開始");
+                }
+                break;
         }
 
         agent.enabled = true;
     }
-    
+
+
     // 状態に応じた速度設定を一元化
     void SetSpeedForState(State state)
     {
@@ -405,53 +412,48 @@ public class Dinosaur_Base : MonoBehaviour
     {
         if (patrolPoints.Length == 0) return;
 
-        if (isWaiting)
-        {
-            idleTimer += Time.deltaTime;
-
-            float rotationSpeed = 30f;
-            transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
-
-            if (!playedIdleAnimation)
-            {
-                if (Random.value < 0.8f && animationManager != null)
-                    animationManager.PlayIdle();
-                else if (animationManager != null)
-                    animationManager.PlaySniff();
-
-                playedIdleAnimation = true;
-            }
-
-            if (idleTimer >= idleDuration)
-            {
-                isWaiting = false;
-                idleTimer = 0f;
-                nextIdleTime = Time.time + Random.Range(10f, 60f);
-                agent.SetDestination(patrolPoints[currentPatrolIndex].position);
-
-                UpdateFootstepSE(AudioDefine.Walk); // ← ここでSE切り替え
-                animationManager?.PlayWalk();
-            }
-
-            return;
-        }
-
-        if (Time.time >= nextIdleTime)
-        {
-            isWaiting = true;
-            agent.ResetPath();
-            UpdateFootstepSE("Idle"); // ← 「フンッ…」みたいな声など
-            animationManager?.PlayIdle();
-            return;
-        }
-
         UpdateFootstepSE(AudioDefine.Walk);
         animationManager?.PlayWalk();
 
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
         {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-            agent.SetDestination(patrolPoints[currentPatrolIndex].position);
+            patrolDest = (patrolDest + 1) % patrolPoints.Length;
+
+            // ランダムにIdleへ遷移するか判定
+            if (Time.time >= nextIdleTime)
+            {
+                nextIdleTime = Time.time + Random.Range(10f, 60f);
+                SwitchState(State.Idle);
+                return;
+            }
+
+            agent.SetDestination(patrolPoints[patrolDest].position);
+        }
+    }
+
+    void IdleState()
+    {
+        idleTimer += Time.deltaTime;
+
+        // 首振り演出
+        float rotationSpeed = 30f;
+        transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
+
+        // 最初に一度だけIdleアニメを再生
+        if (!playedIdleAnimation)
+        {
+            if (Random.value < 0.8f && animationManager != null)
+                animationManager.PlayIdle();
+            else if (animationManager != null)
+                animationManager.PlaySniff();
+
+            playedIdleAnimation = true;
+        }
+
+        // Idle時間が終わったらPatrolへ戻る
+        if (idleTimer >= idleDuration)
+        {
+            SwitchState(State.Patrol);
         }
     }
 
