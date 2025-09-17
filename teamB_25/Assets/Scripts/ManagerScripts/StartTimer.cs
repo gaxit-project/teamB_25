@@ -6,14 +6,25 @@ public class StartTimer : MonoBehaviour
 {
     public static bool IsGameStarted { get; private set; } = false;
 
+    [Header("UI References")]
     public Canvas StartCanvas;
     public TextMeshProUGUI startCountText;
 
-    private bool hasStarted = false;
+    [Header("Settings")]
     public float countdownTime = 5f;
+
+    private bool hasStarted = false;
+    private PlayerBase player; // プレイヤー参照
 
     void Start()
     {
+        // プレイヤー取得（シーンに一人だけいる前提）
+        player = FindObjectOfType<PlayerBase>();
+        if (player == null)
+        {
+            Debug.LogError("PlayerBase がシーンに見つかりません。StartTimer が動作しません。");
+        }
+
         PauseManager.Instance.CountDown = true;
         countdownTime = 5f;
         IsGameStarted = false;
@@ -44,7 +55,10 @@ public class StartTimer : MonoBehaviour
 
         // 他のコンポーネントへフラグ通知
         TimerManager.countdownActive = true;
-        PlayerBase.countdownActive = true;
+        if (player != null)
+        {
+            player.countdownActive = true; // ← PlayerBase のインスタンスを参照
+        }
 
         IsGameStarted = true;
         Time.timeScale = 1f;
