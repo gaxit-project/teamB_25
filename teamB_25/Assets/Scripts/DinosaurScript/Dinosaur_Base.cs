@@ -273,7 +273,7 @@ public class Dinosaur_Base : MonoBehaviour
 
             case State.Vigilance:
                 SetSpeedForState(State.Vigilance);
-                SetRandomVigilanceTarget();
+                // SetRandomVigilanceTarget(); 
                 agent.isStopped = false;
                 break;
 
@@ -445,19 +445,20 @@ public class Dinosaur_Base : MonoBehaviour
     }
 
     // 警戒中の処理（ゆっくり近づく）
-    void VigilanceState()
+    private void VigilanceState()
     {
         if (animationManager != null)
         {
-            animationManager.PlayWalk(); // ← または他のアニメーション呼び出し
+            animationManager.PlayWalk(); // 歩きモーション
         }
 
-        // 目的地に近づいたら新しい警戒ポイントを設定
-        if (!agent.pathPending && agent.remainingDistance <= 0.5f)
+        if (playerTransform != null)
         {
-            SetRandomVigilanceTarget();
+            // プレイヤーの方へ近寄る
+            agent.SetDestination(playerTransform.position);
         }
     }
+
 
     void RoarState()
     {
