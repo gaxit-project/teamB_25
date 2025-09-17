@@ -36,9 +36,9 @@ public class Dinosaur_Base : MonoBehaviour
     [Header("Chase 設定")]
     [SerializeField] private float chaseDistance = 10f;
     [SerializeField] private float chaseSpeed = 6f;
-    private float timeSinceLastSeen = Mathf.Infinity;
-    [SerializeField] private float loseSightDuration = 3f;
     private bool isPlayerVisible = false;
+    [SerializeField] private float lostSightDelay = 2.0f;
+    private float lostSightTimer = 0f;
 
     // === Roarで使っている変数 ===
     [Header("Roar 設定")]
@@ -178,8 +178,20 @@ public class Dinosaur_Base : MonoBehaviour
 
 
             case State.Chase:
-                if (timeSinceLastSeen > loseSightDuration) return State.Patrol;
+                if (!isPlayerVisible)
+                {
+                    lostSightTimer += Time.deltaTime;
+                    if (lostSightTimer >= lostSightDelay)
+                    {
+                        return State.Patrol;
+                    }
+                }
+                else
+                {
+                    lostSightTimer = 0f; // 見えている間はリセット
+                }
                 break;
+
         }
 
         return current;
@@ -263,7 +275,9 @@ public class Dinosaur_Base : MonoBehaviour
             case State.Chase:
                 SetSpeedForState(State.Chase);
                 agent.isStopped = false;
+                lostSightTimer = 0f;  // ← ここ重要！
                 break;
+
         }
     }
 
