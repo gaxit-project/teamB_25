@@ -199,6 +199,17 @@ public class Dinosaur_Base : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (agent.velocity.sqrMagnitude > 0.01f)
+        {
+            Vector3 direction = agent.velocity.normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            modelTransform.rotation = Quaternion.Slerp(
+                modelTransform.rotation,
+                targetRotation * Quaternion.Euler(0f, 180f, 0f),
+                turnSpeed * Time.deltaTime
+            );
+        }
         // 視界更新（Ray判定）
         isPlayerVisible = DetectPlayerByRay();
 
