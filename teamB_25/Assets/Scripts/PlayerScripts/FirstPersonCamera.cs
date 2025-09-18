@@ -91,7 +91,7 @@ public class FirstPersonCameraController : MonoBehaviour
         yRotation += delta.x;
             playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
 
-        if (playerBase.IsRunning)
+        if (playerBase.IsRunningNow)
         {
             shakeTimer += Time.deltaTime * shakeSpeed;
             float x = Mathf.Sin(shakeTimer) * shakeAmount;

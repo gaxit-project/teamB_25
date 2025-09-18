@@ -57,7 +57,7 @@ public class StartTimer : MonoBehaviour
         TimerManager.countdownActive = true;
         if (player != null)
         {
-            player.countdownActive = true; // ← PlayerBase のインスタンスを参照
+            PlayerBase.countdownActive = true; ; // ← PlayerBase のインスタンスを参照
         }
 
         IsGameStarted = true;
