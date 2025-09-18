@@ -26,8 +26,8 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] private Image image;
     [SerializeField] private Image hideTimeImage;
     [SerializeField] private Image hideview;
-     private float maxHideTime = 10f;
-     private float currentHideTime = 10f;
+    private float maxHideTime = 10f;
+    private float currentHideTime = 10f;
     [SerializeField] private float defaultHideTime = 5f;
     [SerializeField] private Transform eyePosition;
     [SerializeField] private float rayLength = 3f;
@@ -72,6 +72,7 @@ public class PlayerBase : MonoBehaviour
     private bool isChangingCamera = false;
 
     private bool lookedHiding = false;
+    public bool LookedHiding => lookedHiding;
 
     public int Hp = 0;
 
@@ -125,7 +126,7 @@ public class PlayerBase : MonoBehaviour
                     StopCoroutine(hideCoroutine);
                 }
 
-                 hideCoroutine = StartCoroutine(HideCountdown());
+                hideCoroutine = StartCoroutine(HideCountdown());
             }
             else if (isFounding)
             {
@@ -170,7 +171,7 @@ public class PlayerBase : MonoBehaviour
             deathEffectImage.gameObject.SetActive(false); // 初期状態で非表示
         }
     }
-    
+
     private void Update()
     {
         if (!countdownActive) return;
@@ -180,27 +181,27 @@ public class PlayerBase : MonoBehaviour
         if (IsRunning())
         {
             AudioManager.Instance.PlaySELoop(AudioDefine.PlayerRun, transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk, transform);
         }
         else if (IsMoving())
         {
             AudioManager.Instance.PlaySELoop(AudioDefine.PlayerWalk, transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun, transform);
         }
         else
         {
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk, transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun, transform);
         }
 
         if (isFounding)
         {
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk,transform);
-            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun,transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerWalk, transform);
+            AudioManager.Instance.DestroySE(AudioDefine.PlayerRun, transform);
             return;
         }
 
-        
+
     }
 
     private void FixedUpdate()
@@ -250,17 +251,17 @@ public class PlayerBase : MonoBehaviour
                 AudioManager.Instance.PlaySE("Turn", transform.position);
             }
             mainCamera.transform.rotation *= Quaternion.Euler(0f, 180f, 0f);
-            if(!isTurning)
+            if (!isTurning)
             {
                 isTurning = true;
             }
-            else if(isTurning)
+            else if (isTurning)
             {
                 isTurning = false;
             }
-            
+
         }
-        
+
         /*if (context.started)
         {
             mainCamera.enabled = false;
@@ -407,7 +408,7 @@ public class PlayerBase : MonoBehaviour
 
         if (other.gameObject.CompareTag("Breaker") && !breaker.isActivated)
         {
-            
+
             Debug.Log("Hit Breaker");
             if (breakerButton != null)
             {
@@ -415,7 +416,7 @@ public class PlayerBase : MonoBehaviour
                 text.gameObject.SetActive(true);
                 text.text = "Boot";
             }
-            
+
         }
     }
 
@@ -570,7 +571,7 @@ public class PlayerBase : MonoBehaviour
         {
             currentHideCollider.enabled = false;
         }
-        locker.SetActive(false);
+        //locker.SetActive(false);
     }
 
     private void CancelHide()
@@ -582,7 +583,7 @@ public class PlayerBase : MonoBehaviour
         }
         isChangingCamera = false;
         isFounding = false;
-        
+
         if (currentHideCollider != null)
         {
             currentHideCollider.enabled = true; // 隠れる場所のCollider復活
@@ -600,7 +601,7 @@ public class PlayerBase : MonoBehaviour
         rigidbody.constraints = RigidbodyConstraints.FreezeRotation; // 回転だけ固定
         hideview.gameObject.SetActive(false);
 
-       
+
         if (currentHidePlace != null)
         {
             // ロッカーの前に出る位置を計算（ロッカーの向きに対して前方へ1m）
@@ -619,7 +620,7 @@ public class PlayerBase : MonoBehaviour
         currentHidePlace = null;
         currentHideCollider = null;
         hideTimeImage.gameObject.SetActive(false);
-        locker.SetActive(true);
+        //locker.SetActive(true);
 
         if (text != null)
         {
@@ -662,12 +663,12 @@ public class PlayerBase : MonoBehaviour
         isReseting = false;
         resetTime = 1.5f;
 
-        if(currentHidePlace != null)
+        if (currentHidePlace != null)
         {
             text.gameObject.SetActive(true);
             hideButton.gameObject.SetActive(true);
         }
-        
+
     }
 
 

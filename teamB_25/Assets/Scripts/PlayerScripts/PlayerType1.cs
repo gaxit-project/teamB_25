@@ -7,7 +7,7 @@ using UnityEditor;
 [CustomEditor(typeof(PlayerBase))]
 #endif
 
-public class PlayerType1: PlayerBase
+public class PlayerType1 : PlayerBase
 {
     public override void Attack()
     {

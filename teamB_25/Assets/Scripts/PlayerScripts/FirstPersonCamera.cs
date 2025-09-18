@@ -91,18 +91,18 @@ public class FirstPersonCameraController : MonoBehaviour
         yRotation += delta.x;
             playerBody.rotation = Quaternion.Euler(0f, yRotation, 0f);
 
-            if (playerBase.IsRunning()) // プレイヤーが走っているか判定（下に例あり）
-            {
-                shakeTimer += Time.deltaTime * shakeSpeed;
-                float x = Mathf.Sin(shakeTimer) * shakeAmount;
-                float y = Mathf.Cos(shakeTimer * 2f) * shakeAmount * 0.5f;
-                transform.localPosition = initialLocalPos + new Vector3(x, y, 0f);
-            }
-            else
-            {
-                transform.localPosition = Vector3.Lerp(transform.localPosition, initialLocalPos, Time.deltaTime * 5f);
-                shakeTimer = 0f;
-            }
+        if (playerBase.IsRunningNow)
+        {
+            shakeTimer += Time.deltaTime * shakeSpeed;
+            float x = Mathf.Sin(shakeTimer) * shakeAmount;
+            float y = Mathf.Cos(shakeTimer * 2f) * shakeAmount * 0.5f;
+            transform.localPosition = initialLocalPos + new Vector3(x, y, 0f);
+        }
+        else
+        {
+            transform.localPosition = Vector3.Lerp(transform.localPosition, initialLocalPos, Time.deltaTime * 5f);
+            shakeTimer = 0f;
+        }
     }
 
     public void SetRotation(float newYRotation, float newXRotation = 0f)
