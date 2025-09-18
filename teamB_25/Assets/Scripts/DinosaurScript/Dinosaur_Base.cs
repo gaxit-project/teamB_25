@@ -312,45 +312,55 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
+    // Dinosaur_Base に追加
+    private bool CanSeePlayer()
+    {
+        if (playerScript == null) return false;
 
-    // Rayでプレイヤーを検知する処理
+        // ① 普通に見えている（隠れていない）
+        if (!playerScript.IsFounding) return true;
+
+        // ② 隠れているけど「見られながら入った」場合は追跡継続
+        if (playerScript.IsFounding && playerScript.LookedHiding) return true;
+
+        // ③ 隠れていて見られていないなら発見できない
+        return false;
+    }
+
     private bool DetectPlayerByRay()
     {
-        PlayerBase playerBase = playerTransform.GetComponent<PlayerBase>();
-        //if (playerBase != null && playerBase.IsFounding)
-        //{
-            //return false;
-        //}
+        if (playerTransform == null) return false;
 
-        Vector3 origin = transform.position + Vector3.up * 1.5f; // 恐竜の目線の高さ
+        Vector3 origin = transform.position + Vector3.up * 1.5f;
         Vector3 toPlayer = playerTransform.position - origin;
-        toPlayer.y = 0f; // 水平方向に限定（必要に応じて削除可）
+        toPlayer.y = 0f;
 
         float distanceToPlayer = toPlayer.magnitude;
         Vector3 direction = toPlayer.normalized;
 
-        // プレイヤーが視野角内か確認
+        // 視野角チェック
         float angleToPlayer = Vector3.Angle(transform.forward * -1, direction);
         if (angleToPlayer > detectionAngle) return false;
 
-        // デバッグ表示
         Debug.DrawRay(origin, direction * detectionRange, Color.red);
 
-        // プレイヤーまでRayを飛ばし、途中で障害物に当たったらfalse
+        // Rayでプレイヤー確認
         if (Physics.Raycast(origin, direction, out RaycastHit hit, detectionRange))
         {
             if (hit.transform == playerTransform)
             {
-                return true; // プレイヤーがRayの先にいる
+                // ★ ここで CanSeePlayer を判定に組み込む
+                return CanSeePlayer();
             }
             else
             {
-                return false; // 壁などに当たってプレイヤーが見えない
+                return false;
             }
         }
 
         return false;
     }
+
 
     // 状態に応じた速度設定を一元化
     void SetSpeedForState(State state)
