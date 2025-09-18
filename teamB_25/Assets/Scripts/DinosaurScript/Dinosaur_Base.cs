@@ -66,6 +66,9 @@ public class Dinosaur_Base : MonoBehaviour
     [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float detectionAngle = 30f;
 
+    // === 視野狭窄UI ===
+    [SerializeField] private WarningUIManager warningUIManager;
+
     // === ロッカーに入ったところを見られているかどうか ===
     private bool isLooked = false;
     public bool IsLooked => isLooked;
@@ -85,8 +88,6 @@ public class Dinosaur_Base : MonoBehaviour
     //private bool hasPlayedChaseBGM = false;
 
     private string currentSE = ""; // 現在再生中のSE名
-
-    [SerializeField] private WarningUIManager warningUIManager;
 
     // === 現在の状態 ===
     private State currentState = State.Patrol;
@@ -234,7 +235,21 @@ public class Dinosaur_Base : MonoBehaviour
     void SwitchState(State newState)
     {
         Debug.Log($"[{Time.time:F1}] {name}: {currentState} → {newState}");
-        // 現在の状態をリセット
+
+        // === もしChaseを抜けるならUIとBGMを止める ===
+        if (currentState == State.Chase && newState != State.Chase)
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopBGM();
+            }
+            if (warningUIManager != null)
+            {
+                warningUIManager.HideWarning();
+            }
+        }
+
+        // 現在の状態リセット
         switch (currentState)
         {
             case State.Idle:
@@ -246,14 +261,12 @@ public class Dinosaur_Base : MonoBehaviour
                 roarTimer = 0f;
                 hasRoared = false;
                 break;
-
-                // ここに他のState用のリセット処理を追加しても良い
         }
 
-        // 新しい状態に切り替える
+        // 新しい状態に切り替え
         currentState = newState;
 
-        // 状態ごとに初期処理
+        // 状態ごとの初期処理
         switch (newState)
         {
             case State.Patrol:
@@ -273,7 +286,6 @@ public class Dinosaur_Base : MonoBehaviour
 
             case State.Vigilance:
                 SetSpeedForState(State.Vigilance);
-                // SetRandomVigilanceTarget(); 
                 agent.isStopped = false;
                 break;
 
@@ -281,14 +293,21 @@ public class Dinosaur_Base : MonoBehaviour
                 roarTimer = 0f;
                 hasRoared = false;
                 agent.isStopped = true;
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayBGM("ChaseBGM");
+                }
+                if (warningUIManager != null)
+                {
+                    warningUIManager.ShowWarning();
+                }
                 break;
 
             case State.Chase:
                 SetSpeedForState(State.Chase);
                 agent.isStopped = false;
-                lostSightTimer = 0f;  // ← ここ重要！
+                lostSightTimer = 0f;
                 break;
-
         }
     }
 
@@ -296,11 +315,24 @@ public class Dinosaur_Base : MonoBehaviour
     {
         if (AudioManager.Instance == null) return;
 
+        // IdleやRoar中は足音を再生しない
+        if (currentState == State.Idle || currentState == State.Roar)
+        {
+            // 再生中なら止める
+            if (!string.IsNullOrEmpty(currentSE))
+            {
+                AudioManager.Instance.DestroySE(currentSE, transform);
+                currentSE = "";
+            }
+            return;
+        }
+
+        // それ以外の状態のときだけ処理する
         if (currentSE != newSE)
         {
             if (!string.IsNullOrEmpty(currentSE))
             {
-                AudioManager.Instance.DestroySE(currentSE,transform);
+                AudioManager.Instance.DestroySE(currentSE, transform);
             }
 
             if (!string.IsNullOrEmpty(newSE))
@@ -311,6 +343,7 @@ public class Dinosaur_Base : MonoBehaviour
             currentSE = newSE;
         }
     }
+
 
     // Dinosaur_Base に追加
     private bool CanSeePlayer()
