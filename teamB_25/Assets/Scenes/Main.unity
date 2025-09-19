@@ -6614,7 +6614,6 @@ RectTransform:
   - {fileID: 1511703862}
   - {fileID: 1081030501}
   - {fileID: 1687431482}
-  - {fileID: 1089692465}
   - {fileID: 602376150}
   - {fileID: 1596445470}
   - {fileID: 1631937811}
@@ -8300,7 +8299,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 60
   chaseSpeed: 8
-  loseSightDuration: 10
+  lostSightDelay: 2
   leapDistance: 5
   leapSpeed: 25
   leapDuration: 1.5
@@ -8333,7 +8332,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 20
   chaseSpeed: 10
-  loseSightDuration: 3
+  lostSightDelay: 2
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
@@ -10280,7 +10279,7 @@ PrefabInstance:
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: text
       value: 
-      objectReference: {fileID: 1089692463}
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: sceneToMuteSE
       value: Introduction
@@ -11291,7 +11290,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 60
   chaseSpeed: 8
-  loseSightDuration: 10
+  lostSightDelay: 2
   leapDistance: 5
   leapSpeed: 25
   leapDuration: 1.5
@@ -11324,7 +11323,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 20
   chaseSpeed: 10
-  loseSightDuration: 3
+  lostSightDelay: 2
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
@@ -12188,7 +12187,7 @@ MonoBehaviour:
   text: {fileID: 1081030503}
   back: {fileID: 1236625286}
   hideButton: {fileID: 1687431483}
-  breakerButton: {fileID: 1089692463}
+  breakerButton: {fileID: 1687431483}
   image: {fileID: 1511703860}
   hideTimeImage: {fileID: 396374479}
   hideview: {fileID: 1185181765}
@@ -27702,7 +27701,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 60
   chaseSpeed: 8
-  loseSightDuration: 10
+  lostSightDelay: 2
   leapDistance: 5
   leapSpeed: 25
   leapDuration: 1.5
@@ -27735,7 +27734,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 20
   chaseSpeed: 10
-  loseSightDuration: 3
+  lostSightDelay: 2
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
@@ -32406,7 +32405,7 @@ PrefabInstance:
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: text
       value: 
-      objectReference: {fileID: 1089692463}
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: sceneToMuteSE
       value: Introduction
@@ -33476,81 +33475,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1 &1089692462
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1089692465}
-  - component: {fileID: 1089692464}
-  - component: {fileID: 1089692463}
-  m_Layer: 5
-  m_Name: breakerButton
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1089692463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1089692462}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 1909580812, guid: 069a00c4a21d8654bbe27600f3ba7103, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1089692464
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1089692462}
-  m_CullTransparentMesh: 1
---- !u!224 &1089692465
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1089692462}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 148815615}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: 61}
-  m_SizeDelta: {x: 35, y: 35}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1093360766 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5735183905496812083, guid: 2b23fd819e8890e4bae6782feabf3193, type: 3}
@@ -58063,7 +57987,7 @@ PrefabInstance:
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: text
       value: 
-      objectReference: {fileID: 1089692463}
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: sceneToMuteSE
       value: Introduction
@@ -61325,13 +61249,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1873563925}
   m_Father: {fileID: 148815615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: 61}
-  m_SizeDelta: {x: 35, y: 35}
+  m_AnchoredPosition: {x: 40, y: 61}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1687431483
 MonoBehaviour:
@@ -61353,7 +61278,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1909580812, guid: 069a00c4a21d8654bbe27600f3ba7103, type: 3}
+  m_Sprite: {fileID: 2062424840, guid: 069a00c4a21d8654bbe27600f3ba7103, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -62080,7 +62005,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 20
   chaseSpeed: 10
-  loseSightDuration: 3
+  lostSightDelay: 2
   leapDistance: 3
   leapSpeed: 10
   leapDuration: 1.5
@@ -62162,7 +62087,7 @@ MonoBehaviour:
   vigilanceSpeed: 2
   chaseDistance: 60
   chaseSpeed: 8
-  loseSightDuration: 10
+  lostSightDelay: 2
   leapDistance: 5
   leapSpeed: 25
   leapDuration: 1.5
@@ -70430,6 +70355,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToMuteSE: Introduction
+--- !u!1 &1873563924
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1873563925}
+  - component: {fileID: 1873563927}
+  - component: {fileID: 1873563926}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1873563925
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873563924}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1687431482}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -16.3, y: 0}
+  m_SizeDelta: {x: 25, y: 25}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1873563926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873563924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 1909580812, guid: 069a00c4a21d8654bbe27600f3ba7103, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1873563927
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873563924}
+  m_CullTransparentMesh: 1
 --- !u!1 &1890428643
 GameObject:
   m_ObjectHideFlags: 0
@@ -249283,7 +249283,7 @@ PrefabInstance:
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: text
       value: 
-      objectReference: {fileID: 1089692463}
+      objectReference: {fileID: 0}
     - target: {fileID: 7763997140898429442, guid: a31bafef09854df4a9ccad90c5e6c53c, type: 3}
       propertyPath: sceneToMuteSE
       value: Introduction
