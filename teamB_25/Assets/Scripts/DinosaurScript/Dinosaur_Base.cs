@@ -1,93 +1,70 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-// 恐竜の基本AIを制御するスクリプト（巡回・警戒・追跡）
+/// <summary>
+/// 恐竜AI本体。Patrol / Idle / Vigilance / Roar / Chase のステートマシン。
+/// 状態遷移は EvaluateTransitions に集約し、各状態の挙動は *State() メソッドに分けている。
+/// 連携: PlayerBase(プレイヤーの状態), DinosaurAnimationManager, AudioManager, WarningUIManager
+/// </summary>
+[RequireComponent(typeof(NavMeshAgent))]
 public class Dinosaur_Base : MonoBehaviour
 {
     // === 必須コンポーネント ===
-    private NavMeshAgent agent; //移動経路(NavMesh)を使って目的地まで歩かせるために使用
-    private Rigidbody rb; //物理挙動を扱うために使用
+    private NavMeshAgent agent;
+    private DinosaurAnimationManager animationManager;
 
-    // === 共通オブジェクト参照 ===
-    [SerializeField] private Transform playerTransform; //プレイヤーの位置を取得
-    [SerializeField] private Transform modelTransform; //恐竜の見た目を進行咆哮に向かせるために使用
+    // === 参照 ===
+    private Transform playerTransform;
+    private PlayerBase playerScript;
+    [SerializeField] private Transform modelTransform; // 見た目を進行方向へ向けるために使用
+    [SerializeField] private WarningUIManager warningUIManager; // 視野狭窄UI
 
-    // === Patrolで使っている変数 ===
+    // === Patrol(巡回) ===
     [Header("Patrol 設定")]
-    [SerializeField] private Transform[] patrolPoints; //巡回ポイント
-    [SerializeField] private float patrolSpeed = 2f; //巡回スピード
-    private int patrolDest = 0; //現在の目的地
+    [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private float patrolSpeed = 2f;
+    private int patrolDest = 0;
 
+    // === Idle ===
     private float idleTimer = 0f;
     private float idleDuration = 4f;
     private float nextIdleTime = 0f;
-    private bool isWaiting = false;
+    private bool playedIdleAnimation = false;
 
-    // === Vigilanceで使っている変数 ===
+    // === Vigilance(警戒) ===
     [Header("Vigilance 設定")]
     [SerializeField] private float vigilanceWalkDistance = 20f;
     [SerializeField] private float vigilanceRunDistance = 30f;
     [SerializeField] private float vigilanceSpeed = 2f;
-    private Vector3 vigilanceTarget;
 
-    // === Chaseで使っている変数 ===
+    // === Chase(追跡) ===
     [Header("Chase 設定")]
-    [SerializeField] private float chaseDistance = 10f;
     [SerializeField] private float chaseSpeed = 6f;
-    private bool isPlayerVisible = false;
     [SerializeField] private float lostSightDelay = 2.0f;
+    private bool isPlayerVisible = false;
     private float lostSightTimer = 0f;
 
-    // === Roarで使っている変数 ===
-    [Header("Roar 設定")]
+    // === Roar(咆哮) ===
     private float roarTimer = 0f;
     private float roarDuration = 2.5f;
     private bool hasRoared = false;
 
-    // === Leapで使っている変数 ===
-    [Header("Leap 設定")]
-    [SerializeField] private float leapDistance = 3f;
-    [SerializeField] private float leapSpeed = 10f;
-    [SerializeField] private float leapDuration = 1.5f;
-    private float chargeTimer = 0f;
-    private float chargeDuration = 1.5f;
-    private Vector3 leapDirection;
-    private float leapTimer = 0f;
-    private float postLeapWaitTimer = 0f;
-    private bool isWaitingAfterLeap = false;
-
-    // === 自前回転制御 ===
+    // === 回転・視野 ===
     [SerializeField] private float turnSpeed = 2f;
 
-    // === 視野角（視界検知） ===
     [Header("視野角設定")]
     [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float detectionAngle = 30f;
-
-    // === 視野狭窄UI ===
-    [SerializeField] private WarningUIManager warningUIManager;
 
     // === ロッカーに入ったところを見られているかどうか ===
     private bool isLooked = false;
     public bool IsLooked => isLooked;
 
-    private bool previousIsLooked = false; // 追加：前回のisLooked状態を記録
-
-    private DinosaurAnimationManager animationManager;
-
-    private PlayerBase playerScript;
-
-    //animationランダム再生用
-    private bool playedIdleAnimation = false;
-
     // === 見ている恐竜の一元化 ===
     public static List<Dinosaur_Base> dinosLookingAtPlayer = new List<Dinosaur_Base>();
 
-    //private bool hasPlayedChaseBGM = false;
-
-    private string currentSE = ""; // 現在再生中のSE名
+    private string currentSE = ""; // 現在再生中の足音SE名
 
     // === 現在の状態 ===
     private State currentState = State.Patrol;
@@ -99,7 +76,6 @@ public class Dinosaur_Base : MonoBehaviour
         Vigilance,
         Chase,
         Roar,
-        // Leap
     }
 
     private void Awake()
@@ -107,39 +83,33 @@ public class Dinosaur_Base : MonoBehaviour
         animationManager = GetComponent<DinosaurAnimationManager>();
     }
 
-    // 初期化処理
     void Start()
     {
-        // NavMeshAgentを取得
         agent = GetComponent<NavMeshAgent>();
-
-        rb = GetComponent<Rigidbody>();
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
         {
             playerTransform = playerObj.transform;
         }
-
         playerScript = FindObjectOfType<PlayerBase>();
 
-        // 恐竜らしい曲がり方を実現するためにNavMeshAgent に回転を任せず、このスクリプトで制御する
+        if (playerTransform == null || playerScript == null || modelTransform == null)
+        {
+            enabled = false;
+            return;
+        }
+
+        // 恐竜らしい曲がり方にするため、回転はNavMeshAgentに任せず FixedUpdate で制御する
         agent.updateRotation = false;
 
-        // 最初に適当な警戒ポイントを設定
-        SetRandomVigilanceTarget();
-
-        // 開始時に patrolPoints[0] を目的地に設定。NavMeshAgentが自動でそこへ移動開始する。
         if (patrolPoints.Length > 0 && patrolPoints[patrolDest] != null)
         {
             agent.SetDestination(patrolPoints[patrolDest].position);
         }
-        else
-        {
-            Debug.LogError("patrolPoints[" + patrolDest + "] が null です！");
-        }
     }
 
+    // 状態遷移の判定はここに集約する（各状態の挙動側では遷移させない）
     State EvaluateTransitions(State current)
     {
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
@@ -177,8 +147,8 @@ public class Dinosaur_Base : MonoBehaviour
                 if (roarTimer >= roarDuration) return State.Chase;
                 break;
 
-
             case State.Chase:
+                // 一瞬見失っただけでは追跡をやめず、lostSightDelay 秒見えなかったら巡回に戻る
                 if (!isPlayerVisible)
                 {
                     lostSightTimer += Time.deltaTime;
@@ -189,15 +159,15 @@ public class Dinosaur_Base : MonoBehaviour
                 }
                 else
                 {
-                    lostSightTimer = 0f; // 見えている間はリセット
+                    lostSightTimer = 0f;
                 }
                 break;
-
         }
 
         return current;
     }
 
+    // 処理順: 向き更新 → 視界判定 → 状態遷移 → 各状態の挙動
     void FixedUpdate()
     {
         if (agent.velocity.sqrMagnitude > 0.01f)
@@ -205,23 +175,22 @@ public class Dinosaur_Base : MonoBehaviour
             Vector3 direction = agent.velocity.normalized;
             Quaternion targetRotation = Quaternion.LookRotation(direction);
 
+            // モデルの正面が -Z のため、180度補正をかけている
             modelTransform.rotation = Quaternion.Slerp(
                 modelTransform.rotation,
                 targetRotation * Quaternion.Euler(0f, 180f, 0f),
                 turnSpeed * Time.deltaTime
             );
         }
-        // 視界更新（Ray判定）
+
         isPlayerVisible = DetectPlayerByRay();
 
-        // 状態遷移判定（ここだけにまとめる）
         State next = EvaluateTransitions(currentState);
         if (next != currentState)
         {
             SwitchState(next);
         }
 
-        // 各状態の挙動（移動やアニメーション）
         switch (currentState)
         {
             case State.Patrol: PatrolState(); break;
@@ -234,9 +203,7 @@ public class Dinosaur_Base : MonoBehaviour
 
     void SwitchState(State newState)
     {
-        Debug.Log($"[{Time.time:F1}] {name}: {currentState} → {newState}");
-
-        // === もしChaseを抜けるならUIとBGMを止める ===
+        // Chaseを抜けるときは追跡BGMと警告UIを止める
         if (currentState == State.Chase && newState != State.Chase)
         {
             if (AudioManager.Instance != null)
@@ -249,7 +216,7 @@ public class Dinosaur_Base : MonoBehaviour
             }
         }
 
-        // 現在の状態リセット
+        // 現在の状態のリセット
         switch (currentState)
         {
             case State.Idle:
@@ -263,10 +230,9 @@ public class Dinosaur_Base : MonoBehaviour
                 break;
         }
 
-        // 新しい状態に切り替え
         currentState = newState;
 
-        // 状態ごとの初期処理
+        // 新しい状態の初期処理
         switch (newState)
         {
             case State.Patrol:
@@ -311,14 +277,14 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
+    // 足音SEの切り替え。同じSEが鳴っている間は再生し直さない
     private void UpdateFootstepSE(string newSE)
     {
         if (AudioManager.Instance == null) return;
 
-        // IdleやRoar中は足音を再生しない
+        // IdleやRoar中は足音を鳴らさない
         if (currentState == State.Idle || currentState == State.Roar)
         {
-            // 再生中なら止める
             if (!string.IsNullOrEmpty(currentSE))
             {
                 AudioManager.Instance.DestroySE(currentSE, transform);
@@ -327,7 +293,6 @@ public class Dinosaur_Base : MonoBehaviour
             return;
         }
 
-        // それ以外の状態のときだけ処理する
         if (currentSE != newSE)
         {
             if (!string.IsNullOrEmpty(currentSE))
@@ -344,56 +309,45 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
-
-    // Dinosaur_Base に追加
+    // プレイヤーが隠れている場合の可視判定
     private bool CanSeePlayer()
     {
         if (playerScript == null) return false;
 
-        // ① 普通に見えている（隠れていない）
+        // 隠れていなければ見える
         if (!playerScript.IsFounding) return true;
 
-        // ② 隠れているけど「見られながら入った」場合は追跡継続
-        if (playerScript.IsFounding && playerScript.LookedHiding) return true;
+        // 隠れていても、入るところを見られていたら追跡を継続する
+        if (playerScript.LookedHiding) return true;
 
-        // ③ 隠れていて見られていないなら発見できない
         return false;
     }
 
+    // 視野角チェック → Rayで遮蔽物チェック → 隠れ状態チェック の順で判定する
     private bool DetectPlayerByRay()
     {
         if (playerTransform == null) return false;
 
-        Vector3 origin = transform.position + Vector3.up * 1.5f;
+        Vector3 origin = transform.position + Vector3.up * 1.5f; // 目線の高さ
         Vector3 toPlayer = playerTransform.position - origin;
-        toPlayer.y = 0f;
+        toPlayer.y = 0f; // 高低差は無視して水平方向のみで判定
 
-        float distanceToPlayer = toPlayer.magnitude;
         Vector3 direction = toPlayer.normalized;
 
-        // 視野角チェック
-        float angleToPlayer = Vector3.Angle(transform.forward * -1, direction);
+        // モデルの正面が -Z のため、transform.forward の逆を正面として扱う
+        float angleToPlayer = Vector3.Angle(-transform.forward, direction);
         if (angleToPlayer > detectionAngle) return false;
 
-        Debug.DrawRay(origin, direction * detectionRange, Color.red);
-
-        // Rayでプレイヤー確認
         if (Physics.Raycast(origin, direction, out RaycastHit hit, detectionRange))
         {
             if (hit.transform == playerTransform)
             {
-                // ★ ここで CanSeePlayer を判定に組み込む
                 return CanSeePlayer();
-            }
-            else
-            {
-                return false;
             }
         }
 
         return false;
     }
-
 
     // 状態に応じた速度設定を一元化
     void SetSpeedForState(State state)
@@ -409,10 +363,10 @@ public class Dinosaur_Base : MonoBehaviour
             case State.Chase:
                 agent.speed = chaseSpeed;
                 break;
-                // Roar や Leap は NavMeshAgent を使わないため速度設定しない
         }
     }
 
+    // 10?60秒おきにtrueを返す（呼ぶたびに次回時刻を更新する）
     bool RandomIdleTriggered()
     {
         if (Time.time >= nextIdleTime)
@@ -422,7 +376,7 @@ public class Dinosaur_Base : MonoBehaviour
         }
         return false;
     }
-    // 巡回中の処理
+
     void PatrolState()
     {
         if (patrolPoints.Length == 0) return;
@@ -445,7 +399,7 @@ public class Dinosaur_Base : MonoBehaviour
         float rotationSpeed = 30f;
         transform.Rotate(0f, Mathf.Sin(Time.time * 2f) * rotationSpeed * Time.deltaTime, 0f);
 
-        // 最初に一度だけIdleアニメを再生
+        // Idleアニメは入場時に一度だけ再生（80%で通常、20%で匂いを嗅ぐ）
         if (!playedIdleAnimation)
         {
             if (Random.value < 0.8f && animationManager != null)
@@ -455,58 +409,25 @@ public class Dinosaur_Base : MonoBehaviour
 
             playedIdleAnimation = true;
         }
-
-        // Idle時間が終わったらPatrolへ戻る
-        if (idleTimer >= idleDuration)
-        {
-            SwitchState(State.Patrol);
-        }
     }
 
-    void ChaseState()
-    {
-        agent.isStopped = false; // ← 追加
-        animationManager?.PlayRun();
-        agent.SetDestination(playerTransform.position);
-        UpdateFootstepSE(AudioDefine.Dash);
-    }
-
-    void SetRandomVigilanceTarget()
-    {
-        // 警戒距離の範囲内でランダムな方向と距離を決める
-        Vector2 randomCircle = Random.insideUnitCircle * vigilanceRunDistance;
-        vigilanceTarget = transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
-
-        // NavMesh上の位置にするならサンプル
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(vigilanceTarget, out hit, 5f, NavMesh.AllAreas))
-        {
-            vigilanceTarget = hit.position;
-        }
-
-        agent.SetDestination(vigilanceTarget);
-    }
-
-    // 警戒中の処理（ゆっくり近づく）
+    // 警戒中はゆっくりプレイヤーへ近づく
     private void VigilanceState()
     {
         if (animationManager != null)
         {
-            animationManager.PlayWalk(); // 歩きモーション
+            animationManager.PlayWalk();
         }
 
         if (playerTransform != null)
         {
-            // プレイヤーの方へ近寄る
             agent.SetDestination(playerTransform.position);
         }
     }
 
-
     void RoarState()
     {
-        Debug.Log($"RoarState, roarTimer={roarTimer}");
-        roarTimer += Time.deltaTime;  // ← これがないとずっと吠え続ける
+        roarTimer += Time.deltaTime; // Chaseへの遷移条件(roarDuration)に使う
         agent.velocity = Vector3.zero;
         agent.isStopped = true;
 
@@ -518,58 +439,36 @@ public class Dinosaur_Base : MonoBehaviour
         }
     }
 
+    void ChaseState()
+    {
+        agent.isStopped = false;
+        animationManager?.PlayRun();
+        agent.SetDestination(playerTransform.position);
+        UpdateFootstepSE(AudioDefine.Dash);
+    }
 
     public bool IsFoundingPlayer()
     {
         return playerScript != null && playerScript.IsFounding;
     }
 
-    // transformによる恐竜っぽい移動処理（前進＋回転）
-    void MoveTowards(Vector3 target, float speed)
-    {
-        // 進行方向を計算（yは無視して地面に水平な方向）
-        Vector3 direction = (target - transform.position).normalized;
-        direction.y = 0f;
-
-        // 回転処理（滑らかに向きを変える）
-        if (direction != Vector3.zero)
-        {
-            Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, turnSpeed * Time.deltaTime);
-        }
-
-        // 前方に移動（NavMeshAgentを使わない）
-        transform.position += transform.forward * speed * Time.deltaTime;
-    }
-
-    // 視野範囲（円と角度）をシーンビューで描画
+    // 視野範囲をシーンビューに描画(エディタ専用)
     private void OnDrawGizmosSelected()
     {
-        if (playerTransform == null) return;
-
-        // 恐竜の目線の高さ
         Vector3 origin = transform.position + Vector3.up * 1.5f;
 
-        // 視野距離の円（緑）
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(origin, detectionRange);
 
-        // 視野角（扇状の範囲）
+        Vector3 front = -transform.forward;
+        Vector3 leftDir = Quaternion.Euler(0, -detectionAngle, 0) * front;
+        Vector3 rightDir = Quaternion.Euler(0, detectionAngle, 0) * front;
+
         Gizmos.color = Color.yellow;
-        Vector3 forward = transform.forward;
+        Gizmos.DrawRay(origin, leftDir * detectionRange);
+        Gizmos.DrawRay(origin, rightDir * detectionRange);
 
-        // 左方向ベクトル
-        Vector3 leftDir = Quaternion.Euler(0, -detectionAngle, 0) * forward;
-        // 右方向ベクトル
-        Vector3 rightDir = Quaternion.Euler(0, detectionAngle, 0) * forward;
-
-        // 視野角の両端の線を描く
-        Gizmos.DrawRay(origin, leftDir * detectionRange * -1);
-        Gizmos.DrawRay(origin, rightDir * detectionRange * -1);
-
-        // 視線の中心（前方）
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(origin, forward * detectionRange * -1);
+        Gizmos.DrawRay(origin, front * detectionRange);
     }
-
 }

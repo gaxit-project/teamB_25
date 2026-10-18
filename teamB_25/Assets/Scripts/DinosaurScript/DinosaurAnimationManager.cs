@@ -49,7 +49,6 @@ public class DinosaurAnimationManager : MonoBehaviour
         animator.SetTrigger("Fighting");
     }
 
-    // Å© Ç±ÇÍÇí«â¡
     public void PlayDeath()
     {
         animator.SetTrigger("Death");
