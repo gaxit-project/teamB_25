@@ -2,6 +2,11 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// ゲーム開始前のカウントダウン。終了すると、static フラグでタイマー(TimerManager)と
+/// プレイヤー(PlayerBase)に開始を通知する。
+/// カウントダウン中は PauseManager.CountDown を true にして、ポーズ画面を開かせない。
+/// </summary>
 public class StartTimer : MonoBehaviour
 {
     public static bool IsGameStarted { get; private set; } = false;
@@ -14,19 +19,16 @@ public class StartTimer : MonoBehaviour
     public float countdownTime = 5f;
 
     private bool hasStarted = false;
-    private PlayerBase player; // プレイヤー参照
 
     void Start()
     {
-        // プレイヤー取得（シーンに一人だけいる前提）
-        player = FindObjectOfType<PlayerBase>();
-        if (player == null)
+        if (PauseManager.Instance != null)
         {
-            Debug.LogError("PlayerBase がシーンに見つかりません。StartTimer が動作しません。");
+            PauseManager.Instance.CountDown = true;
         }
 
-        PauseManager.Instance.CountDown = true;
-        countdownTime = 5f;
+        // static フラグは前回プレイの値が残るため、開始時に初期化する
+        TimerManager.countdownActive = false;
         IsGameStarted = false;
         hasStarted = false;
         startCountText.gameObject.SetActive(true);
@@ -36,7 +38,7 @@ public class StartTimer : MonoBehaviour
     {
         if (countdownTime > 0)
         {
-            TimerManager.countdownActive = false;
+            // ポーズ入力などで timeScale が 0 になっていても進める
             countdownTime -= Time.unscaledDeltaTime;
             startCountText.text = Mathf.Ceil(countdownTime).ToString();
         }
@@ -49,23 +51,24 @@ public class StartTimer : MonoBehaviour
         }
     }
 
+    // カウントダウン終了。他のコンポーネントへフラグで通知し、時間を通常に戻す
     void StartPlay()
     {
-        // 他のコンポーネントへフラグ通知
         TimerManager.countdownActive = true;
-        if (player != null)
-        {
-            PlayerBase.countdownActive = true; ; // ← PlayerBase のインスタンスを参照
-        }
+        PlayerBase.countdownActive = true;
 
         IsGameStarted = true;
         Time.timeScale = 1f;
     }
 
+    // "Start!" を1秒表示してから消し、ポーズを許可する
     IEnumerator WaitErase()
     {
         yield return new WaitForSeconds(1f);
         startCountText.gameObject.SetActive(false);
-        PauseManager.Instance.CountDown = false;
+        if (PauseManager.Instance != null)
+        {
+            PauseManager.Instance.CountDown = false;
+        }
     }
 }

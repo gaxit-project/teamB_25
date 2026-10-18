@@ -1,7 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 警告UI(視野狭窄)のフェード表示。
+/// 連携: Dinosaur_Base(Roar開始時に ShowWarning、Chaseを抜けるときに HideWarning を呼ぶ)
+/// </summary>
 public class WarningUIManager : MonoBehaviour
 {
     [SerializeField] private GameObject warningUI;
@@ -16,7 +19,6 @@ public class WarningUIManager : MonoBehaviour
 
             if (canvasGroup == null)
             {
-                Debug.LogError("CanvasGroup が見つかりません。warningUI に CanvasGroup をアタッチしてください。");
                 return;
             }
 
@@ -57,12 +59,14 @@ public class WarningUIManager : MonoBehaviour
         fadeCoroutine = StartCoroutine(FadeOutAndDisable(duration));
     }
 
+    // フェードアウト後にUIを非表示にする
     private IEnumerator FadeOutAndDisable(float duration)
     {
         yield return FadeCanvasGroup(canvasGroup, canvasGroup.alpha, 0f, duration);
         warningUI.SetActive(false);
     }
 
+    // 現在のalphaから目標のalphaへ、実行中のフェードを止めても途中の値から続けられるようにする
     private IEnumerator FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration)
     {
         float elapsed = 0f;

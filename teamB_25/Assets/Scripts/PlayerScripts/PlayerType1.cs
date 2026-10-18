@@ -9,9 +9,10 @@ using UnityEditor;
 
 public class PlayerType1 : PlayerBase
 {
-    public override void Attack()
+   /* public override void Attack()
     {
         Debug.Log("testAttack");
     }
+   */
 }
 
