@@ -1,18 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// どのシーンから開始しても PauseManager が1つ存在するようにする。
+/// </summary>
 public class PauseLoad : MonoBehaviour
 {
     [SerializeField] GameObject pauseManagerPrefab;
-    [SerializeField] CanvasGroup otherCG;
+
     void Awake()
     {
-        if (PauseManager.Instance == null)
+        if (PauseManager.Instance != null) return;
+
+        if (pauseManagerPrefab == null)
         {
-            GameObject pMP = Instantiate(pauseManagerPrefab);
-            PauseManager manager = pMP.GetComponent<PauseManager>();
-           // manager.SetOtherCG(otherCG);
+            return;
         }
+
+        Instantiate(pauseManagerPrefab);
     }
 }

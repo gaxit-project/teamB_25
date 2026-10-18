@@ -1,16 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
+/// <summary>
+/// クリア演出。カバー画像を徐々に透明にし、alpha が 0.2 を下回ったらクリア処理を一度だけ実行して、
+/// 音を止めてからタイトルへ戻る。
+/// </summary>
 public class ClearScreen : MonoBehaviour
 {
     public Image myImage;
+
+    // 1秒あたりの alpha 減少量。フレームレートに依存しないよう時間基準にしている
+    [SerializeField] private float fadeSpeed = 0.06f;
+
     private float alpha;
     private bool isCleared = false; // クリア処理が一度だけ走るように制御
 
+    // 旧仕様(クリア後にボタンで選択)の名残。現在は自動でタイトルへ戻るため、
+    // ボタンは操作できないまま非表示にしている
     [Header("Clear後に操作させたいボタン")]
     public Button titleButton;
     public Button exitButton;
@@ -23,36 +30,31 @@ public class ClearScreen : MonoBehaviour
     {
         alpha = 1.0f;
 
-        // 最初はボタンを無効化
         if (titleButton != null) titleButton.interactable = false;
         if (exitButton != null) exitButton.interactable = false;
 
-        // 最初は背景も非表示
         if (titleButtonBG != null) titleButtonBG.enabled = false;
         if (exitButtonBG != null) exitButtonBG.enabled = false;
     }
 
     private void Update()
     {
-        if (alpha < 0.2f)
-        {
-            Destroy(myImage);
-
-            if (!isCleared)
-            {
-                OnGameClear();
-                isCleared = true;
-            }
-        }
-        else
+        if (alpha >= 0.2f)
         {
             ChangeImage();
+            return;
         }
+
+        if (isCleared) return;
+        isCleared = true;
+
+        Destroy(myImage);
+        OnGameClear();
     }
 
     public void ChangeImage()
     {
-        alpha -= 0.001f;
+        alpha -= fadeSpeed * Time.deltaTime;
         Color color = myImage.color;
         color.a = alpha;
         myImage.color = color;
@@ -62,16 +64,12 @@ public class ClearScreen : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            // BGM 停止
             AudioManager.Instance.StopBGM();
-
-            // ループSE全部停止
             AudioManager.Instance.StopAllSELoops();
 
-            // 再生中のワンショットSEも停止
+            // 再生中のワンショットSEも止める。BGM用AudioSourceは StopBGM() で止まっているので除外
             foreach (var source in FindObjectsOfType<AudioSource>())
             {
-                // BGM用AudioSourceは StopBGM() で止まっているので除外
                 if (source != AudioManager.Instance.bgmSource)
                 {
                     source.Stop();
@@ -79,26 +77,10 @@ public class ClearScreen : MonoBehaviour
             }
         }
 
-        Invoke("TitleGO", 3f);
-        //// フェード完了後にボタンを有効化
-        //if (titleButton != null)
-        //{
-        //    titleButton.interactable = true;
-        //    if (titleButtonBG != null) titleButtonBG.enabled = true;
-        //}
-        //if (exitButton != null)
-        //{
-        //    exitButton.interactable = true;
-        //    if (exitButtonBG != null) exitButtonBG.enabled = true;
-        //}
-
-        //// 最初にフォーカスするボタンを指定（InputManagerで操作するため）
-        //if (titleButton != null)
-        //{
-        //    EventSystem.current.SetSelectedGameObject(titleButton.gameObject);
-        //}
+        Invoke(nameof(TitleGO), 3f);
     }
-    void TitleGO()
+
+    private void TitleGO()
     {
         SceneManager.LoadScene("Title");
     }

@@ -1,29 +1,44 @@
+using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Text.RegularExpressions; // Regexを使うために必要
 
+/// <summary>
+/// ブレーカー1台分の復旧処理。
+/// オブジェクト名の数字をエリア番号として使い、対応する UI アイコン("breakerIconN")と
+/// ライト("lightN")をシーン内から探して更新する。
+/// 連携: Electrical, AreaLightController, BreakerManager, Outline
+/// </summary>
 public class Breaker : MonoBehaviour
 {
-    private bool isCollision = false;
     public bool isActivated = false;
     public Electrical electricalScript;
-    public GameObject[] electricalObjects; // ここで設定されたオブジェクトが消える
+    public GameObject[] electricalObjects; // 復旧時に非表示にするオブジェクト
+
+    // エリア1〜4のアイコン色(復旧後)
+    private static readonly Color[] iconColors =
+    {
+        new Color(1.0f, 1.0f, 0f),
+        new Color(0f, 1.0f, 0f),
+        new Color(1.0f, 0f, 0.8f),
+        new Color(0f, 1.0f, 0.9f),
+    };
 
     public void bootBreaker()
     {
-        AudioManager.Instance.PlaySE("BreakerOn", transform.position);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("BreakerOn", transform.position);
+        }
         isActivated = true;
 
-        // ブレーカー名からエリア番号を取得
-        string breakerName = gameObject.name;
-        string number = Regex.Replace(breakerName, "[^0-9]", ""); // System.Text.RegularExpressions.Regex を using で追加済み
-        int num = int.Parse(number);
-        Image breakerIconImage;
+        // ブレーカー名の数字からエリア番号を取得
+        string number = Regex.Replace(gameObject.name, "[^0-9]", "");
+        if (!int.TryParse(number, out int num))
+        {
+            return;
+        }
 
-
-        electricalScript.StopElectrical(num); //電気エフェクト消す処理
+        electricalScript.StopElectrical(num);
         foreach (GameObject electricalObject in electricalObjects)
         {
             if (electricalObject != null)
@@ -32,48 +47,37 @@ public class Breaker : MonoBehaviour
             }
         }
 
-        switch (number)
+        // 対応するエリアのアイコンを色付けする
+        if (num >= 1 && num <= iconColors.Length)
         {
-            case "1":
-                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
-                breakerIconImage.color = new Color(1.0f, 1.0f, 0f);
-                break;
-
-            case "2":
-                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
-                breakerIconImage.color = new Color(0f, 1.0f, 0f);
-                break;
-
-            case "3":
-                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
-                breakerIconImage.color = new Color(1.0f, 0f, 0.8f);
-                break;
-
-            case "4":
-                breakerIconImage = GameObject.Find("breakerIcon" + number).GetComponent<Image>();
-                breakerIconImage.color = new Color(0f, 1.0f, 0.9f);
-                break;
+            GameObject icon = GameObject.Find("breakerIcon" + number);
+            if (icon != null && icon.TryGetComponent(out Image breakerIconImage))
+            {
+                breakerIconImage.color = iconColors[num - 1];
+            }
         }
 
-        // 対応するライト親オブジェクトを探す
+        // 対応するライト親オブジェクトを探して明るくする
         GameObject lightParent = GameObject.Find("light" + number);
         if (lightParent != null)
         {
             AreaLightController alc = lightParent.GetComponent<AreaLightController>();
             if (alc != null)
             {
-                alc.IncreaseLight(); // 明るくする
+                alc.IncreaseLight();
             }
         }
 
-        // アウトラインの色を変更
         Outline outline = GetComponent<Outline>();
         if (outline != null)
         {
             outline.OutlineColor = Color.green;
         }
 
-        AudioManager.Instance.PlaySE("ReBreaker", transform.position);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("ReBreaker", transform.position);
+        }
 
         BreakerManager.Instance.ActivateBreaker();
     }

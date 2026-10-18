@@ -1,50 +1,38 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 脱出扉の開閉。扉のローカル方向へスライドさせて開く。
+/// 呼び出し元: BreakerManager(全ブレーカー復旧時)
+/// </summary>
 public class DoorOpener : MonoBehaviour
 {
-    public Vector3 slideOffset = new Vector3(0f, 2f, 0f); // 移動量（例：上にスライド）
+    public Vector3 slideOffset = new Vector3(0f, 2f, 0f); // 扉のローカル方向への移動量（例：上にスライド）
     public float slideDuration = 1.5f;
-    private Vector3 originalPos;
     private bool isOpened = false;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        originalPos = transform.position;
-    }
 
     public void OpenDoor()
     {
-        if (!isOpened)
-        {
-            isOpened = true;
-            StartCoroutine(SlideDoor());
-        }
+        if (isOpened) return;
+
+        isOpened = true;
+        StartCoroutine(SlideDoor());
     }
 
+    // 開扉と同時に演出カメラで Time.timeScale = 0 になるため、unscaledDeltaTime で進める
     private IEnumerator SlideDoor()
     {
         float time = 0f;
-        originalPos = transform.position;
-
-        Vector3 localOffset = transform.TransformDirection(slideOffset);
-        Vector3 target = originalPos + localOffset;
+        Vector3 startPos = transform.position;
+        Vector3 target = startPos + transform.TransformDirection(slideOffset);
 
         while (time < slideDuration)
         {
-            transform.position = Vector3.Lerp(originalPos, target, time / slideDuration);
+            transform.position = Vector3.Lerp(startPos, target, time / slideDuration);
             time += Time.unscaledDeltaTime;
             yield return null;
         }
 
         transform.position = target;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

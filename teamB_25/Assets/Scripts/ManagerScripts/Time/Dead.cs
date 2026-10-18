@@ -1,8 +1,11 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
+/// <summary>
+/// 被撃時の斬撃演出。斬撃画像を順にフェードイン/アウトし、終わったら GameOver へ遷移する。
+/// </summary>
 public class Dead : MonoBehaviour
 {
     [System.Serializable]
@@ -34,24 +37,20 @@ public class Dead : MonoBehaviour
 
     IEnumerator FadeInOut(Slash slash)
     {
-        // 位置と回転を設定
         RectTransform rt = slash.image.rectTransform;
         rt.anchoredPosition = slash.position;
         rt.localRotation = Quaternion.Euler(0, 0, slash.rotationZ);
 
-        // 表示＆フェード処理
         Color c = slash.image.color;
         c.a = 0f;
         slash.image.color = c;
         slash.image.gameObject.SetActive(true);
 
-        // スラッシュ音を鳴らす
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySE("Slash", transform.position);
         }
 
-        // Fade In
         float t = 0f;
         while (t < fadeDuration)
         {
@@ -61,7 +60,6 @@ public class Dead : MonoBehaviour
             yield return null;
         }
 
-        // Fade Out
         t = 0f;
         while (t < fadeDuration)
         {

@@ -1,8 +1,12 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
+/// <summary>
+/// ブレーカー復旧の進行管理。全ブレーカーが復旧したら、脱出扉をランダムに1つ開放し、
+/// 扉の演出カメラを短時間表示する。
+/// 連携: Breaker(復旧を通知), DoorOpener(扉の開閉), MapManager(ゴールマーカー)
+/// </summary>
 public class BreakerManager : MonoBehaviour
 {
     public static bool countdownActive = false; // StartTimerを待つ
@@ -10,21 +14,20 @@ public class BreakerManager : MonoBehaviour
     public static BreakerManager Instance;
     public static int _breakerTask = 4;
     public static int _breakerOn = 0;
-    private bool exitOpened = false;
-    public TextMeshProUGUI _breakertext; 
-    public GameObject[] exitObjects;　// 扉が開くアニメーションに使用するオブジェクト
+    private bool exitOpened = false; // 脱出扉を開く処理が二重に走らないようにする
+    public TextMeshProUGUI _breakertext;
+    public GameObject[] exitObjects; // 扉が開くアニメーションに使用するオブジェクト
     public GameObject[] flag; // 扉に触れたか判定するオブジェクト
 
     public Camera[] exitCameras; // 脱出扉ごとのカメラ
-    public Camera playerCamera;　// プレイヤーごとのカメラ
+    public Camera playerCamera; // プレイヤーのカメラ
     public float cinematicDuration = 2f;
 
     private void Awake()
     {
-        Instance = this; //シングルトンにする
+        Instance = this;
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         _breakerOn = 0;
@@ -34,55 +37,45 @@ public class BreakerManager : MonoBehaviour
             _breakertext.text = $"{_breakerOn} / {_breakerTask}";
         }
 
-        // 非アクティブにする
+        // 全ブレーカー復旧まで、脱出扉と判定オブジェクトは非表示にしておく
         foreach (GameObject obj in exitObjects)
         {
-            obj .SetActive(false);
+            obj.SetActive(false);
         }
 
         foreach (GameObject f in flag)
         {
-            f.SetActive(false); // flagも非アクティブ化
+            f.SetActive(false);
         }
 
-
-        // 全カメラオフ
+        // プレイヤーカメラのみ有効にする
         playerCamera.enabled = true;
         foreach (Camera cam in exitCameras)
             cam.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.O)) // デバッグ用:Oキーで扉の開放条件を満たす
-        {
-            _breakerOn = _breakerTask - 1;
-            ActivateBreaker();
-        }
-    }
-
     public void ActivateBreaker()
     {
         _breakerOn++;
-        
-        if(_breakertext != null)
+
+        if (_breakertext != null)
         {
             _breakertext.text = $"{_breakerOn} / {_breakerTask}";
         }
 
-        // playerが電力復旧出来たら
+        // 全ブレーカーが復旧したら、脱出扉をランダムに1つ開く
         if (!exitOpened && _breakerOn == _breakerTask)
         {
-            exitOpened = true; // アクティブ状態にする
+            exitOpened = true;
 
-            int number = Random.Range(0, exitObjects.Length);  // ランダムで１つ選択
-            Debug.Log($"脱出扉{number}が開きました");
+            int number = Random.Range(0, exitObjects.Length);
             exitObjects[number].SetActive(true);
             exitObjects[number].GetComponent<DoorOpener>().OpenDoor();
-            Vector3 GoalPosition = new Vector3(exitObjects[number].transform.position.x, 20f, exitObjects[number].transform.position.z);
-            MapManager.Instance.GoalMarkerCreate(GoalPosition);
-            // flagもアクティブ化（全て or ランダム or 特定の番号だけ）
+
+            // ゴールマーカーを扉の上空に生成する
+            Vector3 goalPosition = new Vector3(exitObjects[number].transform.position.x, 20f, exitObjects[number].transform.position.z);
+            MapManager.Instance.GoalMarkerCreate(goalPosition);
+
             foreach (GameObject f in flag)
             {
                 f.SetActive(true);
@@ -92,22 +85,19 @@ public class BreakerManager : MonoBehaviour
         }
     }
 
+    // 開いた扉を映すカメラ演出。演出中は Time.timeScale = 0 でゲームを止め、実時間で待つ
     private IEnumerator PlayExitCinematic(int exitIndex)
     {
-        // 対象カメラON
         exitCameras[exitIndex].enabled = true;
         playerCamera.enabled = false;
 
-        // 時間停止（または制御停止用のフラグ管理）
         Time.timeScale = 0f;
 
         yield return new WaitForSecondsRealtime(cinematicDuration);
 
-        // カメラ戻す
         exitCameras[exitIndex].enabled = false;
         playerCamera.enabled = true;
 
-        // 時間再開
         Time.timeScale = 1f;
     }
 }
