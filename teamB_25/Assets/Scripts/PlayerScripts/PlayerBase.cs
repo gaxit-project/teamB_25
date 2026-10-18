@@ -176,7 +176,6 @@ public class PlayerBase : MonoBehaviour
     {
         if (!countdownActive) return;
 
-        Debug.Log($"isFounding: {isFounding}, 見ている恐竜の数: {Dinosaur_Base.dinosLookingAtPlayer.Count}");
 
         if (IsRunning())
         {

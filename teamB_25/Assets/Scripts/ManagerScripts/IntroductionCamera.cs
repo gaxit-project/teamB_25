@@ -1,10 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Interactions;
-using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 導入シーンのカメラ切り替え演出。カメラを順番に切り替え、一周したら(またはスキップ入力で)
+/// Main シーンへ遷移する。
+/// 連携: AudioManager(導入SE), SceneChangeManager
+/// </summary>
 public class IntroductionCamera : MonoBehaviour
 {
     [Tooltip("切り替え順に並べたカメラ")]
@@ -15,22 +16,16 @@ public class IntroductionCamera : MonoBehaviour
     private float timer = 0f;
     private bool initialized = false;
 
-    /// <summary>
-    ///  初期化
-    /// </summary>
+    // 最初のカメラだけを表示し、導入SEを再生する。二重初期化は防ぐ
     public void InitializeIntro()
     {
-        Debug.Log($"InitializeIntro called. timer={timer}, currentIndex={currentIndex}, initialized={initialized}");
-
-
-        if (initialized) return; // 初期化済みなら再初期化を防ぐ
-
-        Debug.Log("Intro初期化開始");
-
-        AudioManager.Instance.PlaySE("Radio", transform.position);
-        Debug.Log("SE");
-
+        if (initialized) return;
         initialized = true;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE("Radio", transform.position);
+        }
 
         if (cameras == null || cameras.Length == 0)
         {
@@ -39,12 +34,10 @@ public class IntroductionCamera : MonoBehaviour
         }
 
         for (int i = 0; i < cameras.Length; i++)
-            cameras[i].enabled = (i == 0);　// 最初のカメラをオン
+            cameras[i].enabled = (i == 0);
 
-        currentIndex = 0; // カメラをリセット
-        timer = 0f;　//　タイマーをリセット
-
-        initialized = true;
+        currentIndex = 0;
+        timer = 0f;
     }
 
     private void OnEnable()
@@ -53,34 +46,37 @@ public class IntroductionCamera : MonoBehaviour
         StartCoroutine(DelayedInitializeIntro());
     }
 
+    // 他のオブジェクトの初期化が済むよう、1フレーム待ってから初期化する
     private IEnumerator DelayedInitializeIntro()
     {
-        yield return null;  // 1フレーム待つ
+        yield return null;
 
-        InitializeIntro();   // ここでSE再生などの初期化を呼ぶ
+        InitializeIntro();
     }
 
-
-
-    // Update is called once per frame
     void Update()
     {
+        // スキップ入力(Space / ゲームパッドのボタン7)。再生中の導入SEは
+        // AudioManager の子オブジェクトとして存在するので、削除して止めてから遷移する
         if (Input.GetKeyDown("joystick button 7") || Input.GetKeyDown(KeyCode.Space))
         {
-            // 既存の SE オブジェクトを削除
-            foreach (Transform child in AudioManager.Instance.transform)
+            if (AudioManager.Instance != null)
             {
-                Destroy(child.gameObject);
+                foreach (Transform child in AudioManager.Instance.transform)
+                {
+                    Destroy(child.gameObject);
+                }
             }
             SceneChangeManager.Instance.ChangeScene("Main");
+            return;
         }
+
+        if (cameras == null || cameras.Length == 0) return;
 
         timer += Time.deltaTime;
 
-
         if (timer >= switchInterval)
         {
-            // 現在のカメラをOFF
             cameras[currentIndex].enabled = false;
 
             // 次のカメラに切り替え(ループ)

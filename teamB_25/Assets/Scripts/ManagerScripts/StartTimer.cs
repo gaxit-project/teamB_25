@@ -51,8 +51,6 @@ public class StartTimer : MonoBehaviour
 
     void StartPlay()
     {
-        Debug.Log("Start!");
-
         // 他のコンポーネントへフラグ通知
         TimerManager.countdownActive = true;
         if (player != null)
